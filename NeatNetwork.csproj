@@ -44,6 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Library\DiskHandler.cs" />
+    <Compile Include="NetworkFiles\Activation.cs" />
+    <Compile Include="NetworkFiles\Cost.cs" />
+    <Compile Include="NetworkFiles\Derivatives.cs" />
     <Compile Include="NetworkFiles\Neuron.cs" />
     <Compile Include="NetworkFiles\NeuronConnectionsInfo.cs" />
     <Compile Include="Program.cs" />
