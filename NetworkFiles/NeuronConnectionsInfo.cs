@@ -6,19 +6,20 @@ namespace NeatNetwork.Libraries
 {
     public class NeuronConnectionsInfo
     {
-        internal List<Point> connectedNeuronsPos;
-        internal List<double> weights;
+        public int Length => ConnectedNeuronsPos.Count;
+        internal List<Point> ConnectedNeuronsPos { get; private set; }
+        internal List<double> Weights { get; private set; }
 
         internal NeuronConnectionsInfo()
         {
-            weights = new List<double>();
-            connectedNeuronsPos = new List<Point>();
+            Weights = new List<double>();
+            ConnectedNeuronsPos = new List<Point>();
         }
 
         internal NeuronConnectionsInfo(List<Point> connectedNeuronsPos, List<double> weights)
         {
-            this.connectedNeuronsPos = connectedNeuronsPos;
-            this.weights = weights;
+            this.ConnectedNeuronsPos = connectedNeuronsPos;
+            this.Weights = weights;
         }
 
         /// <summary>
@@ -34,15 +35,15 @@ namespace NeatNetwork.Libraries
         /// </summary>
         internal void AddNewConnection(int layerIndex, int neuronIndex, double weight)   
         {
-            connectedNeuronsPos.Add(new Point(layerIndex, neuronIndex));
-            weights.Add(weight);
+            ConnectedNeuronsPos.Add(new Point(layerIndex, neuronIndex));
+            Weights.Add(weight);
         }
 
         internal void AdjustToNewLayerBeingAdded(int layerInsertionIndex, bool isinsertedInPreviousLayer, int insertedLayerLength, double minWeight, double maxWeight, double weightClosestTo0)
         {
-            for (int i = 0; i < connectedNeuronsPos.Count; i++)
+            for (int i = 0; i < ConnectedNeuronsPos.Count; i++)
             {
-                connectedNeuronsPos[i].Offset(Convert.ToInt32(layerInsertionIndex <= connectedNeuronsPos[i].X), 0);
+                ConnectedNeuronsPos[i].Offset(Convert.ToInt32(layerInsertionIndex <= ConnectedNeuronsPos[i].X), 0);
             }
 
             if (!isinsertedInPreviousLayer)
