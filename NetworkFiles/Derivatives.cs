@@ -1,8 +1,8 @@
 ﻿using System;
-using static NN.Libraries.Cost;
-using static NN.Libraries.Activation;
+using static NeatNetwork.Libraries.Cost;
+using static NeatNetwork.Libraries.Activation;
 
-namespace NN.Libraries
+namespace NeatNetwork.Libraries
 {
     public static class Derivatives
     {

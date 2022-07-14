@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using static NN.NN;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NN.Libraries
+namespace NeatNetwork.Libraries
 {
     public class Cost
     {
