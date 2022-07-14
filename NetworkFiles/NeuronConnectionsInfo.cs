@@ -38,6 +38,22 @@ namespace NeatNetwork.Libraries
             weights.Add(weight);
         }
 
+        internal void AdjustToNewLayerBeingAdded(int layerInsertionIndex, bool isinsertedInPreviousLayer, int insertedLayerLength, double minWeight, double maxWeight, double weightClosestTo0)
+        {
+            for (int i = 0; i < connectedNeuronsPos.Count; i++)
+            {
+                connectedNeuronsPos[i].Offset(Convert.ToInt32(layerInsertionIndex <= connectedNeuronsPos[i].X), 0);
+            }
+
+            if (!isinsertedInPreviousLayer)
+                return;
+
+            for (int i = 0; i < insertedLayerLength; i++)
+            {
+                AddNewConnection(layerInsertionIndex, i, minWeight, maxWeight, weightClosestTo0);
+            }
+        }
+
 
         static int randomI = int.MinValue;
 
@@ -49,14 +65,18 @@ namespace NeatNetwork.Libraries
             (minValue, maxValue) = (Math.Min(minValue, maxValue), Math.Max(minValue, maxValue));
 
             double v;
+            // set is negative to -1 or 1
             int isNegative = r.Next(0, 2);
             isNegative -= Convert.ToInt32(isNegative == 0);
+
+            //if max value is negative convert is negative to -1
             isNegative -= 2 * Convert.ToInt32(maxValue < 0);
+            //if min value is positive convert is negative to 1
             isNegative += 2 * Convert.ToInt32(minValue > 0);
 
             valueClosestTo0 = Math.Abs(valueClosestTo0);
 
-            // Set value closest to 0 to the extreme value only if both values are positive or negative
+            // Set value closest to 0 to the closest value to 0 in respect with min/max value only if both values are positive or negative
             valueClosestTo0 += (minValue - valueClosestTo0) * Convert.ToInt32(minValue > 0);
             valueClosestTo0 -= (valueClosestTo0 - maxValue) * Convert.ToInt32(maxValue < 0);
 
