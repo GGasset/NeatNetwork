@@ -6,7 +6,7 @@ namespace NeatNetwork.Libraries
 {
     public class NeuronConnectionsInfo
     {
-        public int Length => ConnectedNeuronsPos.Count;
+        public int Length => Weights.Count;
         internal List<Point> ConnectedNeuronsPos { get; private set; }
         internal List<double> Weights { get; private set; }
 
