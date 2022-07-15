@@ -48,8 +48,10 @@
     <Compile Include="NetworkFiles\Activation.cs" />
     <Compile Include="NetworkFiles\Cost.cs" />
     <Compile Include="NetworkFiles\Derivatives.cs" />
+    <Compile Include="NetworkFiles\GradientValues.cs" />
     <Compile Include="NetworkFiles\Neuron.cs" />
     <Compile Include="NetworkFiles\NeuronConnectionsInfo.cs" />
+    <Compile Include="NN.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
