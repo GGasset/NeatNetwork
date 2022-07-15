@@ -38,5 +38,10 @@ namespace NeatNetwork.NetworkFiles
             output = Activation.Activate(output, activationFunction);
             return output;
         }
+
+        internal GradientValues GetGradients(List<double[]> linearFunctions, List<double[]> neuronOutputs)
+        {
+
+        }
     }
 }
