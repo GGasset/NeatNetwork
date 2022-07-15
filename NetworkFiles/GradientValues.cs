@@ -11,12 +11,14 @@ namespace NeatNetwork.NetworkFiles
     {
         internal List<Point> previousActivationGradientsPosition;
         internal List<double> previousActivationGradients;
-        internal double[] weightGradients;
+        internal List<double> weightGradients;
         internal double biasGradient;
 
         public GradientValues()
         {
-
+            previousActivationGradientsPosition = new List<Point>();
+            previousActivationGradients = new List<double>();
+            weightGradients = new List<double>();
         }
     }
 }

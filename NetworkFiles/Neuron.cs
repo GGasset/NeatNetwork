@@ -39,9 +39,23 @@ namespace NeatNetwork.NetworkFiles
             return output;
         }
 
-        internal GradientValues GetGradients(List<double[]> linearFunctions, List<double[]> neuronOutputs)
+        internal GradientValues GetGradients(int layerIndex, int neuronIndex, double cost, List<double[]> linearFunctions, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
         {
+            GradientValues output = new GradientValues();
+            double activationDerivative = Derivatives.DerivativeOf(linearFunctions[layerIndex][neuronIndex], activation);
+            double activationGradient = cost * activationDerivative;
 
+            output.biasGradient = activationGradient;
+
+            for (int i = 0; i < connections.Length; i++)
+            {
+                Point currentConnectionPos = connections.ConnectedNeuronsPos[i];
+                output.weightGradients.Add(activationGradient * neuronOutputs[currentConnectionPos.X][currentConnectionPos.Y]);
+                
+                output.previousActivationGradientsPosition.Add(currentConnectionPos);
+                output.previousActivationGradients.Add(activationGradient * connections.Weights[i]);
+            }
+            return output;
         }
     }
 }
