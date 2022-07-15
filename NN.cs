@@ -2,9 +2,6 @@
 using NeatNetwork.NetworkFiles;
 using NeatNetwork.Libraries;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NeatNetwork
 {
@@ -15,6 +12,7 @@ namespace NeatNetwork
         /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
+        internal int InputLength => Neurons[0][0].connections.Length;
         internal List<List<double>> MaxMutationGrid;
         internal double MaxMutationOfMutationValues;
         internal double MaxMutationOfMutationValueOfMutationValues;
@@ -80,6 +78,25 @@ namespace NeatNetwork
             }
 
             return neuronOutputs[neuronOutputs.Count - 1];
+        }
+
+
+
+        internal List<double[]> GetEmptyNeuronCostsGrid()
+        {
+            List<double[]> output = new List<double[]>();
+
+            for (int i = 0; i < Neurons.Count; i++)
+            {
+                int layerLength = Neurons[i].Count;
+                output.Add(new double[layerLength]);
+                for (int j = 0; j < layerLength; j++)
+                {
+                    output[i][j] = 0;
+                }
+            }
+
+            return output;
         }
     }
 }
