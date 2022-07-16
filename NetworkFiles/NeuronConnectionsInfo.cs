@@ -73,12 +73,12 @@ namespace NeatNetwork.Libraries
             //if max value is negative convert is negative to -1
             isNegative -= 2 * Convert.ToInt32(maxValue < 0);
             //if min value is positive convert is negative to 1
-            isNegative += 2 * Convert.ToInt32(minValue > 0);
+            isNegative += 2 * Convert.ToInt32(minValue >= 0);
 
             valueClosestTo0 = Math.Abs(valueClosestTo0);
 
             // Set value closest to 0 to the closest value to 0 in respect with min/max value only if both values are positive or negative
-            valueClosestTo0 += (minValue - valueClosestTo0) * Convert.ToInt32(minValue > 0);
+            valueClosestTo0 += (minValue - valueClosestTo0) * Convert.ToInt32(minValue >= 0);
             valueClosestTo0 -= (valueClosestTo0 - maxValue) * Convert.ToInt32(maxValue < 0);
 
             v = valueClosestTo0 * isNegative;
