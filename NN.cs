@@ -14,6 +14,7 @@ namespace NeatNetwork
         /// </summary>
         internal List<List<Neuron>> Neurons;
         internal int InputLength => Neurons[0][0].connections.Length;
+        public int LayerCount => Neurons.Count;
         internal List<List<double>> MaxMutationGrid;
         internal double MaxMutationOfMutationValues;
         internal double MaxMutationOfMutationValueOfMutationValues;
@@ -93,7 +94,7 @@ namespace NeatNetwork
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="linearFunctions">This doesn't include input</param>
+        /// <param name="linearFunctions">Doesn't include input</param>
         /// <param name="neuronActivations">Includes input</param>
         /// <param name="costs"></param>
         /// <returns></returns>
@@ -124,6 +125,13 @@ namespace NeatNetwork
                 }
             }
             return output;
+        }
+
+        internal void SubtractGrads(List<List<GradientValues>> gradients)
+        {
+            for (int i = 0; i < LayerCount; i++)
+                for (int j = 0; j < Neurons[i].Count; j++)
+                    Neurons[i][j].SubtractGrads(gradients[i][j]);
         }
 
         internal List<double[]> GetNeuronCostsGrid(double[] outputCosts)
