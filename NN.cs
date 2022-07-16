@@ -54,12 +54,12 @@ namespace NeatNetwork
         /// 
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="neuronOutputs">first array corresponds to input</param>
+        /// <param name="neuronActiivations">first array corresponds to input</param>
         /// <param name="linearFunctions">first array corresponds to the next layer of input layer</param>
         /// <returns></returns>
-        internal double[] Execute(double[] input, out List<double[]> neuronOutputs, out List<double[]> linearFunctions)
+        internal double[] Execute(double[] input, out List<double[]> linearFunctions, out List<double[]> neuronActiivations)
         {
-            neuronOutputs = new List<double[]>
+            neuronActiivations = new List<double[]>
             {
                 input
             };
@@ -72,14 +72,54 @@ namespace NeatNetwork
                 double[] layerLinears = new double[layerLength];
                 for (int j = 0; j < layerLength; j++)
                 {
-                    layerOutput[j] = Neurons[i][j].Execute(neuronOutputs, Activation, out double linear);
+                    layerOutput[j] = Neurons[i][j].Execute(neuronActiivations, Activation, out double linear);
                     layerLinears[j] = linear;
                 }
                 linearFunctions.Add(layerLinears);
-                neuronOutputs.Add(layerOutput);
+                neuronActiivations.Add(layerOutput);
             }
 
-            return neuronOutputs[neuronOutputs.Count - 1];
+            return neuronActiivations[neuronActiivations.Count - 1];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="y"></param>
+        /// <param name="costFunction">you must select a supervised learning cost function.</param>
+        /// <returns>Mean cost</returns>
+        internal double SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, out List<double> meanCosts)
+        {
+            if (X.Count != y.Count)
+                throw new IndexOutOfRangeException();
+
+            List<List<GradientValues[]>> gradients = new List<List<GradientValues[]>>();
+            meanCosts = new List<double>();
+            double meanCost = 0;
+            for (int i = 0; i < X.Count; i++)
+            {
+                gradients.Add(GetSupervisedGradients(X[i], y[i], costFunction, out double executionMeanCost));
+                meanCosts.Add(executionMeanCost);
+                meanCost += executionMeanCost;
+            }
+            meanCost /= X.Count;
+
+            foreach (var currentNetworkGradients in gradients)
+            {
+                SubtractGrads(currentNetworkGradients);
+            }
+
+            return meanCost;
+        }
+
+        internal List<GradientValues[]> GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction, out double meanCost)
+        {
+            double[] output = Execute(X, out List<double[]> neuronLinears, out List<double[]> neuronActivations);
+            double[] costGradients = Derivatives.DerivativeOf(output, y, costFunction);
+            meanCost = Cost.GetCost(output, y, costFunction);
+
+            return GetGradients(neuronLinears, neuronActivations, costGradients);
         }
 
         /// <summary>
@@ -127,7 +167,7 @@ namespace NeatNetwork
             return output;
         }
 
-        internal void SubtractGrads(List<List<GradientValues>> gradients)
+        internal void SubtractGrads(List<GradientValues[]> gradients)
         {
             for (int i = 0; i < LayerCount; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
