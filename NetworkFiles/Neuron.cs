@@ -11,7 +11,7 @@ namespace NeatNetwork.NetworkFiles
 {
     public class Neuron
     {
-        public int connectionsLength => connections.Length;
+        public int ConnectionsLength => connections.Length;
         internal NeuronConnectionsInfo connections;
         internal double bias;
 
@@ -62,7 +62,7 @@ namespace NeatNetwork.NetworkFiles
         internal void SubtractGrads(GradientValues gradients)
         {
             bias -= gradients.biasGradient;
-            for (int i = 0; i < connectionsLength; i++)
+            for (int i = 0; i < ConnectionsLength; i++)
                 connections.Weights[i] -= gradients.weightGradients[i];
         }
     }
