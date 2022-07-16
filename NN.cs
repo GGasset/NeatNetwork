@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using NeatNetwork.NetworkFiles;
 using NeatNetwork.Libraries;
-using System.Collections.Generic;
 
 namespace NeatNetwork
 {
@@ -80,13 +81,56 @@ namespace NeatNetwork
             return neuronOutputs[neuronOutputs.Count - 1];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="linearFunctions">This doesn't include input</param>
+        /// <param name="neuronActivations">Includes input</param>
+        /// <param name="costs"></param>
+        /// <returns></returns>
+        internal List<GradientValues[]> GetGradients(List<double[]> linearFunctions, List<double[]> neuronActivations, double[] costs) => GetGradients(linearFunctions, neuronActivations, costs, out _);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="linearFunctions">This doesn't include input</param>
+        /// <param name="neuronActivations">Includes input</param>
+        /// <param name="costs"></param>
+        /// <returns></returns>
+        internal List<GradientValues[]> GetGradients(List<double[]> linearFunctions, List<double[]> neuronActivations, double[] costs, out double[] inputCosts)
+        {
+            List<GradientValues[]> output = new List<GradientValues[]>();
+            inputCosts = new double[neuronActivations[0].Length];
+            List<double[]> costGrid = GetNeuronCostsGrid(costs);
 
-        internal List<double[]> GetEmptyNeuronCostsGrid()
+            for (int i = Neurons.Count - 1; i >= 0; i--)
+            {
+                int layerLength = Neurons[i].Count;
+                output.Add(new GradientValues[layerLength]);
+                for (int j = 0; j < layerLength; j++)
+                {
+                    GradientValues currentGradients = Neurons[i][j].GetGradients(i, j, costGrid[i][j], linearFunctions, neuronActivations, Activation);
+                    output[i][j] = currentGradients;
+
+                    // update grid / set input costs
+                    for (int k = 0; k < currentGradients.previousActivationGradients.Count; k++)
+                    {
+                        Point connectedPos = currentGradients.previousActivationGradientsPosition[k];
+                        double currentConnectedGradient = currentGradients.previousActivationGradients[k];
+
+                        costGrid[connectedPos.X][connectedPos.Y] -= currentConnectedGradient;
+                        inputCosts[Math.Min(connectedPos.Y, inputCosts.Length - 1)] -= currentConnectedGradient * Convert.ToInt32(connectedPos.Y == 0);
+                    }
+                }
+            }
+            return output;
+        }
+
+        internal List<double[]> GetNeuronCostsGrid(double[] outputCosts)
         {
             List<double[]> output = new List<double[]>();
 
-            for (int i = 0; i < Neurons.Count; i++)
+            for (int i = 0; i < Neurons.Count - 1; i++)
             {
                 int layerLength = Neurons[i].Count;
                 output.Add(new double[layerLength]);
@@ -94,6 +138,13 @@ namespace NeatNetwork
                 {
                     output[i][j] = 0;
                 }
+            }
+
+            int outputLayerLength = Neurons[Neurons.Count - 1].Count;
+            output.Add(new double[outputLayerLength]);
+            for (int i = 0; i < outputLayerLength; i++)
+            {
+                output[Neurons.Count - 1][i] = outputCosts[i];
             }
 
             return output;
