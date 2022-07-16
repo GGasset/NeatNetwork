@@ -22,10 +22,6 @@ namespace NeatNetwork.Libraries
         /// <param name="expected">In case of Reinforcement learning/logLikelyhood expected is reward</param>
         public static double DerivativeOf(double neuronActivation, double expected, CostFunctions costFunction)
         {
-            if (double.IsNaN(expected))
-            {
-                return 0;
-            }
             switch (costFunction)
             {
                 case CostFunctions.BinaryCrossEntropy:
