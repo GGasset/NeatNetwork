@@ -41,6 +41,22 @@ namespace NeatNetwork.Libraries
             }
         }
 
+        /// <summary>
+        /// Get reinforcement learning cost
+        /// </summary>
+        /// <param name="reward"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        public static double[] GetCost(double reward, double[] output)
+        {
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = LogLikelyhoodLoss(reward, output[i]);
+            }
+
+            return output;
+        }
+
         public static double LogLikelyhoodLoss(double reward, double output) => 1 - reward * Math.Log(1 - output) + reward * Math.Log(reward);
     }
 }
