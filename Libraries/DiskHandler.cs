@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 
-namespace NN.Libraries
+namespace NeatNetwork.Libraries
 {
     public static class DiskHandler
     {
