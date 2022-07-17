@@ -18,6 +18,13 @@ namespace NeatNetwork
 
 
         internal List<List<double>> MaxMutationGrid;
+        internal double MaxWeight;
+        internal double MinWeight;
+        internal double ValueClosestTo0;
+        internal double NewBiasValue;
+        internal double NewNeuronChance;
+        internal double NewLayerChance;
+        internal bool NewNeuronHasPriorityOverNewLayer;
         internal double MaxMutationOfMutationValues;
         internal double MaxMutationOfMutationValueOfMutationValues;
         internal double MutationProbability;
@@ -28,7 +35,8 @@ namespace NeatNetwork
         /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
         public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
-            double mutationChance = .10, double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
+            double mutationChance = .10, double newNeuronChance = .04, double newLayerChance = .01, bool newNeuronHasPriorityOverNewLayer = true,
+            double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
             MaxMutationGrid = new List<List<double>>();
@@ -47,9 +55,16 @@ namespace NeatNetwork
             }
 
             this.Activation = activation;
+            this.MaxWeight = maxWeight;
+            this.MinWeight = minWeight;
+            this.ValueClosestTo0 = weightClosestTo0;
+            this.NewBiasValue = startingBias;
             this.MaxMutationOfMutationValues = maxMutationOfMutationValues;
             this.MaxMutationOfMutationValueOfMutationValues = maxMutationOfMutationValueOfMutationValues;
-            MutationProbability = mutationChance;
+            this.MutationProbability = mutationChance;
+            this.NewNeuronChance = newNeuronChance;
+            this.NewLayerChance = newLayerChance;
+            this.NewNeuronHasPriorityOverNewLayer = newNeuronHasPriorityOverNewLayer;
         }
 
         internal double[] Execute(double[] input) => Execute(input, out _, out _);
@@ -85,6 +100,8 @@ namespace NeatNetwork
 
             return neuronActivations[neuronActivations.Count - 1];
         }
+
+        #region Gradient learning
 
         static int RandomI = int.MinValue / 2;
 
@@ -222,5 +239,18 @@ namespace NeatNetwork
 
             return output;
         }
+
+        #endregion
+
+
+        #region Evolution learning
+
+        internal void AddNewLayer(int layerInsertionIndex, int layerLength)
+        {
+
+        }
+
+        #endregion
+
     }
 }
