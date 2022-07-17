@@ -41,7 +41,7 @@ namespace NeatNetwork.NetworkFiles
         }
 
 
-        #region Supervised Unsupervised learning
+        #region Gradient learning
 
         internal GradientValues GetGradients(int layerIndex, int neuronIndex, double cost, List<double[]> linearFunctions, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
         {
