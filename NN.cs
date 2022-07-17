@@ -20,7 +20,7 @@ namespace NeatNetwork
         internal List<List<double>> MaxMutationGrid;
         internal double MaxWeight;
         internal double MinWeight;
-        internal double ValueClosestTo0;
+        internal double WeightClosestTo0;
         internal double NewBiasValue;
         internal double NewNeuronChance;
         internal double NewLayerChance;
@@ -57,7 +57,7 @@ namespace NeatNetwork
             this.Activation = activation;
             this.MaxWeight = maxWeight;
             this.MinWeight = minWeight;
-            this.ValueClosestTo0 = weightClosestTo0;
+            this.WeightClosestTo0 = weightClosestTo0;
             this.NewBiasValue = startingBias;
             this.MaxMutationOfMutationValues = maxMutationOfMutationValues;
             this.MaxMutationOfMutationValueOfMutationValues = maxMutationOfMutationValueOfMutationValues;
@@ -247,7 +247,16 @@ namespace NeatNetwork
 
         internal void AddNewLayer(int layerInsertionIndex, int layerLength)
         {
+            for (int i = layerInsertionIndex; i < Neurons.Count; i++)
+                for (int j = 0; j < Neurons[i].Count; j++)
+                    Neurons[i][j].connections.AdjustToNewLayerBeingAdded(layerInsertionIndex, i == layerInsertionIndex, layerLength, this.MinWeight, this.MaxWeight, this.WeightClosestTo0);
 
+            int previousLayerLength = layerInsertionIndex > 0 ? Neurons[layerInsertionIndex - 1].Count : InputLength;
+            List<Neuron> layer = new List<Neuron>();
+            for (int i = 0; i < layerLength; i++)
+            {
+                layer.Add(new Neuron(layerInsertionIndex, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
+            }
         }
 
         #endregion
