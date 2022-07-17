@@ -43,7 +43,7 @@ namespace NeatNetwork.Libraries
         {
             for (int i = 0; i < ConnectedNeuronsPos.Count; i++)
             {
-                ConnectedNeuronsPos[i].Offset(Convert.ToInt32(layerInsertionIndex <= ConnectedNeuronsPos[i].X), 0);
+                ConnectedNeuronsPos[i].Offset(Convert.ToInt32(ConnectedNeuronsPos[i].X >= layerInsertionIndex), 0);
             }
 
             if (!isinsertedInPreviousLayer)
