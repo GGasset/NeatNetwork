@@ -15,6 +15,8 @@ namespace NeatNetwork
         internal List<List<Neuron>> Neurons;
         internal int InputLength => Neurons[0][0].connections.Length;
         public int LayerCount => Neurons.Count;
+
+
         internal List<List<double>> MaxMutationGrid;
         internal double MaxMutationOfMutationValues;
         internal double MaxMutationOfMutationValueOfMutationValues;
@@ -25,7 +27,8 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
-        public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, double mutationChance = .10, double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
+        public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
+            double mutationChance = .10, double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
             MaxMutationGrid = new List<List<double>>();
@@ -92,7 +95,7 @@ namespace NeatNetwork
         /// <param name="y"></param>
         /// <param name="costFunction">you must select a supervised learning cost function.</param>
         /// <returns>Mean cost</returns>
-        internal double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction) => SupervisedLearningBatch(X, y, batchLength, costFunction, out _);
+        internal double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction, double learningRate) => SupervisedLearningBatch(X, y, batchLength, costFunction, learningRate, out _);
 
         /// <summary>
         /// 
@@ -101,7 +104,7 @@ namespace NeatNetwork
         /// <param name="y"></param>
         /// <param name="costFunction">you must select a supervised learning cost function.</param>
         /// <returns>Mean cost</returns>
-        internal double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction, out List<double> meanCosts)
+        internal double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction, double learningRate, out List<double> meanCosts)
         {
             if (X.Count != y.Count)
                 throw new IndexOutOfRangeException();
@@ -122,7 +125,7 @@ namespace NeatNetwork
 
             foreach (var currentNetworkGradients in gradients)
             {
-                SubtractGrads(currentNetworkGradients);
+                SubtractGrads(currentNetworkGradients, learningRate);
             }
 
             return meanCost;
@@ -190,7 +193,7 @@ namespace NeatNetwork
             return output;
         }
 
-        internal void SubtractGrads(List<GradientValues[]> gradients, double learningRate = .75)
+        internal void SubtractGrads(List<GradientValues[]> gradients, double learningRate)
         {
             for (int i = 0; i < LayerCount; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
@@ -199,9 +202,10 @@ namespace NeatNetwork
 
         internal List<double[]> GetNeuronCostsGrid(double[] outputCosts)
         {
-            List<double[]> output = new List<double[]>();
-
-            output.Add(new double[InputLength]);
+            List<double[]> output = new List<double[]>
+            {
+                new double[InputLength]
+            };
 
             for (int i = 0; i < Neurons.Count; i++)
             {
