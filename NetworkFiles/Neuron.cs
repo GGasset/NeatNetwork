@@ -40,6 +40,9 @@ namespace NeatNetwork.NetworkFiles
             return output;
         }
 
+
+        #region Supervised Unsupervised learning
+
         internal GradientValues GetGradients(int layerIndex, int neuronIndex, double cost, List<double[]> linearFunctions, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
         {
             GradientValues output = new GradientValues();
@@ -52,7 +55,7 @@ namespace NeatNetwork.NetworkFiles
             {
                 Point currentConnectionPos = connections.ConnectedNeuronsPos[i];
                 output.weightGradients.Add(activationGradient * neuronOutputs[currentConnectionPos.X][currentConnectionPos.Y]);
-                
+
                 output.previousActivationGradientsPosition.Add(currentConnectionPos);
                 output.previousActivationGradients.Add(activationGradient * connections.Weights[i]);
             }
@@ -65,5 +68,9 @@ namespace NeatNetwork.NetworkFiles
             for (int i = 0; i < ConnectionsLength; i++)
                 connections.Weights[i] -= gradients.weightGradients[i] * learningRate;
         }
+
+        #endregion
+
+
     }
 }
