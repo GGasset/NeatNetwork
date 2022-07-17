@@ -83,6 +83,7 @@ namespace NeatNetwork.Libraries
 
             v = valueClosestTo0 * isNegative;
             double randomness = r.NextDouble();
+            // from v which equals valueClosestTo0 move up to max value or min value depending if its negative
             v += (randomness * (maxValue - valueClosestTo0)) * Convert.ToInt32(isNegative == 1);
             v -= (randomness * (minValue + valueClosestTo0)) * Convert.ToInt32(isNegative == -1);
 
