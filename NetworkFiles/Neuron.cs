@@ -59,11 +59,11 @@ namespace NeatNetwork.NetworkFiles
             return output;
         }
 
-        internal void SubtractGrads(GradientValues gradients)
+        internal void SubtractGrads(GradientValues gradients, double learningRate)
         {
-            bias -= gradients.biasGradient;
+            bias -= gradients.biasGradient * learningRate;
             for (int i = 0; i < ConnectionsLength; i++)
-                connections.Weights[i] -= gradients.weightGradients[i];
+                connections.Weights[i] -= gradients.weightGradients[i] * learningRate;
         }
     }
 }

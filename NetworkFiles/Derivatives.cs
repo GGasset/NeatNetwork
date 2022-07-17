@@ -72,7 +72,7 @@ namespace NeatNetwork.Libraries
 
         public static int ReluDerivative(double neuronActivation) => 1 * Convert.ToInt32(neuronActivation >= 0);
 
-        public static double TanhDerivative(double neuronActivation) => 1 - Math.Pow(Activation.TanhActivation(neuronActivation), 2);
+        public static double TanhDerivative(double neuronActivation) => 1 - Math.Pow(TanhActivation(neuronActivation), 2);
 
         public static double SinDerivative(double neuronActivation) => Math.Cos(neuronActivation);
 

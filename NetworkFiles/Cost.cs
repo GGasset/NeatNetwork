@@ -33,7 +33,6 @@ namespace NeatNetwork.Libraries
                     return Math.Pow(neuronOutput - expected, 2);
                 case CostFunctions.BinaryCrossEntropy:
                     throw new NotImplementedException();
-                    break;
                 case CostFunctions.logLikelyhoodTerm:
                     return LogLikelyhoodLoss(expected, neuronOutput);
                 default:
