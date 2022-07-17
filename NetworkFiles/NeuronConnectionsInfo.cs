@@ -67,13 +67,13 @@ namespace NeatNetwork.Libraries
 
             double v;
             // set is negative to -1 or 1
-            int isNegative = r.Next(0, 2);
-            isNegative -= Convert.ToInt32(isNegative == 0);
+            int isPositive = r.Next(0, 2);
+            isPositive -= Convert.ToInt32(isPositive == 0);
 
             //if max value is negative convert is negative to -1
-            isNegative -= 2 * Convert.ToInt32(maxValue < 0);
+            isPositive -= 2 * Convert.ToInt32(maxValue < 0);
             //if min value is positive convert is negative to 1
-            isNegative += 2 * Convert.ToInt32(minValue >= 0);
+            isPositive += 2 * Convert.ToInt32(minValue >= 0);
 
             valueClosestTo0 = Math.Abs(valueClosestTo0);
 
@@ -81,11 +81,11 @@ namespace NeatNetwork.Libraries
             valueClosestTo0 += (minValue - valueClosestTo0) * Convert.ToInt32(minValue >= 0);
             valueClosestTo0 -= (valueClosestTo0 - maxValue) * Convert.ToInt32(maxValue < 0);
 
-            v = valueClosestTo0 * isNegative;
+            v = valueClosestTo0 * isPositive;
             double randomness = r.NextDouble();
-            // from v which equals valueClosestTo0 move up to max value or min value depending if its negative
-            v += (randomness * (maxValue - valueClosestTo0)) * Convert.ToInt32(isNegative == 1);
-            v -= (randomness * (minValue + valueClosestTo0)) * Convert.ToInt32(isNegative == -1);
+            // from v which equals ValueClosestTo0 move up to max value or min value depending if its negative
+            v += randomness * (maxValue - valueClosestTo0) * Convert.ToInt32(isPositive == 1);
+            v += randomness * (minValue + valueClosestTo0) * Convert.ToInt32(isPositive == -1);
 
             return v;
         }
