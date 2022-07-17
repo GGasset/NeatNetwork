@@ -16,7 +16,7 @@ namespace NeatNetwork
         internal int InputLength => Neurons[0][0].connections.Length;
         public int LayerCount => Neurons.Count;
 
-
+        internal double InitialMaxMutationValue;
         internal List<List<double>> MaxMutationGrid;
         internal double MaxWeight;
         internal double MinWeight;
@@ -35,7 +35,7 @@ namespace NeatNetwork
         /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
         public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
-            double mutationChance = .10, double newNeuronChance = .04, double newLayerChance = .01, bool newNeuronHasPriorityOverNewLayer = true,
+            double mutationChance = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01, bool newNeuronHasPriorityOverNewLayer = true,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
@@ -253,10 +253,22 @@ namespace NeatNetwork
 
             int previousLayerLength = layerInsertionIndex > 0 ? Neurons[layerInsertionIndex - 1].Count : InputLength;
             List<Neuron> layer = new List<Neuron>();
+            List<double> layerMaxMutationGrid = new List<double>();
             for (int i = 0; i < layerLength; i++)
             {
                 layer.Add(new Neuron(layerInsertionIndex, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
+                layerMaxMutationGrid.Add(InitialMaxMutationValue);
             }
+
+            Neurons.Insert(layerInsertionIndex, layer);
+            MaxMutationGrid.Insert(layerInsertionIndex, layerMaxMutationGrid);
+        }
+
+        internal void AddNewNeuron(int layerInsertionIndex)
+        {
+            int previousLayerLength = layerInsertionIndex > 0 ? Neurons[layerInsertionIndex - 1].Count : InputLength;
+            Neurons[layerInsertionIndex].Add(new Neuron(layerInsertionIndex, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
+            MaxMutationGrid[layerInsertionIndex].Add(InitialMaxMutationValue);
         }
 
         #endregion
