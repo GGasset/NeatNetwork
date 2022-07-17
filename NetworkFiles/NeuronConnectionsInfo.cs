@@ -58,7 +58,7 @@ namespace NeatNetwork.Libraries
 
         static int randomI = int.MinValue;
 
-        public static double GenerateWeight(double minValue, double maxValue, double valueClosestTo0)
+        public static double GenerateWeight(double minValue, double maxValue, double weightClosestTo0)
         {
             Random r = new Random(DateTime.Now.Millisecond + randomI);
             randomI++;
@@ -75,17 +75,17 @@ namespace NeatNetwork.Libraries
             //if min value is positive convert is negative to 1
             isPositive += 2 * Convert.ToInt32(minValue >= 0);
 
-            valueClosestTo0 = Math.Abs(valueClosestTo0);
+            weightClosestTo0 = Math.Abs(weightClosestTo0);
 
             // Set value closest to 0 to the closest value to 0 in respect with min/max value only if both values are positive or negative
-            valueClosestTo0 += (minValue - valueClosestTo0) * Convert.ToInt32(minValue >= 0);
-            valueClosestTo0 -= (valueClosestTo0 - maxValue) * Convert.ToInt32(maxValue < 0);
+            weightClosestTo0 += (minValue - weightClosestTo0) * Convert.ToInt32(minValue >= 0);
+            weightClosestTo0 -= (weightClosestTo0 - maxValue) * Convert.ToInt32(maxValue < 0);
 
-            v = valueClosestTo0 * isPositive;
+            v = weightClosestTo0 * isPositive;
             double randomness = r.NextDouble();
-            // from v which equals ValueClosestTo0 move up to max value or min value depending if its negative
-            v += randomness * (maxValue - valueClosestTo0) * Convert.ToInt32(isPositive == 1);
-            v += randomness * (minValue + valueClosestTo0) * Convert.ToInt32(isPositive == -1);
+            // from v which equals WeightClosestTo0 move up to max value or min value depending if its negative
+            v += randomness * (maxValue - weightClosestTo0) * Convert.ToInt32(isPositive == 1);
+            v += randomness * (minValue + weightClosestTo0) * Convert.ToInt32(isPositive == -1);
 
             return v;
         }
