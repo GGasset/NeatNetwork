@@ -278,8 +278,8 @@ namespace NeatNetwork
                     MaxMutationGrid[i][j] += GetVariation(-MaxMutationOfMutationValues, MaxMutationOfMutationValues) * WillMutate(MutationChance);
                 }
 
-            int insertionIndex = new Random(RandomI++).Next(Neurons.Count > 2 ? Neurons.Count : 1);
-            if (WillMutate(NewNeuronChance) == 1)
+            int insertionIndex = new Random(RandomI++).Next(Neurons.Count - 1);
+            if (WillMutate(NewNeuronChance) == 1 && Neurons.Count > 1)
                 AddNewNeuron(insertionIndex);
             else if (WillMutate(NewLayerChance) == 1)
                 AddNewLayer(insertionIndex, 1);
