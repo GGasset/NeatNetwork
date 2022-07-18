@@ -9,7 +9,7 @@ namespace NeatNetwork.Libraries
     {
         public int Length => Weights.Count;
         internal List<Point> ConnectedNeuronsPos { get; private set; }
-        internal List<double> Weights { get; private set; }
+        internal List<double> Weights;
 
         internal NeuronConnectionsInfo()
         {
@@ -52,6 +52,30 @@ namespace NeatNetwork.Libraries
             for (int i = 0; i < insertedLayerLength; i++)
             {
                 AddNewConnection(layerInsertionIndex, i, minWeight, maxWeight, weightClosestTo0);
+            }
+        }
+
+        internal new string ToString()
+        {
+            string str = "";
+            for (int i = 0; i < Weights.Count; i++)
+                str += $"Pos: {ConnectedNeuronsPos[i].X} {ConnectedNeuronsPos[i].Y} Weight: {Weights[i]}|";
+
+            return str;
+        }
+
+        public NeuronConnectionsInfo(string str)
+        {
+            ConnectedNeuronsPos = new List<Point>();
+            Weights = new List<double>();
+
+            str = str.Replace("Pos ", "").Replace(" Weight ", "");
+            string[] strs = str.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var connectionStr in strs)
+            {
+                string[] currentConnectionFields = connectionStr.Split(new char[] { ' ' });
+                ConnectedNeuronsPos.Add(new Point(Convert.ToInt32(currentConnectionFields[0]), Convert.ToInt32(currentConnectionFields[1])));
+                Weights.Add(Convert.ToDouble(currentConnectionFields[2]));
             }
         }
     }
