@@ -11,37 +11,37 @@ namespace NeatNetwork.NetworkFiles
 {
     public class Neuron
     {
-        public int ConnectionsLength => connections.Length;
-        internal NeuronConnectionsInfo connections;
-        internal double bias;
+        public int ConnectionsLength => Connections.Length;
+        internal NeuronConnectionsInfo Connections;
+        internal double Bias;
 
         public Neuron(NeuronConnectionsInfo connections, double bias)
         {
-            this.connections = connections;
-            this.bias = bias;
+            this.Connections = connections;
+            this.Bias = bias;
         }
 
         /// <param name="neuronLayerIndex">layer 0 is input layer</param>
         public Neuron(int neuronLayerIndex, double defaultBias, int previousLayerLenght, double maxWeight, double minWeight, double weightClosestTo0)
         {
-            bias = defaultBias;
-            connections = new NeuronConnectionsInfo();
+            Bias = defaultBias;
+            Connections = new NeuronConnectionsInfo();
             for (int i = 0; i < previousLayerLenght; i++)
             {
-                connections.AddNewConnection(neuronLayerIndex - 1, i, maxWeight, minWeight, weightClosestTo0);
+                Connections.AddNewConnection(neuronLayerIndex - 1, i, maxWeight, minWeight, weightClosestTo0);
             }
         }
 
         internal double Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction, out double linearFunction)
         {
             linearFunction = 0;
-            for (int i = 0; i < connections.Length; i++)
+            for (int i = 0; i < Connections.Length; i++)
             {
-                Point currentConnectedPos = connections.ConnectedNeuronsPos[i];
-                linearFunction += connections.Weights[i] * previousLayersActivations[currentConnectedPos.X][currentConnectedPos.Y];
+                Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
+                linearFunction += Connections.Weights[i] * previousLayersActivations[currentConnectedPos.X][currentConnectedPos.Y];
             }
 
-            double output = linearFunction + bias;
+            double output = linearFunction + Bias;
             output = Activation.Activate(output, activationFunction);
             return output;
         }
@@ -57,22 +57,22 @@ namespace NeatNetwork.NetworkFiles
 
             output.biasGradient = activationGradient;
 
-            for (int i = 0; i < connections.Length; i++)
+            for (int i = 0; i < Connections.Length; i++)
             {
-                Point currentConnectionPos = connections.ConnectedNeuronsPos[i];
+                Point currentConnectionPos = Connections.ConnectedNeuronsPos[i];
                 output.weightGradients.Add(activationGradient * neuronOutputs[currentConnectionPos.X][currentConnectionPos.Y]);
 
                 output.previousActivationGradientsPosition.Add(currentConnectionPos);
-                output.previousActivationGradients.Add(activationGradient * connections.Weights[i]);
+                output.previousActivationGradients.Add(activationGradient * Connections.Weights[i]);
             }
             return output;
         }
 
         internal void SubtractGrads(GradientValues gradients, double learningRate)
         {
-            bias -= gradients.biasGradient * learningRate;
+            Bias -= gradients.biasGradient * learningRate;
             for (int i = 0; i < ConnectionsLength; i++)
-                connections.Weights[i] -= gradients.weightGradients[i] * learningRate;
+                Connections.Weights[i] -= gradients.weightGradients[i] * learningRate;
         }
 
         #endregion
@@ -81,12 +81,27 @@ namespace NeatNetwork.NetworkFiles
 
         internal void Evolve(double mutationChance, double maxMutation)
         {
-            for (int i = 0; i < connections.Weights.Count; i++)
-                connections.Weights[i] += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+            for (int i = 0; i < Connections.Weights.Count; i++)
+                Connections.Weights[i] += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
 
-            bias += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+            Bias += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
         }
 
         #endregion
+
+        internal new string ToString()
+        {
+            string str = "";
+            str += $"Bias: {Bias}^ Connections: {Connections}";
+            return str;
+        }
+
+        public Neuron(string str)
+        {
+            str = str.Replace("Bias: ", "").Replace(" Connections: ", "");
+            string[] fieldStrs = str.Split(new char[] { '^' });
+            Bias = Convert.ToDouble(fieldStrs[0]);
+            Connections = new NeuronConnectionsInfo(fieldStrs[1]);
+        }
     }
 }
