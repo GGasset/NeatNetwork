@@ -71,6 +71,16 @@ namespace NeatNetwork.NetworkFiles
 
         #endregion
 
+        #region Evolution learning
 
+        internal void Evolve(double mutationChance, double maxMutation)
+        {
+            for (int i = 0; i < connections.Weights.Count; i++)
+                connections.Weights[i] += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+
+            bias += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+        }
+
+        #endregion
     }
 }

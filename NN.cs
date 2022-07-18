@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using NeatNetwork.NetworkFiles;
+using static NeatNetwork.Libraries.ValueGeneration;
 using NeatNetwork.Libraries;
 
 namespace NeatNetwork
@@ -24,10 +25,10 @@ namespace NeatNetwork
         internal double NewBiasValue;
         internal double NewNeuronChance;
         internal double NewLayerChance;
-        internal bool NewNeuronHasPriorityOverNewLayer;
+        internal double FieldMaxMutation;
         internal double MaxMutationOfMutationValues;
         internal double MaxMutationOfMutationValueOfMutationValues;
-        internal double MutationProbability;
+        internal double MutationChance;
 
         /// <summary>
         /// 
@@ -35,7 +36,7 @@ namespace NeatNetwork
         /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
         public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
-            double mutationChance = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01, bool newNeuronHasPriorityOverNewLayer = true,
+            double mutationChance = .1, double fieldMaxMutation = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
@@ -59,12 +60,13 @@ namespace NeatNetwork
             this.MinWeight = minWeight;
             this.WeightClosestTo0 = weightClosestTo0;
             this.NewBiasValue = startingBias;
+            this.InitialMaxMutationValue = initialMaxMutationValue;
             this.MaxMutationOfMutationValues = maxMutationOfMutationValues;
             this.MaxMutationOfMutationValueOfMutationValues = maxMutationOfMutationValueOfMutationValues;
-            this.MutationProbability = mutationChance;
+            this.MutationChance = mutationChance;
+            this.FieldMaxMutation = fieldMaxMutation;
             this.NewNeuronChance = newNeuronChance;
             this.NewLayerChance = newLayerChance;
-            this.NewNeuronHasPriorityOverNewLayer = newNeuronHasPriorityOverNewLayer;
         }
 
         internal double[] Execute(double[] input) => Execute(input, out _, out _);
@@ -242,10 +244,40 @@ namespace NeatNetwork
 
         #endregion
 
-
         #region Evolution learning
 
-        internal void AddNewLayer(int layerInsertionIndex, int layerLength)
+        internal void Evolve()
+        {
+            InitialMaxMutationValue += GetVariation(-MaxMutationOfMutationValues, MaxMutationOfMutationValues) * WillMutate(MutationChance);
+
+            MaxWeight += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+            MinWeight += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+            WeightClosestTo0 += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+
+            NewBiasValue += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+
+            NewNeuronChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+            NewLayerChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+
+            FieldMaxMutation += GetVariation(-MaxMutationOfMutationValues, MaxMutationOfMutationValues) * WillMutate(MutationChance);
+            MaxMutationOfMutationValues += GetVariation(-MaxMutationOfMutationValueOfMutationValues, MaxMutationOfMutationValueOfMutationValues) * WillMutate(MutationChance);
+            MutationChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
+
+            for (int i = 0; i < Neurons.Count; i++)
+                for (int j = 0; j < Neurons[i].Count; j++)
+                {
+                    Neurons[i][j].Evolve(MutationChance, MaxMutationGrid[i][j]);
+                    MaxMutationGrid[i][j] += GetVariation(-MaxMutationOfMutationValues, MaxMutationOfMutationValues) * WillMutate(MutationChance);
+                }
+
+            int insertionIndex = new Random(RandomI++).Next(Neurons.Count > 2 ? Neurons.Count : 1);
+            if (WillMutate(NewNeuronChance) == 1)
+                AddNewNeuron(insertionIndex);
+            else if (WillMutate(NewLayerChance) == 1)
+                AddNewLayer(insertionIndex, 1);
+        }
+
+        internal void AddNewLayer(int layerInsertionIndex, int layerLength) 
         {
             for (int i = layerInsertionIndex; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
