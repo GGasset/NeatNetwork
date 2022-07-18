@@ -59,7 +59,7 @@ namespace NeatNetwork.Libraries
         {
             string str = "";
             for (int i = 0; i < Weights.Count; i++)
-                str += $"Pos: {ConnectedNeuronsPos[i].X} {ConnectedNeuronsPos[i].Y} Weight: {Weights[i]}|";
+                str += $"Pos: {ConnectedNeuronsPos[i].X}*{ConnectedNeuronsPos[i].Y}* Weight: {Weights[i]}|";
 
             return str;
         }
@@ -73,7 +73,7 @@ namespace NeatNetwork.Libraries
             string[] strs = str.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var connectionStr in strs)
             {
-                string[] currentConnectionFields = connectionStr.Split(new char[] { ' ' });
+                string[] currentConnectionFields = connectionStr.Split(new char[] { '*' });
                 ConnectedNeuronsPos.Add(new Point(Convert.ToInt32(currentConnectionFields[0]), Convert.ToInt32(currentConnectionFields[1])));
                 Weights.Add(Convert.ToDouble(currentConnectionFields[2]));
             }
