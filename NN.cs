@@ -11,7 +11,7 @@ namespace NeatNetwork
     {
         internal Activation.ActivationFunctions Activation;
         /// <summary>
-        /// Input layer isn't instatiated
+        /// Input layerMaxMutation isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
         internal int InputLength => Neurons[0][0].Connections.Length;
@@ -30,18 +30,10 @@ namespace NeatNetwork
         internal double MaxMutationOfMutationValueOfMutationValues;
         internal double MutationChance;
 
-        internal new string ToString()
-        {
-            string str = "";
-
-            //str += 
-            str += "\n\n";
-        } 
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
+        /// <param name="layerLengths">Layer 0 in input layerMaxMutation and last layerMaxMutation is output layerMaxMutation</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
         public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
             double mutationChance = .1, double fieldMaxMutation = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01,
@@ -84,7 +76,7 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="input"></param>
         /// <param name="neuronActivations">first array corresponds to input</param>
-        /// <param name="linearFunctions">first array corresponds to the next layer of input layer</param>
+        /// <param name="linearFunctions">first array corresponds to the next layerMaxMutation of input layerMaxMutation</param>
         /// <returns></returns>
         internal double[] Execute(double[] input, out List<double[]> linearFunctions, out List<double[]> neuronActivations)
         {
@@ -109,6 +101,75 @@ namespace NeatNetwork
             }
 
             return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        internal new string ToString()
+        {
+            string str = "";
+
+            str += $"{InitialMaxMutationValue}\n{MaxWeight}\n{MinWeight}\n{WeightClosestTo0}\n{NewBiasValue}\n{NewNeuronChance}\n{NewLayerChance}\n{FieldMaxMutation}\n{MaxMutationOfMutationValues}\n" +
+                $"{MaxMutationOfMutationValueOfMutationValues}\n{MutationChance}\n";
+            str += "HIHI\n";
+            foreach (var layerMaxMutation in MaxMutationGrid)
+            {
+                foreach (var neuronMaxMutation in layerMaxMutation)
+                {
+                    str += $"{neuronMaxMutation},";
+                }
+                str += "\n-\n";
+            }
+            str += "HIHI\n";
+            foreach (var layer in Neurons)
+            {
+                foreach (var neuron in layer)
+                {
+                    str += neuron.ToString() + "-";
+                }
+                str += "\n-\n";
+            }
+            return str;
+        }
+
+        internal NN(string str)
+        {
+            string[] principalStrs = str.Split(new string[] { "HIHI\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            string[] fieldsStrs = principalStrs[0].Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            InitialMaxMutationValue = Convert.ToDouble(fieldsStrs[0]);
+            MaxWeight = Convert.ToDouble(fieldsStrs[1]);
+            MinWeight = Convert.ToDouble(fieldsStrs[2]);
+            WeightClosestTo0 = Convert.ToDouble(fieldsStrs[3]);
+            NewBiasValue = Convert.ToDouble(fieldsStrs[4]);
+            NewNeuronChance = Convert.ToDouble(fieldsStrs[5]);
+            NewLayerChance = Convert.ToDouble(fieldsStrs[6]);
+            FieldMaxMutation = Convert.ToDouble(fieldsStrs[7]);
+            MaxMutationOfMutationValues = Convert.ToDouble(fieldsStrs[8]);
+            MaxMutationOfMutationValueOfMutationValues = Convert.ToDouble(fieldsStrs[9]);
+            MutationChance = Convert.ToDouble(fieldsStrs[10]);
+
+            MaxMutationGrid = new List<List<double>>();
+            string[] maxMutationsLayersStrs = principalStrs[1].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < maxMutationsLayersStrs.Length; i++)
+            {
+                MaxMutationGrid.Add(new List<double>());
+                string[] currentLayerNeuronsMaxMutationsStrs = maxMutationsLayersStrs[i].Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var neuronMaxMutationStr in currentLayerNeuronsMaxMutationsStrs)
+                {
+                    MaxMutationGrid[i].Add(Convert.ToDouble(neuronMaxMutationStr));
+                }
+            }
+
+            Neurons = new List<List<Neuron>>();
+            string[] layerStrs = principalStrs[2].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int layerIndex = 0; layerIndex < layerStrs.Length; layerIndex++)
+            {
+                Neurons.Add(new List<Neuron>());
+                string[] currentLayerNeuronsStrs = layerStrs[layerIndex].Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries);
+                for (int neuronIndex = 0; neuronIndex < currentLayerNeuronsStrs.Length; neuronIndex++)
+                {
+                    Neurons[layerIndex].Add(new Neuron(currentLayerNeuronsStrs[neuronIndex]));
+                }
+            }
         }
 
         #region Gradient learning
@@ -243,7 +304,7 @@ namespace NeatNetwork
             int outputLayerLength = Neurons[Neurons.Count - 1].Count;
             for (int i = 0; i < outputLayerLength; i++)
             {
-                // Corresponds to output layer counting with input layer
+                // Corresponds to output layerMaxMutation counting with input layerMaxMutation
                 output[Neurons.Count][i] = outputCosts[i];
             }
 
