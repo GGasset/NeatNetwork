@@ -69,7 +69,7 @@ namespace NeatNetwork.Libraries
             ConnectedNeuronsPos = new List<Point>();
             Weights = new List<double>();
 
-            str = str.Replace("Pos ", "").Replace(" Weight ", "");
+            str = str.Replace("Pos: ", "").Replace(" Weight: ", "");
             string[] strs = str.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var connectionStr in strs)
             {
