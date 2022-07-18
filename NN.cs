@@ -30,6 +30,14 @@ namespace NeatNetwork
         internal double MaxMutationOfMutationValueOfMutationValues;
         internal double MutationChance;
 
+        internal new string ToString()
+        {
+            string str = "";
+
+            //str += 
+            str += "\n\n";
+        } 
+
         /// <summary>
         /// 
         /// </summary>
