@@ -25,6 +25,24 @@ namespace NeatNetwork.Libraries
             return output / networkOutput.Length;
         }
 
+        /// <summary>
+        /// This function is used for reinforcemetn learning only
+        /// </summary>
+        /// <param name="networkOutput"></param>
+        /// <param name="reward"></param>
+        /// <returns></returns>
+        public static double GetCost(double[] networkOutput, double reward)
+        {
+            double cost = 0;
+            for (int i = 0; i < networkOutput.Length; i++)
+            {
+                cost += GetCost(networkOutput[i], reward, CostFunctions.logLikelyhoodTerm);
+            }
+            cost /= networkOutput.Length;
+
+            return cost;
+        }
+
         public static double GetCost(double neuronOutput, double expected, CostFunctions costFunction)
         {
             switch (costFunction)
@@ -38,22 +56,6 @@ namespace NeatNetwork.Libraries
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        /// <summary>
-        /// Get reinforcement learning cost
-        /// </summary>
-        /// <param name="reward"></param>
-        /// <param name="output"></param>
-        /// <returns></returns>
-        public static double[] GetCost(double reward, double[] output)
-        {
-            for (int i = 0; i < output.Length; i++)
-            {
-                output[i] = LogLikelyhoodLoss(reward, output[i]);
-            }
-
-            return output;
         }
 
         public static double LogLikelyhoodLoss(double reward, double output) => 1 - reward * Math.Log(1 - output) + reward * Math.Log(reward);
