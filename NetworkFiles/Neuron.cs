@@ -15,6 +15,12 @@ namespace NeatNetwork.NetworkFiles
         internal NeuronConnectionsInfo connections;
         internal double bias;
 
+        public Neuron(NeuronConnectionsInfo connections, double bias)
+        {
+            this.connections = connections;
+            this.bias = bias;
+        }
+
         /// <param name="neuronLayerIndex">layer 0 is input layer</param>
         public Neuron(int neuronLayerIndex, double defaultBias, int previousLayerLenght, double maxWeight, double minWeight, double weightClosestTo0)
         {
