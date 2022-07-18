@@ -50,9 +50,11 @@ namespace NeatNetwork.Libraries
             return output;
         }
 
-        public static int WillMutate()
+        public static int WillMutate(double mutationChance)
         {
-            return new Random(++randomI + DateTime.Now.Millisecond).Next(0, 2);
+            Random r = new Random(++randomI + DateTime.Now.Millisecond);
+            double output = r.NextDouble();
+            return Convert.ToInt32(output <= mutationChance);
         }
     }
 }
