@@ -14,7 +14,7 @@ namespace NeatNetwork
         /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
-        internal int InputLength => Neurons[0][0].connections.Length;
+        internal int InputLength => Neurons[0][0].Connections.Length;
         public int LayerCount => Neurons.Count;
 
         internal double InitialMaxMutationValue;
@@ -281,7 +281,7 @@ namespace NeatNetwork
         {
             for (int i = layerInsertionIndex; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
-                    Neurons[i][j].connections.AdjustToNewLayerBeingAdded(layerInsertionIndex, i == layerInsertionIndex, layerLength, this.MinWeight, this.MaxWeight, this.WeightClosestTo0);
+                    Neurons[i][j].Connections.AdjustToNewLayerBeingAdded(layerInsertionIndex, i == layerInsertionIndex, layerLength, this.MinWeight, this.MaxWeight, this.WeightClosestTo0);
 
             int previousLayerLength = layerInsertionIndex > 0 ? Neurons[layerInsertionIndex - 1].Count : InputLength;
             List<Neuron> layer = new List<Neuron>();
