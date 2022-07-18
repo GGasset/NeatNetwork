@@ -19,6 +19,20 @@ namespace NeatNetwork.Libraries
             return costGrads;
         }
 
+        /// <summary>
+        /// This function is made for reinforcement learning
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="reward"></param>
+        /// <returns></returns>
+        public static double[] DerivativeOf(double[] output, double reward)
+        {
+            double[] costGrads = new double[output.Length];
+            for (int i = 0; i < costGrads.Length; i++)
+                costGrads[i] = DerivativeOf(output[i], reward, CostFunctions.logLikelyhoodTerm);
+            return costGrads;
+        }
+
         /// <param name="expected">In case of Reinforcement learning/logLikelyhood expected is reward</param>
         public static double DerivativeOf(double neuronActivation, double expected, CostFunctions costFunction)
         {
