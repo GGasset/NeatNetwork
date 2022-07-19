@@ -9,7 +9,7 @@ namespace NeatNetwork
 {
     public class NN
     {
-        internal Activation.ActivationFunctions Activation;
+        internal Activation.ActivationFunctions ActivationFunction;
         /// <summary>
         /// Input layerMaxMutation isn't instatiated
         /// </summary>
@@ -55,7 +55,7 @@ namespace NeatNetwork
                 }
             }
 
-            this.Activation = activation;
+            this.ActivationFunction = activation;
             this.MaxWeight = maxWeight;
             this.MinWeight = minWeight;
             this.WeightClosestTo0 = weightClosestTo0;
@@ -93,7 +93,7 @@ namespace NeatNetwork
                 double[] layerLinears = new double[layerLength];
                 for (int j = 0; j < layerLength; j++)
                 {
-                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, Activation, out double linear);
+                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out double linear);
                     layerLinears[j] = linear;
                 }
                 linearFunctions.Add(layerLinears);
@@ -108,7 +108,7 @@ namespace NeatNetwork
             string str = "";
 
             str += $"{InitialMaxMutationValue}\n{MaxWeight}\n{MinWeight}\n{WeightClosestTo0}\n{NewBiasValue}\n{NewNeuronChance}\n{NewLayerChance}\n{FieldMaxMutation}\n{MaxMutationOfMutationValues}\n" +
-                $"{MaxMutationOfMutationValueOfMutationValues}\n{MutationChance}\n";
+                $"{MaxMutationOfMutationValueOfMutationValues}\n{MutationChance}\n{Enum.GetName(typeof(Activation.ActivationFunctions), ActivationFunction)}\n";
             str += "HIHI\n";
             foreach (var layerMaxMutation in MaxMutationGrid)
             {
@@ -123,7 +123,7 @@ namespace NeatNetwork
             {
                 foreach (var neuron in layer)
                 {
-                    str += neuron.ToString() + "-";
+                    str += neuron.ToString() + "_";
                 }
                 str += "\n-\n";
             }
@@ -146,13 +146,14 @@ namespace NeatNetwork
             MaxMutationOfMutationValues = Convert.ToDouble(fieldsStrs[8]);
             MaxMutationOfMutationValueOfMutationValues = Convert.ToDouble(fieldsStrs[9]);
             MutationChance = Convert.ToDouble(fieldsStrs[10]);
+            ActivationFunction = (Activation.ActivationFunctions)Enum.Parse(typeof(Activation.ActivationFunctions), fieldsStrs[11]);
 
             MaxMutationGrid = new List<List<double>>();
             string[] maxMutationsLayersStrs = principalStrs[1].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < maxMutationsLayersStrs.Length; i++)
             {
                 MaxMutationGrid.Add(new List<double>());
-                string[] currentLayerNeuronsMaxMutationsStrs = maxMutationsLayersStrs[i].Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] currentLayerNeuronsMaxMutationsStrs = maxMutationsLayersStrs[i].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var neuronMaxMutationStr in currentLayerNeuronsMaxMutationsStrs)
                 {
                     MaxMutationGrid[i].Add(Convert.ToDouble(neuronMaxMutationStr));
@@ -164,7 +165,7 @@ namespace NeatNetwork
             for (int layerIndex = 0; layerIndex < layerStrs.Length; layerIndex++)
             {
                 Neurons.Add(new List<Neuron>());
-                string[] currentLayerNeuronsStrs = layerStrs[layerIndex].Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] currentLayerNeuronsStrs = layerStrs[layerIndex].Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
                 for (int neuronIndex = 0; neuronIndex < currentLayerNeuronsStrs.Length; neuronIndex++)
                 {
                     Neurons[layerIndex].Add(new Neuron(currentLayerNeuronsStrs[neuronIndex]));
@@ -263,7 +264,7 @@ namespace NeatNetwork
                 for (int neuronIndex = 0; neuronIndex < layerLength; neuronIndex++)
                 {
                     double currentCost = costGrid[layerIndex + 1][neuronIndex];
-                    GradientValues currentGradients = Neurons[layerIndex][neuronIndex].GetGradients(layerIndex, neuronIndex, currentCost, linearFunctions, neuronActivations, Activation);
+                    GradientValues currentGradients = Neurons[layerIndex][neuronIndex].GetGradients(layerIndex, neuronIndex, currentCost, linearFunctions, neuronActivations, ActivationFunction);
                     output[layerIndex][neuronIndex] = currentGradients;
 
                     // update grid / set input costs

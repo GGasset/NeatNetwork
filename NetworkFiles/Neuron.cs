@@ -92,7 +92,7 @@ namespace NeatNetwork.NetworkFiles
         internal new string ToString()
         {
             string str = "";
-            str += $"Bias: {Bias}^ Connections: {Connections}";
+            str += $"Bias: {Bias}^ Connections: {Connections.ToString()}";
             return str;
         }
 
