@@ -11,7 +11,7 @@ namespace NeatNetwork
     {
         internal Activation.ActivationFunctions ActivationFunction;
         /// <summary>
-        /// Input layerMaxMutation isn't instatiated
+        /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
         internal int InputLength => Neurons[0][0].Connections.Length;
@@ -33,7 +33,7 @@ namespace NeatNetwork
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="layerLengths">Layer 0 in input layerMaxMutation and last layerMaxMutation is output layerMaxMutation</param>
+        /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
         public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1, 
             double mutationChance = .1, double fieldMaxMutation = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01,
@@ -76,7 +76,7 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="input"></param>
         /// <param name="neuronActivations">first array corresponds to input</param>
-        /// <param name="linearFunctions">first array corresponds to the next layerMaxMutation of input layerMaxMutation</param>
+        /// <param name="linearFunctions">first array corresponds to the next layer of input layer</param>
         /// <returns></returns>
         internal double[] Execute(double[] input, out List<double[]> linearFunctions, out List<double[]> neuronActivations)
         {
