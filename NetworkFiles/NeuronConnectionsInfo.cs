@@ -60,10 +60,6 @@ namespace NeatNetwork.Libraries
             string str = "";
             for (int i = 0; i < Weights.Count; i++)
             {
-                if ($"{Weights[i]}" == "")
-                {
-                    int x = 0;
-                }
                 str += $"Pos: {ConnectedNeuronsPos[i].X}*{ConnectedNeuronsPos[i].Y}* Weight: {Weights[i]}|";
             }
 
