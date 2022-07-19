@@ -81,7 +81,7 @@ namespace NeatNetwork.Libraries
 
         public static double SigmoidDerivative(double neuronActivation) => SigmoidActivation(neuronActivation) * (1 - SigmoidActivation(neuronActivation));
 
-        /// <param name="connectedNeuronActivation">Activation Connected to the weigth that is being computed</param>
+        /// <param name="connectedNeuronActivation">ActivationFunction Connected to the weigth that is being computed</param>
         public static double LinearFunctionDerivative(double connectedNeuronActivation) => connectedNeuronActivation;
 
         public static int ReluDerivative(double neuronActivation) => 1 * Convert.ToInt32(neuronActivation >= 0);
