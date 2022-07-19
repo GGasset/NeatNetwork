@@ -49,8 +49,13 @@ namespace NeatNetwork
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="score">Must be positive to properly work</param>
         internal void SetNextNetworkToBeScoredScore(double score)
         {
+            score = double.MaxValue / 4 + score;
             Scores.Add(score);
             MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
             MaxScoredNetwork += (Scores.Count - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
