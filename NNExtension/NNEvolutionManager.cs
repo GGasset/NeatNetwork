@@ -56,6 +56,8 @@ namespace NeatNetwork
             MaxScoredNetwork += (Scores.Count - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
         }
 
+        internal NN GetNextToScoreNetwork() => GetNextToScoreNetwork(out _);
+
         internal NN GetNextToScoreNetwork(out int networkIndex)
         {
             networkIndex = Scores.Count;
