@@ -61,6 +61,10 @@ namespace NeatNetwork
             Reward = 0;
         }
 
+        /// <summary>
+        /// Changes default reward for future executions
+        /// </summary>
+        /// <param name="reward"></param>
         internal void DeltaReward(double reward)
         {
             Reward += reward;
