@@ -12,13 +12,13 @@ namespace NeatNetwork
         internal double MinScore { get; private set; }
         internal int MaxScoredNetwork { get; private set; }
 
-        internal NNEvolutionManager(int networkCount, int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
+        internal NNEvolutionManager(int startingNetworkCount, int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
             double mutationChance = .1, double fieldMaxMutation = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Networks = new List<NN>();
             Scores = new List<double>();
-            for (int i = 0; i < networkCount; i++)
+            for (int i = 0; i < startingNetworkCount; i++)
             {
                 Networks.Add(new NN(layerLengths, activation, maxWeight, minWeight, weightClosestTo0, startingBias, mutationChance, fieldMaxMutation, initialMaxMutationValue, newNeuronChance, newLayerChance
                     , initialValueForMaxMutation, maxMutationOfMutationValues, maxMutationOfMutationValueOfMutationValues));
