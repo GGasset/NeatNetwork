@@ -61,12 +61,17 @@ namespace NeatNetwork
             Reward = 0;
         }
 
-        internal void GiveReward(double reward)
+        internal void DeltaReward(double reward)
         {
             Reward += reward;
         }
 
-        internal void AddToLastReward(double deltaReward, bool addToDefaultReward)
+        /// <summary>
+        /// Changes last reward
+        /// </summary>
+        /// <param name="deltaReward"></param>
+        /// <param name="addToDefaultReward"></param>
+        internal void GiveReward(double deltaReward, bool addToDefaultReward = true)
         {
             Rewards[Rewards.Count - 1] += deltaReward;
             Reward += deltaReward * Convert.ToInt32(addToDefaultReward);
