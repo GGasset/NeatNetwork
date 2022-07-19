@@ -23,8 +23,8 @@ namespace NeatNetwork
                 new double[] { targetVal },
             };
 
-            double learningRate = .1;
-            for (int i = 0; i < 4000000; i++)
+            double learningRate = .75;
+            for (int i = 0; i < 4000; i++)
             {
                 n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, learningRate);
                 double output;
@@ -37,7 +37,10 @@ namespace NeatNetwork
                 }
             }
 
-            
+            n = new NN(n.ToString());
+
+            Console.WriteLine($"{n.Execute(X[0])[0]}");
+            Console.ReadKey();
         }
     }
 }
