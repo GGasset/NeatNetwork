@@ -14,7 +14,7 @@ namespace NeatNetwork
         /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
-        internal int InputLength => Neurons[0][0].Connections.Length;
+        internal int InputLength;
         public int LayerCount => Neurons.Count;
 
         internal double InitialMaxMutationValue;
@@ -55,6 +55,7 @@ namespace NeatNetwork
                 }
             }
 
+            this.InputLength = layerLengths[0];
             this.ActivationFunction = activation;
             this.MaxWeight = maxWeight;
             this.MinWeight = minWeight;
@@ -358,7 +359,7 @@ namespace NeatNetwork
             List<double> layerMaxMutationGrid = new List<double>();
             for (int i = 0; i < layerLength; i++)
             {
-                layer.Add(new Neuron(layerInsertionIndex, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
+                layer.Add(new Neuron(layerInsertionIndex + 1, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
                 layerMaxMutationGrid.Add(InitialMaxMutationValue);
             }
 
@@ -369,7 +370,8 @@ namespace NeatNetwork
         internal void AddNewNeuron(int layerInsertionIndex)
         {
             int previousLayerLength = layerInsertionIndex > 0 ? Neurons[layerInsertionIndex - 1].Count : InputLength;
-            Neurons[layerInsertionIndex].Add(new Neuron(layerInsertionIndex, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
+
+            Neurons[layerInsertionIndex].Add(new Neuron(layerInsertionIndex + 1, NewBiasValue, previousLayerLength, MaxWeight, MinWeight, WeightClosestTo0));
             MaxMutationGrid[layerInsertionIndex].Add(InitialMaxMutationValue);
         }
 

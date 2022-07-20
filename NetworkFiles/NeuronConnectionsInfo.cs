@@ -43,15 +43,15 @@ namespace NeatNetwork.Libraries
         internal void AdjustToNewLayerBeingAdded(int layerInsertionIndex, bool isinsertedInPreviousLayer, int insertedLayerLength, double minWeight, double maxWeight, double weightClosestTo0)
         {
             for (int i = 0; i < ConnectedNeuronsPos.Count; i++)
-                ConnectedNeuronsPos[i].Offset(Convert.ToInt32(ConnectedNeuronsPos[i].X >= layerInsertionIndex), 0);
-
+                ConnectedNeuronsPos[i] = new Point(ConnectedNeuronsPos[i].X + 1 * Convert.ToInt32(ConnectedNeuronsPos[i].X > layerInsertionIndex + 1), ConnectedNeuronsPos[i].Y);
 
             if (!isinsertedInPreviousLayer)
                 return;
 
             for (int i = 0; i < insertedLayerLength; i++)
             {
-                AddNewConnection(layerInsertionIndex, i, minWeight, maxWeight, weightClosestTo0);
+                //            +1 makes input layer count
+                AddNewConnection(layerInsertionIndex + 1, i, minWeight, maxWeight, weightClosestTo0);
             }
         }
 

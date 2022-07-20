@@ -40,8 +40,8 @@ namespace NeatNetwork
             for (int i = 0; i < Scores.Count; i++)
             {
                 double score = Scores[i];
-                double currentChildCount = Math.Ceiling((score - MinScore) / (MaxScore - MinScore) * maxChilds);
-                currentChildCount = Math.Min(currentChildCount, minChilds);
+                double currentChildCount = Math.Round((score - MinScore) / (MaxScore - MinScore) * maxChilds);
+                currentChildCount = Math.Max(currentChildCount, minChilds);
 
                 for (int j = 0; j < currentChildCount; j++)
                 {
@@ -58,11 +58,20 @@ namespace NeatNetwork
         /// <param name="score">Must be positive to properly work</param>
         internal void SetNextNetworkToBeScoredScore(double score)
         {
-            score = double.MaxValue / 4 + score;
+            if (score > MaxScore)
+            {
+                MaxScore = score;
+                MaxScoredNetwork = Scores.Count;
+            }
+            if (score < MinScore)
+            {
+                MinScore = score;
+            }
+
             Scores.Add(score);
-            MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
+            /*MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
             MaxScoredNetwork += (Scores.Count - 1 - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
-            MinScore += (score - MinScore) * Convert.ToInt32(score < MinScore);
+            MinScore += (score - MinScore) * Convert.ToInt32(score < MinScore);*/
         }
 
         internal NN GetMaxScoredNetwork() => Networks[MaxScoredNetwork];
