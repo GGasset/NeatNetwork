@@ -61,9 +61,11 @@ namespace NeatNetwork
             score = double.MaxValue / 4 + score;
             Scores.Add(score);
             MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
+            MaxScoredNetwork += (Scores.Count - 1 - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
             MinScore += (score - MinScore) * Convert.ToInt32(score < MinScore);
-            MaxScoredNetwork += (Scores.Count - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
         }
+
+        internal NN GetMaxScoredNetwork() => Networks[MaxScoredNetwork];
 
         internal NN GetNextToScoreNetwork() => GetNextToScoreNetwork(out _);
 
