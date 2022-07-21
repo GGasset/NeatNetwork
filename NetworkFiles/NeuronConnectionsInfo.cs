@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using NeatNetwork.Libraries;
 
-namespace NeatNetwork.Libraries
+namespace NeatNetwork.NetworkFiles
 {
     public class NeuronConnectionsInfo
     {
