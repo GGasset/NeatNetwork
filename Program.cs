@@ -29,10 +29,10 @@ namespace NeatNetwork
 
 
             // Evolution Learning demonstration
-            NNEvolutionManager world = new NNEvolutionManager(5000, new int[] { 2, 1 }, Activation.ActivationFunctions.Sine);
+            NNEvolutionManager world = new NNEvolutionManager(15000, new int[] { 2, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, 0.37, 1, .25);
 
 
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < 4000; i++)
             {
                 while (!world.AreAllNetworksScored())
                 {
@@ -44,10 +44,13 @@ namespace NeatNetwork
                     }
                     meanCost /= X.Count;
                     world.SetNextNetworkToBeScoredScore(-meanCost);
+
+                    /*double score = cn.Execute(X[1])[0];
+                    world.SetNextNetworkToBeScoredScore(score);*/
                 }
                 Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
 
-                world.HaveChild(1, 5);
+                world.HaveChild(20, 50);
             }
             Console.WriteLine("\n");
             NN n = world.GetMaxScoredNetwork();
