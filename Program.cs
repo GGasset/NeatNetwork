@@ -11,8 +11,55 @@ namespace NeatNetwork
     {
         static void Main(string[] args)
         {
+             List<double[]> X = new List<double[]>()
+             {
+                 new double[] { 0,0 },
+                 new double[] { 1,0 },
+                 new double[] { 0,1 },
+                 new double[] { 1,1 },
+             };
+
+             List<double[]> y = new List<double[]>()
+             {
+                 new double[] { 1 },
+                 new double[] { -1 },
+                 new double[] { -1 },
+                 new double[] { 1 },
+             };
+
+
+            // Evolution Learning demonstration
+            NNEvolutionManager world = new NNEvolutionManager(5000, new int[] { 2, 1 }, Activation.ActivationFunctions.Sine);
+
+
+            for (int i = 0; i < 40; i++)
+            {
+                Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
+                while (!world.AreAllNetworksScored())
+                {
+                    NN cn = world.GetNextToScoreNetwork();
+                    double meanCost = 0;
+                    for (int j = 0; j < X.Count; j++)
+                    {
+                        meanCost += Cost.GetCost(cn.Execute(X[j]), y[j], Cost.CostFunctions.SquaredMean);
+                    }
+                    meanCost /= X.Count;
+                    world.SetNextNetworkToBeScoredScore(-meanCost);
+                }
+
+                world.HaveChild(2, 5);
+            }
+            Console.WriteLine("\n");
+            NN n = world.GetMaxScoredNetwork();
+            for (int i = 0; i < X.Count; i++)
+            {
+                double output = n.Execute(X[i])[0];
+                double expected = y[i][0];
+                Console.WriteLine($"Output: {output}, Expected: {expected}");
+            }
+
             // Supervised learning demonstration
-            /*NN n = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);
+            /*NN world = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);
             List<double[]> X = new List<double[]>()
             {
                 new double[] { 3, 7, 8, 9 },
@@ -27,9 +74,9 @@ namespace NeatNetwork
             double learningRate = .75;
             for (int j = 0; j < 4000; j++)
             {
-                n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, learningRate);
+                world.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, learningRate);
                 double output;
-                Console.WriteLine(output = n.Execute(X[0])[0]);
+                Console.WriteLine(output = world.Execute(X[0])[0]);
                 if (targetVal == output)
                 {
                     Console.WriteLine($"Overfitted in {j} steps");
@@ -38,12 +85,12 @@ namespace NeatNetwork
                 }
             }
 
-            n = new NN(n.ToString());
+            world = new NN(world.ToString());
 
-            Console.WriteLine($"{n.Execute(X[0])[0]}");
+            Console.WriteLine($"{world.Execute(X[0])[0]}");
             Console.ReadKey();*/
             
-            // Reinforcement learning demonstration
+            // Reinforcement Learning demonstration
             /*double learningRate = 1;
             ReinforcementLearningNN agent = new ReinforcementLearningNN(new NN(new int[] { 1, 15, 4, 400, 1 }, Activation.ActivationFunctions.Sigmoid), learningRate);
             double[] input = { 30 };
