@@ -50,7 +50,7 @@ namespace NeatNetwork
                 }
                 Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
 
-                world.HaveChild(20, 50);
+                world.HaveChild(1, 2);
             }
             Console.WriteLine("\n");
             NN n = world.GetMaxScoredNetwork();
