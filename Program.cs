@@ -47,7 +47,7 @@ namespace NeatNetwork
                     world.SetNextNetworkToBeScoredScore(-meanCost);
                 }
 
-                world.HaveChild(2, 5);
+                world.HaveChild(1, 5);
             }
             Console.WriteLine("\n");
             NN n = world.GetMaxScoredNetwork();
