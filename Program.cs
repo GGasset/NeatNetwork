@@ -34,7 +34,6 @@ namespace NeatNetwork
 
             for (int i = 0; i < 40; i++)
             {
-                Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
                 while (!world.AreAllNetworksScored())
                 {
                     NN cn = world.GetNextToScoreNetwork();
@@ -46,6 +45,7 @@ namespace NeatNetwork
                     meanCost /= X.Count;
                     world.SetNextNetworkToBeScoredScore(-meanCost);
                 }
+                Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
 
                 world.HaveChild(1, 5);
             }
