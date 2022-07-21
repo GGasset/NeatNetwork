@@ -16,8 +16,8 @@ namespace NeatNetwork
             double mutationChance = .1, double fieldMaxMutation = .1, double initialMaxMutationValue = .27, double newNeuronChance = .04, double newLayerChance = .01,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
-            MaxScore = double.MaxValue;
-            MinScore = double.MinValue;
+            MaxScore = double.MinValue;
+            MinScore = double.MaxValue;
 
             Networks = new List<NN>();
             Scores = new List<double>();
