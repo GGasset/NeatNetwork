@@ -50,8 +50,10 @@
     <Compile Include="Libraries\Cost.cs" />
     <Compile Include="Libraries\Derivatives.cs" />
     <Compile Include="NetworkFiles\GradientValues.cs" />
+    <Compile Include="NetworkFiles\LSTMNeuron.cs" />
     <Compile Include="NetworkFiles\Neuron.cs" />
     <Compile Include="NetworkFiles\NeuronConnectionsInfo.cs" />
+    <Compile Include="NetworkFiles\RecurentNeuron.cs" />
     <Compile Include="NN.cs" />
     <Compile Include="NNExtension\NNEvolutionManager.cs" />
     <Compile Include="NNExtension\ReinforcementLearningNN.cs" />
