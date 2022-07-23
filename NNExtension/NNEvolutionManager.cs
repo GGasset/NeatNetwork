@@ -37,10 +37,8 @@ namespace NeatNetwork
             for (int i = 0; i < Scores.Count; i++)
             {
                 double score = Scores[i];
-                double currentChildCount = Math.Round((score - MinScore) / (MaxScore - MinScore) * maxChilds);
+                double currentChildCount = Math.Round((score - MinScore) / (MaxScore - MinScore) * (maxChilds - minChilds) + minChilds);
                 currentChildCount = Math.Max(currentChildCount, minChilds);
-                if (currentChildCount > maxChilds)
-                    throw new Exception();
 
                 for (int j = 0; j < currentChildCount; j++)
                 {
