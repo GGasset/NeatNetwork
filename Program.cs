@@ -34,20 +34,27 @@ namespace NeatNetwork
 
             for (int i = 0; i < 4000; i++)
             {
+                int j = 0;
                 while (!world.AreAllNetworksScored())
                 {
                     NN cn = world.GetNextToScoreNetwork();
                     double meanCost = 0;
-                    for (int j = 0; j < X.Count; j++)
+                    for (int k = 0; k < X.Count; k++)
                     {
-                        meanCost += Cost.GetCost(cn.Execute(X[j]), y[j], Cost.CostFunctions.SquaredMean);
+                        meanCost += Cost.GetCost(cn.Execute(X[k]), y[k], Cost.CostFunctions.SquaredMean);
                     }
                     meanCost /= X.Count;
-                    world.SetNextNetworkToBeScoredScore(-meanCost);
+
+                    if (i != 0 && j != 0)
+                        world.SetNextNetworkToBeScoredScore(-meanCost);
+                    else
+                        world.SetFirstNetworkScore(-meanCost);
 
                     /*double score = cn.Execute(X[1])[0];
                     world.SetNextNetworkToBeScoredScore(score);*/
+                    j++;
                 }
+                world.DropWorstNetworks(.5);
                 Console.WriteLine($"Generation: {i}   NetworkCount: {world.Networks.Count}   MaxScore: {world.MaxScore}");
 
                 world.HaveChild(1, 2);
