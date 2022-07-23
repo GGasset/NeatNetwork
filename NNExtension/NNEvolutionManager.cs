@@ -49,7 +49,7 @@ namespace NeatNetwork
             }
         }
 
-        internal void DropWorstNetworks(double minMaxScorePercentageToSurvive, double maxNetworksToBeDeletedPercentage = 80)
+        internal void DropWorstNetworks(double minMaxScorePercentageToSurvive, double maxNetworksToBeDeletedPercentage = 99)
         {
             minMaxScorePercentageToSurvive /= 1 + 99 * Convert.ToInt32(minMaxScorePercentageToSurvive > 1);
             maxNetworksToBeDeletedPercentage /= 1 + 99 * Convert.ToInt32(maxNetworksToBeDeletedPercentage > 1);
