@@ -10,15 +10,12 @@ namespace NeatNetwork
         internal List<double> Scores { get; private set; }
         internal double MaxScore { get; private set; }
         internal double MinScore { get; private set; }
-        internal int MaxScoredNetwork { get; private set; }
+        internal int MaxScoredNetwork { get; set; }
 
         internal NNEvolutionManager(int startingNetworkCount, int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
             double mutationChance = .1, double fieldMaxMutation = .04, double initialMaxMutationValue = .27, double newNeuronChance = .2, double newLayerChance = .05,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
-            MaxScore = double.MinValue;
-            MinScore = double.MaxValue;
-
             Networks = new List<NN>();
             Scores = new List<double>();
             for (int i = 0; i < startingNetworkCount; i++)
@@ -54,22 +51,50 @@ namespace NeatNetwork
             }
         }
 
+        internal void DropWorstNetworks(double minMaxScorePercentageToSurvive, double maxNetworksToBeDeletedPercentage = 100)
+        {
+            minMaxScorePercentageToSurvive /= 1 + 99 * Convert.ToInt32(minMaxScorePercentageToSurvive > 1);
+            maxNetworksToBeDeletedPercentage /= 1 + 99 * Convert.ToInt32(maxNetworksToBeDeletedPercentage > 1);
+
+            double maxNetworksToBeDeleted = Math.Round(maxNetworksToBeDeletedPercentage * Networks.Count);
+            double minScore = Math.Round(minMaxScorePercentageToSurvive * MaxScore);
+
+            int deletedNetworksCount = 0;
+            MinScore = MaxScore;
+            for (int i = 0; i < Scores.Count && deletedNetworksCount < maxNetworksToBeDeleted; i++)
+            {
+                double currentScore = Scores[i];
+                if (currentScore < minScore)
+                {
+                    Scores.RemoveAt(i);
+                    deletedNetworksCount++;
+                    i--;
+                }
+                else
+                    MinScore += (currentScore - minScore) * Convert.ToInt32(currentScore < MinScore);
+            }
+        }
+
         /// <summary>
-        /// Don't use really large negative or positive numbers for correct functioning
+        /// 
         /// </summary>
-        /// <param name="score">Must be positive to properly work</param>
+        /// <param name="score">Don't use numbers with exponent for correct functioning.</param>
+        internal void SetFirstNetworkScore(double score)
+        {
+            MaxScore = MinScore = score;
+            Scores.Add(score);
+        }
+
+        /// <summary>
+        /// If is the first network to be scored use SetFirstNetworkScore() for correct fuctioning.
+        /// </summary>
+        /// <param name="score">Don't use numbers with exponent for correct functioning.</param>
         internal void SetNextNetworkToBeScoredScore(double score)
         {
-            if (MaxScore < score)
-            {
-                MaxScore = score;
-                MaxScoredNetwork = Scores.Count;
-            }
-            
-            if (MinScore > score)
-            {
-                MinScore = score;
-            }
+            MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
+            MaxScoredNetwork += (Scores.Count - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
+
+            MinScore += (score - MinScore) * Convert.ToInt32(score < MinScore);
 
             Scores.Add(score);
         }
