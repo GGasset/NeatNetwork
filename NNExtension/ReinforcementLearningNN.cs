@@ -15,7 +15,7 @@ namespace NeatNetwork
         private List<List<double[]>> NeuronActivations;
         private List<double[]> Outputs;
         private List<double> Rewards;
-        internal double Reward;
+        public double Reward;
         internal double LearningRate;
 
         public ReinforcementLearningNN(NN network, double learningRate)
