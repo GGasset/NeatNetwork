@@ -10,7 +10,7 @@ namespace NeatNetwork
 {
     public class ReinforcementLearningNN
     {
-        internal NN n;
+        public NN n;
         private List<List<double[]>> LinearFunctions;
         private List<List<double[]>> NeuronActivations;
         private List<double[]> Outputs;
