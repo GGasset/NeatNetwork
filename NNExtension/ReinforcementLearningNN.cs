@@ -30,7 +30,7 @@ namespace NeatNetwork
             Reward = 0;
         }
 
-        internal double[] Execute(double[] input)
+        public double[] Execute(double[] input)
         {
             double[] output = n.Execute(input, out List<double[]> linearFunctions, out List<double[]> neuronActivations);
             LinearFunctions.Add(linearFunctions);
@@ -40,7 +40,7 @@ namespace NeatNetwork
             return output;
         }
 
-        internal void TerminateAgent()
+        public void TerminateAgent()
         {
             double[] currentCosts;
             List<GradientValues[]> currentGradient;
@@ -65,7 +65,7 @@ namespace NeatNetwork
         /// Changes default reward for future executions
         /// </summary>
         /// <param name="reward"></param>
-        internal void DeltaReward(double reward)
+        public void DeltaReward(double reward)
         {
             Reward += reward;
         }
@@ -75,7 +75,7 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="deltaReward"></param>
         /// <param name="addToDefaultReward"></param>
-        internal void GiveReward(double deltaReward, bool addToDefaultReward = true)
+        public void GiveReward(double deltaReward, bool addToDefaultReward = true)
         {
             Rewards[Rewards.Count - 1] += deltaReward;
             Reward += deltaReward * Convert.ToInt32(addToDefaultReward);

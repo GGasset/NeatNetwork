@@ -12,7 +12,7 @@ namespace NeatNetwork
         internal double MinScore { get; private set; }
         internal int MaxScoredNetwork { get; set; }
 
-        internal NNEvolutionManager(int startingNetworkCount, int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
+        public NNEvolutionManager(int startingNetworkCount, int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
             double mutationChance = .1, double fieldMaxMutation = .04, double initialMaxMutationValue = .27, double newNeuronChance = .2, double newLayerChance = .05,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
@@ -30,7 +30,7 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="minChilds"></param>
         /// <param name="maxChilds"></param>
-        internal void HaveChild(int minChilds, int maxChilds)
+        public void HaveChild(int minChilds, int maxChilds)
         {
             (minChilds, maxChilds) = (Math.Max(minChilds, 0), Math.Max(maxChilds, 0));
 
@@ -49,7 +49,7 @@ namespace NeatNetwork
             }
         }
 
-        internal void DropWorstNetworks(double minMaxScorePercentageToSurvive, double maxNetworksToBeDeletedPercentage = 99)
+        public void DropWorstNetworks(double minMaxScorePercentageToSurvive, double maxNetworksToBeDeletedPercentage = 99)
         {
             minMaxScorePercentageToSurvive /= 1 + 99 * Convert.ToInt32(minMaxScorePercentageToSurvive > 1);
             maxNetworksToBeDeletedPercentage /= 1 + 99 * Convert.ToInt32(maxNetworksToBeDeletedPercentage > 1);
@@ -77,7 +77,7 @@ namespace NeatNetwork
         /// 
         /// </summary>
         /// <param name="score">Don't use numbers with exponent for correct functioning.</param>
-        internal void SetFirstNetworkScore(double score)
+        public void SetFirstNetworkScore(double score)
         {
             MaxScore = MinScore = score;
             Scores.Add(score);
@@ -87,7 +87,7 @@ namespace NeatNetwork
         /// If is the first network to be scored use SetFirstNetworkScore() for correct fuctioning.
         /// </summary>
         /// <param name="score">Don't use numbers with exponent for correct functioning.</param>
-        internal void SetNextNetworkToBeScoredScore(double score)
+        public void SetNextNetworkToBeScoredScore(double score)
         {
             MaxScore += (score - MaxScore) * Convert.ToInt32(score > MaxScore);
             MaxScoredNetwork += (Scores.Count - MaxScoredNetwork) * Convert.ToInt32(score > MaxScore);
@@ -97,17 +97,17 @@ namespace NeatNetwork
             Scores.Add(score);
         }
 
-        internal NN GetMaxScoredNetwork() => Networks[MaxScoredNetwork];
+        public NN GetMaxScoredNetwork() => Networks[MaxScoredNetwork];
 
-        internal NN GetNextToScoreNetwork() => GetNextToScoreNetwork(out _);
+        public NN GetNextToScoreNetwork() => GetNextToScoreNetwork(out _);
 
-        internal NN GetNextToScoreNetwork(out int networkIndex)
+        public NN GetNextToScoreNetwork(out int networkIndex)
         {
             networkIndex = Scores.Count;
             return Networks[Scores.Count];
         }
 
-        internal bool AreAllNetworksScored()
+        public bool AreAllNetworksScored()
         {
             return Scores.Count == Networks.Count;
         }
@@ -117,17 +117,17 @@ namespace NeatNetwork
         /// </summary>
         /// <param name="n"></param>
         /// <param name="index"></param>
-        internal void SetNetwork(NN n, int index)
+        public void SetNetwork(NN n, int index)
         {
             Networks[index] = n;
         }
 
-        internal void SetNextToScoreNetwork(NN n)
+        public void SetNextToScoreNetwork(NN n)
         {
             Networks[Scores.Count] = n;
         }
 
-        internal void SetLastScoredNetwork(NN n)
+        public void SetLastScoredNetwork(NN n)
         {
             Networks[Scores.Count - 1] = n;
         }
