@@ -24,7 +24,10 @@ namespace NeatNetwork.Libraries
 
         private static string GetPath(string fileName, string folderPath)
         {
-            return $@"{fileName}\{folderPath}";
+            if (folderPath.EndsWith(@"\"))
+                return folderPath + fileName;
+
+            return $@"{folderPath}\{fileName}";
         }
     }
 }
