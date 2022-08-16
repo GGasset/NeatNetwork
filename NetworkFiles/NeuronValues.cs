@@ -15,16 +15,24 @@ namespace NeatNetwork.NetworkFiles
         internal double LinearFunction;
 
         // Recurrent and LSTM
-        internal double HiddenState;
+        internal double InitialHiddenState;
+        internal double OutputHiddenState;
 
         // LSTM
-        internal double CellState;
+        internal double InitialCellState;
+        internal double OutputCellState;
+
+        //Forget weight
         internal double AfterForgetGateBeforeForgetWeight;
         internal double AfterForgetGateAfterForgetWeight;
+        internal double AfterForgetWeightMultiplication;
+
+        // Store weight
         internal double AfterSigmoidStoreGateBeforeStoreWeight;
         internal double AfterSigmoidStoreGateAfterStoreWeight;
         internal double AfterTanhStoreGate;
         internal double AfterStoreGateMultiplication;
+        internal double AfterStoreGateAddition;
 
         internal NeuronValues(NeuronHolder.NeuronType neuronType)
         {
