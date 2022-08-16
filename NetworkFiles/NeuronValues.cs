@@ -22,17 +22,19 @@ namespace NeatNetwork.NetworkFiles
         internal double InitialCellState;
         internal double OutputCellState;
 
-        //Forget weight
+        //Forget gate
         internal double AfterForgetGateBeforeForgetWeight;
         internal double AfterForgetGateAfterForgetWeight;
         internal double AfterForgetWeightMultiplication;
 
-        // Store weight
+        // Store gat
         internal double AfterSigmoidStoreGateBeforeStoreWeight;
         internal double AfterSigmoidStoreGateAfterStoreWeight;
         internal double AfterTanhStoreGate;
         internal double AfterStoreGateMultiplication;
         internal double AfterStoreGateAddition;
+
+        // Output gate
 
         internal NeuronValues(NeuronHolder.NeuronType neuronType)
         {
