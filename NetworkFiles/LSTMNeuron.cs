@@ -12,7 +12,7 @@ namespace NeatNetwork.NetworkFiles
     internal class LSTMNeuron
     {
         internal double CellState;
-        internal double HiddentState;
+        internal double HiddenState;
 
         internal NeuronConnectionsInfo weights;
 
@@ -31,7 +31,7 @@ namespace NeatNetwork.NetworkFiles
                 linearFunction += previousLayerActivations[currentConnectedPos.X][currentConnectedPos.Y] * weights.Weights[i];
             }
             neuronVals.LinearFunction = linearFunction;
-            CellState += linearFunction;
+            HiddenState += linearFunction;
         }
     }
 }
