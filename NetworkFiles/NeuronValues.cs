@@ -37,10 +37,6 @@ namespace NeatNetwork.NetworkFiles
         internal NeuronValues(NeuronHolder.NeuronType neuronType)
         {
             NeuronType = neuronType;
-            Activation = 0;
-            LinearFunction = 0.0;
-            HiddenState = 0.0;
-            CellState = 0.0;
         }
     }
 }
