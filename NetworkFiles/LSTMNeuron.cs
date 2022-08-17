@@ -32,8 +32,8 @@ namespace NeatNetwork.NetworkFiles
             double linearFunction = 0;
             for (int i = 0; i < weights.Length; i++)
             {
-                Point currentConnectedPos = weights.ConnectedNeuronsPos[i];
-                linearFunction += previousLayerActivations[currentConnectedPos.X][currentConnectedPos.Y] * weights.Weights[i];
+                Point connectedPos = weights.ConnectedNeuronsPos[i];
+                linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * weights.Weights[i];
             }
             neuronVals.LinearFunction = linearFunction;
 
@@ -49,7 +49,39 @@ namespace NeatNetwork.NetworkFiles
             neuronVals.AfterForgetGateMultiplication = CellState;
 
             double storeGateSigmoidPath = hiddenStateSigmoid;
+            neuronVals.AfterSigmoidStoreGateBeforeStoreWeightMultiplication = storeGateSigmoidPath;
+            
+            storeGateSigmoidPath *= StoreSigmoidWeight;
+            neuronVals.AfterSigmoidStoreGateAfterStoreWeightMultiplication = storeGateSigmoidPath;
 
+            double storeGateTanhPath = Activation.Tanh(HiddenState);
+            neuronVals.AfterTanhStoreGateBeforeWeightMultiplication = storeGateTanhPath;
+
+            storeGateTanhPath *= StoreTanhWeight;
+            neuronVals.AfterTanhStoreGateAfterWeightMultiplication = storeGateTanhPath;
+
+            double storeGate = storeGateSigmoidPath * storeGateTanhPath;
+            neuronVals.AfterStoreGateMultiplication = storeGate;
+
+            CellState += storeGate;
+
+            double outputGateSigmoidPath = hiddenStateSigmoid;
+            neuronVals.AfterSigmoidBeforeWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
+
+            outputGateSigmoidPath *= OutputWeight;
+            neuronVals.AfterSigmoidAfterWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
+
+            double outputCellStateTanh = Activation.Tanh(CellState);
+            neuronVals.AfterTanhOutputGate = outputCellStateTanh;
+
+            HiddenState = outputGateSigmoidPath * outputCellStateTanh;
+
+            neuronVals.OutputHiddenState = HiddenState;
+            neuronVals.OutputCellState = CellState;
+
+            neuronVals.Activation = HiddenState;
+
+            return HiddenState;
         }
     }
 }
