@@ -14,8 +14,8 @@ namespace NeatNetwork.NetworkFiles
         internal double CellState;
         internal double HiddenState;
 
-        internal NeuronConnectionsInfo weights;
-        internal double bias;
+        internal NeuronConnectionsInfo Weights;
+        internal double Bias;
 
         internal double ForgetWeight;
         internal double StoreSigmoidWeight;
@@ -30,11 +30,11 @@ namespace NeatNetwork.NetworkFiles
                 InitialHiddenState = HiddenState,
             };
 
-            double linearFunction = bias;
-            for (int i = 0; i < weights.Length; i++)
+            double linearFunction = Bias;
+            for (int i = 0; i < Weights.Length; i++)
             {
-                Point connectedPos = weights.ConnectedNeuronsPos[i];
-                linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * weights.Weights[i];
+                Point connectedPos = Weights.ConnectedNeuronsPos[i];
+                linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * Weights.Weights[i];
             }
             neuronVals.LinearFunction = linearFunction;
 
