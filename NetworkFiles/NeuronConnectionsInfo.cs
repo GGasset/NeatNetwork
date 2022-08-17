@@ -55,6 +55,12 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        internal void SubtractGrads(List<double> weightGradients, double learningRate)
+        {
+            for (int i = 0; i < Weights.Count; i++)
+                Weights[i] -= weightGradients[i] * learningRate;
+        }
+
         internal new string ToString()
         {
             string str = "";
