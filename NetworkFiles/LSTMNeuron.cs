@@ -17,7 +17,8 @@ namespace NeatNetwork.NetworkFiles
         internal NeuronConnectionsInfo weights;
 
         internal double ForgetWeight;
-        internal double StoreWeight;
+        internal double StoreSigmoidWeight;
+        internal double StoreTanhWeight;
         internal double OutputWeight;
 
         internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronVals)

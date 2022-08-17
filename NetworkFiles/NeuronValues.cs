@@ -30,7 +30,8 @@ namespace NeatNetwork.NetworkFiles
         // Store gate
         internal double AfterSigmoidStoreGateBeforeStoreWeightMultiplication;
         internal double AfterSigmoidStoreGateAfterStoreWeightMultiplication;
-        internal double AfterTanhStoreGate;
+        internal double AfterTanhStoreGateBeforeWeightMultiplication;
+        internal double AfterTanhStoreGateAfterWeightMultiplication;
         internal double AfterStoreGateMultiplication;
 
         // Output gate
