@@ -20,16 +20,26 @@ namespace NeatNetwork.NetworkFiles
             {
                 case NeuronType.Neuron:
                     activation = Neuron.Execute(previousNeuronsActivations, activationFunction, out double linearFunction);
+                    outputVals = new NeuronValues(neuronType)
+                    {
+                        LinearFunction = linearFunction,
+                        Activation = activation,
+                    };
                     break;
                 case NeuronType.LSTM:
-
+                    activation = LSTMNeuron.Execute(previousNeuronsActivations, out outputVals);
                     break;
                 case NeuronType.Recurrent:
-                    break;
+                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
             return activation;
+        }
+
+        internal void SubtractGrads(NeuronHolder gradients, double learningRate)
+        {
+            
         }
 
         public enum NeuronType
