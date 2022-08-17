@@ -54,12 +54,15 @@ namespace NeatNetwork.NetworkFiles
                 AddNewConnection(layerInsertionIndex + 1, i, minWeight, maxWeight, weightClosestTo0);
             }
         }
+        
+        internal void SubtractGrads(NeuronConnectionsInfo gradients, double learningRate) => SubtractGrads(gradients.Weights, learningRate);
 
         internal void SubtractGrads(List<double> weightGradients, double learningRate)
         {
             for (int i = 0; i < Weights.Count; i++)
                 Weights[i] -= weightGradients[i] * learningRate;
         }
+
 
         internal new string ToString()
         {
