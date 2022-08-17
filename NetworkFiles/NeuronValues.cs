@@ -23,13 +23,13 @@ namespace NeatNetwork.NetworkFiles
         internal double OutputCellState;
 
         //Forget gate
-        internal double AfterForgetGateBeforeForgetWeight;
-        internal double AfterForgetGateAfterForgetWeight;
-        internal double AfterForgetWeightMultiplication;
+        internal double AfterForgetGateBeforeForgetWeightMultiplication;
+        internal double AfterForgetGateAfterForgetWeightMultiplication;
+        internal double AfterForgetGateMultiplication;
 
         // Store gate
-        internal double AfterSigmoidStoreGateBeforeStoreWeight;
-        internal double AfterSigmoidStoreGateAfterStoreWeight;
+        internal double AfterSigmoidStoreGateBeforeStoreWeightMultiplication;
+        internal double AfterSigmoidStoreGateAfterStoreWeightMultiplication;
         internal double AfterTanhStoreGate;
         internal double AfterStoreGateMultiplication;
 
