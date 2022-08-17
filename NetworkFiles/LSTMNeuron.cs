@@ -20,9 +20,13 @@ namespace NeatNetwork.NetworkFiles
         internal double StoreWeight;
         internal double OutputWeight;
 
-        internal double Execute(List<double[]> previousLayerActivations, Activation.ActivationFunctions activationFunction, out NeuronValues neuronVals)
+        internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronVals)
         {
-            neuronVals = new NeuronValues(NeuronHolder.NeuronType.LSTM);
+            neuronVals = new NeuronValues(NeuronHolder.NeuronType.LSTM)
+            {
+                InitialCellState = CellState,
+                InitialHiddenState = HiddenState,
+            };
 
             double linearFunction = 0;
             for (int i = 0; i < weights.Length; i++)
@@ -31,7 +35,20 @@ namespace NeatNetwork.NetworkFiles
                 linearFunction += previousLayerActivations[currentConnectedPos.X][currentConnectedPos.Y] * weights.Weights[i];
             }
             neuronVals.LinearFunction = linearFunction;
-            HiddenState += linearFunction;
+
+            double hiddenStateSigmoid = Activation.Sigmoid(HiddenState);
+
+            double forgetGate = hiddenStateSigmoid;
+            neuronVals.AfterForgetGateBeforeForgetWeightMultiplication = forgetGate;
+
+            forgetGate *= ForgetWeight;
+            neuronVals.AfterForgetGateSigmoidAfterForgetWeightMultiplication = forgetGate;
+
+            CellState *= forgetGate;
+            neuronVals.AfterForgetGateMultiplication = CellState;
+
+            double storeGateSigmoidPath = hiddenStateSigmoid;
+
         }
     }
 }
