@@ -71,8 +71,13 @@ namespace NeatNetwork.NetworkFiles
         internal void SubtractGrads(GradientValues gradients, double learningRate)
         {
             Bias -= gradients.biasGradient * learningRate;
-            for (int i = 0; i < ConnectionsLength; i++)
-                Connections.Weights[i] -= gradients.weightGradients[i] * learningRate;
+            Connections.SubtractGrads(gradients.weightGradients, learningRate);
+        }
+
+        internal void SubtractGrads(Neuron gradients, double learningRate)
+        {
+            Bias -= gradients.Bias * learningRate;
+            Connections.SubtractGrads(gradients.Connections, learningRate);
         }
 
         #endregion
