@@ -24,7 +24,7 @@ namespace NeatNetwork.NetworkFiles
 
         //Forget gate
         internal double AfterForgetGateBeforeForgetWeightMultiplication;
-        internal double AfterForgetGateAfterForgetWeightMultiplication;
+        internal double AfterForgetGateSigmoidAfterForgetWeightMultiplication;
         internal double AfterForgetGateMultiplication;
 
         // Store gate
