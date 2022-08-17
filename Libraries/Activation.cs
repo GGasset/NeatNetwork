@@ -23,11 +23,11 @@ namespace NeatNetwork.Libraries
             switch (activation)
             {
                 case ActivationFunctions.Relu:
-                    return ReluActivation(input);
+                    return Relu(input);
                 case ActivationFunctions.Sigmoid:
-                    return SigmoidActivation(input);
+                    return Sigmoid(input);
                 case ActivationFunctions.Tanh:
-                    return TanhActivation(input);
+                    return Tanh(input);
                 case ActivationFunctions.Sine:
                     return Math.Sin(input);
                 case ActivationFunctions.GELU:
@@ -39,12 +39,12 @@ namespace NeatNetwork.Libraries
             }
         }
 
-        public static double ReluActivation(double input) => Math.Max(0, input);
+        public static double Relu(double input) => Math.Max(0, input);
 
-        public static double SigmoidActivation(double input) => 1.0 / (1 + Math.Pow(Math.E, -input));
+        public static double Sigmoid(double input) => 1.0 / (1 + Math.Pow(Math.E, -input));
 
-        public static double GELUActivation(double input) => .5 * input * (1 + TanhActivation(Math.Sqrt(2 / Math.PI) * (input + 0.044715 * Math.Pow(input, 3))));
+        public static double GELUActivation(double input) => .5 * input * (1 + Tanh(Math.Sqrt(2 / Math.PI) * (input + 0.044715 * Math.Pow(input, 3))));
 
-        public static double TanhActivation(double input) => (Math.Exp(input) - Math.Exp(-input)) / (Math.Exp(input) + Math.Exp(-input));
+        public static double Tanh(double input) => (Math.Exp(input) - Math.Exp(-input)) / (Math.Exp(input) + Math.Exp(-input));
     }
 }
