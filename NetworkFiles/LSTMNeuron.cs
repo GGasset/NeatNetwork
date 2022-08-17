@@ -84,5 +84,16 @@ namespace NeatNetwork.NetworkFiles
 
             return HiddenState;
         }
+
+        internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
+        {
+            Bias -= gradients.Bias * learningRate;
+            Weights.SubtractGrads(Weights, learningRate);
+
+            ForgetWeight -= gradients.ForgetWeight * learningRate;
+            StoreSigmoidWeight -= gradients.StoreSigmoidWeight * learningRate;
+            StoreTanhWeight -= gradients.StoreTanhWeight * learningRate;
+            OutputWeight -= gradients.OutputWeight * learningRate;
+        }
     }
 }
