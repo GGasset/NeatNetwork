@@ -13,21 +13,21 @@ namespace NeatNetwork.NetworkFiles
         internal Neuron Neuron;
         internal LSTMNeuron LSTMNeuron;
 
-        internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronValues outputVals)
+        internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronValues ExecutionValues)
         {
             double activation;
             switch (neuronType)
             {
                 case NeuronType.Neuron:
                     activation = Neuron.Execute(previousNeuronsActivations, activationFunction, out double linearFunction);
-                    outputVals = new NeuronValues(neuronType)
+                    ExecutionValues = new NeuronValues(neuronType)
                     {
                         LinearFunction = linearFunction,
                         Activation = activation,
                     };
                     break;
                 case NeuronType.LSTM:
-                    activation = LSTMNeuron.Execute(previousNeuronsActivations, out outputVals);
+                    activation = LSTMNeuron.Execute(previousNeuronsActivations, out ExecutionValues);
                     break;
                 case NeuronType.Recurrent:
                     throw new NotImplementedException();

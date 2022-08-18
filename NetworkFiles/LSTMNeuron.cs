@@ -22,9 +22,9 @@ namespace NeatNetwork.NetworkFiles
         internal double StoreTanhWeight;
         internal double OutputWeight;
 
-        internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronVals)
+        internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronExecutionVals)
         {
-            neuronVals = new NeuronValues(NeuronHolder.NeuronType.LSTM)
+            neuronExecutionVals = new NeuronValues(NeuronHolder.NeuronType.LSTM)
             {
                 InitialCellState = CellState,
                 InitialHiddenState = HiddenState,
@@ -36,51 +36,51 @@ namespace NeatNetwork.NetworkFiles
                 Point connectedPos = Weights.ConnectedNeuronsPos[i];
                 linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * Weights.Weights[i];
             }
-            neuronVals.LinearFunction = linearFunction;
+            neuronExecutionVals.LinearFunction = linearFunction;
 
             double hiddenStateSigmoid = Activation.Sigmoid(HiddenState);
 
             double forgetGate = hiddenStateSigmoid;
-            neuronVals.AfterForgetGateBeforeForgetWeightMultiplication = forgetGate;
+            neuronExecutionVals.AfterForgetGateBeforeForgetWeightMultiplication = forgetGate;
 
             forgetGate *= ForgetWeight;
-            neuronVals.AfterForgetGateSigmoidAfterForgetWeightMultiplication = forgetGate;
+            neuronExecutionVals.AfterForgetGateSigmoidAfterForgetWeightMultiplication = forgetGate;
 
             CellState *= forgetGate;
-            neuronVals.AfterForgetGateMultiplication = CellState;
+            neuronExecutionVals.AfterForgetGateMultiplication = CellState;
 
             double storeGateSigmoidPath = hiddenStateSigmoid;
-            neuronVals.AfterSigmoidStoreGateBeforeStoreWeightMultiplication = storeGateSigmoidPath;
+            neuronExecutionVals.AfterSigmoidStoreGateBeforeStoreWeightMultiplication = storeGateSigmoidPath;
             
             storeGateSigmoidPath *= StoreSigmoidWeight;
-            neuronVals.AfterSigmoidStoreGateAfterStoreWeightMultiplication = storeGateSigmoidPath;
+            neuronExecutionVals.AfterSigmoidStoreGateAfterStoreWeightMultiplication = storeGateSigmoidPath;
 
             double storeGateTanhPath = Activation.Tanh(HiddenState);
-            neuronVals.AfterTanhStoreGateBeforeWeightMultiplication = storeGateTanhPath;
+            neuronExecutionVals.AfterTanhStoreGateBeforeWeightMultiplication = storeGateTanhPath;
 
             storeGateTanhPath *= StoreTanhWeight;
-            neuronVals.AfterTanhStoreGateAfterWeightMultiplication = storeGateTanhPath;
+            neuronExecutionVals.AfterTanhStoreGateAfterWeightMultiplication = storeGateTanhPath;
 
             double storeGate = storeGateSigmoidPath * storeGateTanhPath;
-            neuronVals.AfterStoreGateMultiplication = storeGate;
+            neuronExecutionVals.AfterStoreGateMultiplication = storeGate;
 
             CellState += storeGate;
 
             double outputGateSigmoidPath = hiddenStateSigmoid;
-            neuronVals.AfterSigmoidBeforeWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
+            neuronExecutionVals.AfterSigmoidBeforeWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
 
             outputGateSigmoidPath *= OutputWeight;
-            neuronVals.AfterSigmoidAfterWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
+            neuronExecutionVals.AfterSigmoidAfterWeightMultiplicationAtOutputGate = outputGateSigmoidPath;
 
             double outputCellStateTanh = Activation.Tanh(CellState);
-            neuronVals.AfterTanhOutputGate = outputCellStateTanh;
+            neuronExecutionVals.AfterTanhOutputGate = outputCellStateTanh;
 
             HiddenState = outputGateSigmoidPath * outputCellStateTanh;
 
-            neuronVals.OutputHiddenState = HiddenState;
-            neuronVals.OutputCellState = CellState;
+            neuronExecutionVals.OutputHiddenState = HiddenState;
+            neuronExecutionVals.OutputCellState = CellState;
 
-            neuronVals.Activation = HiddenState;
+            neuronExecutionVals.Activation = HiddenState;
 
             return HiddenState;
         }
