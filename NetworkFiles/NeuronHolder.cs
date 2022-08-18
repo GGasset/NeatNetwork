@@ -39,7 +39,19 @@ namespace NeatNetwork.NetworkFiles
 
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
         {
-            
+            switch (neuronType)
+            {
+                case NeuronType.Neuron:
+                    Neuron.SubtractGrads(gradients.Neuron, learningRate);
+                    break;
+                case NeuronType.LSTM:
+                    LSTMNeuron.SubtractGrads(gradients.LSTMNeuron, learningRate);
+                    break;
+                case NeuronType.Recurrent:
+                    throw new NotImplementedException();
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public enum NeuronType
