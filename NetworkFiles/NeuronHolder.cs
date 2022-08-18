@@ -64,9 +64,9 @@ namespace NeatNetwork.NetworkFiles
                     LSTMNeuron.DeleteMemory();
                     break;
                 case NeuronType.Recurrent:
-                    break;
+                    throw new NotImplementedException();
                 default:
-                    break;
+                    throw new NotImplementedException();
             }
         }
 
