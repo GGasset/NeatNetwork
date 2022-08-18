@@ -15,12 +15,9 @@ namespace NeatNetwork
         internal ActivationFunctions ActivationFunction;
         internal List<List<NeuronHolder>> Neurons;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="networkExecutionValues"></param>
-        /// <returns></returns>
+
+        public double[] Execute(double[] input) => Execute(input, out _);
+
         public double[] Execute(double[] input, out List<List<NeuronValues>> networkExecutionValues)
         {
             networkExecutionValues = new List<List<NeuronValues>>();
