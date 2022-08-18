@@ -37,6 +37,8 @@ namespace NeatNetwork.NetworkFiles
             return activation;
         }
 
+        #region Gradient learning
+
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
         {
             switch (neuronType)
@@ -53,6 +55,27 @@ namespace NeatNetwork.NetworkFiles
                     throw new NotImplementedException();
             }
         }
+
+        #endregion Gradient learning
+
+        #region Evolution learning
+
+        internal void AddConnection(int layerIndex, int neuronIndex, double weight)
+        {
+            switch (neuronType)
+            {
+                case NeuronType.Neuron:
+                    Neuron.Connections.AddNewConnection(layerIndex, neuronIndex, weight);
+                    break;
+                case NeuronType.LSTM:
+                    LSTMNeuron.Connections.AddNewConnection(layerIndex, neuronIndex, weight);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        #endregion
 
         internal void DeleteMemory()
         {
