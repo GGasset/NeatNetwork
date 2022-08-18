@@ -28,7 +28,7 @@ namespace NeatNetwork
              };
 
 
-            // Evolution Learning demonstration
+            // NN Evolution Learning demonstration
             NNEvolutionManager world = new NNEvolutionManager(15000, new int[] { 2, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, 0.37, 1, .25);
 
 
@@ -68,7 +68,7 @@ namespace NeatNetwork
                 Console.WriteLine($"Output: {output}, Expected: {expected}");
             }
 
-            // Supervised learning demonstration
+            // NN Supervised learning demonstration
             /*NN world = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);
             List<double[]> X = new List<double[]>()
             {
@@ -100,7 +100,7 @@ namespace NeatNetwork
             Console.WriteLine($"{world.Execute(X[0])[0]}");
             Console.ReadKey();*/
             
-            // Reinforcement Learning demonstration
+            // NN Reinforcement Learning demonstration
             /*double learningRate = 1;
             ReinforcementLearningNN agent = new ReinforcementLearningNN(new NN(new int[] { 1, 15, 4, 400, 1 }, Activation.ActivationFunctions.Sigmoid), learningRate);
             double[] input = { 30 };
