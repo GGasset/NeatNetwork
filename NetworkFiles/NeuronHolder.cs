@@ -54,6 +54,22 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        internal void DeleteMemory()
+        {
+            switch (neuronType)
+            {
+                case NeuronType.Neuron:
+                    break;
+                case NeuronType.LSTM:
+                    LSTMNeuron.DeleteMemory();
+                    break;
+                case NeuronType.Recurrent:
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public enum NeuronType
         {
             Neuron,
