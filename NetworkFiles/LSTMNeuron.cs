@@ -14,7 +14,7 @@ namespace NeatNetwork.NetworkFiles
         internal double CellState;
         internal double HiddenState;
 
-        internal NeuronConnectionsInfo Weights;
+        internal NeuronConnectionsInfo Connections;
         internal double Bias;
 
         internal double ForgetWeight;
@@ -31,10 +31,10 @@ namespace NeatNetwork.NetworkFiles
             };
 
             double linearFunction = Bias;
-            for (int i = 0; i < Weights.Length; i++)
+            for (int i = 0; i < Connections.Length; i++)
             {
-                Point connectedPos = Weights.ConnectedNeuronsPos[i];
-                linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * Weights.Weights[i];
+                Point connectedPos = Connections.ConnectedNeuronsPos[i];
+                linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * Connections.Weights[i];
             }
             neuronExecutionVals.LinearFunction = linearFunction;
 
@@ -94,7 +94,7 @@ namespace NeatNetwork.NetworkFiles
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
         {
             Bias -= gradients.Bias * learningRate;
-            Weights.SubtractGrads(Weights, learningRate);
+            Connections.SubtractGrads(Connections, learningRate);
 
             ForgetWeight -= gradients.ForgetWeight * learningRate;
             StoreSigmoidWeight -= gradients.StoreSigmoidWeight * learningRate;
