@@ -45,5 +45,12 @@ namespace NeatNetwork
 
             return neuronActivations[neuronActivations.Count - 1];
         }
+
+        public void DeleteMemory()
+        {
+            for (int i = 0; i < Length; i++)
+                for (int j = 0; j < Neurons[i].Count; j++)
+                    Neurons[i][j].DeleteMemory();
+        }
     }
 }
