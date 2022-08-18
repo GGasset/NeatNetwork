@@ -85,6 +85,12 @@ namespace NeatNetwork.NetworkFiles
             return HiddenState;
         }
 
+        internal void DeleteMemory()
+        {
+            HiddenState = 0;
+            CellState = 0;
+        }
+
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
         {
             Bias -= gradients.Bias * learningRate;
