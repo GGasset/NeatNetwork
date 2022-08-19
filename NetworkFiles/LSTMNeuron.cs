@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NeatNetwork.Libraries;
 using NeatNetwork.NetworkFiles;
+using static NeatNetwork.Libraries.ValueGeneration;
 
 namespace NeatNetwork.NetworkFiles
 {
@@ -96,6 +97,21 @@ namespace NeatNetwork.NetworkFiles
             StoreSigmoidWeight -= gradients.StoreSigmoidWeight * learningRate;
             StoreTanhWeight -= gradients.StoreTanhWeight * learningRate;
             OutputWeight -= gradients.OutputWeight * learningRate;
+        }
+
+        #endregion
+
+        #region Evolution learning
+
+        internal void Evolve(double maxVariation, double mutationChance)
+        {
+            ForgetWeight += EvolveValue(maxVariation, mutationChance);
+            StoreSigmoidWeight += EvolveValue(maxVariation, mutationChance);
+            StoreTanhWeight += EvolveValue(maxVariation, mutationChance);
+            OutputWeight += EvolveValue(maxVariation, mutationChance);
+
+            Bias += EvolveValue(maxVariation, mutationChance);
+            Connections.Evolve(maxVariation, mutationChance);
         }
 
         #endregion
