@@ -337,7 +337,7 @@ namespace NeatNetwork
             for (int i = 0; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
                 {
-                    Neurons[i][j].Evolve(MutationChance, MaxMutationGrid[i][j]);
+                    Neurons[i][j].Evolve(MaxMutationGrid[i][j], MutationChance);
                     MaxMutationGrid[i][j] += GetVariation(-MaxMutationOfMutationValues, MaxMutationOfMutationValues) * WillMutate(MutationChance);
                 }
 

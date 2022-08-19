@@ -84,11 +84,11 @@ namespace NeatNetwork.NetworkFiles
 
         #region Evolution learning
 
-        internal void Evolve(double mutationChance, double maxMutation)
+        internal void Evolve(double maxMutation, double maxVariation)
         {
-            Connections.Evolve(mutationChance, maxMutation);
+            Connections.Evolve(maxVariation, maxMutation);
 
-            Bias += ValueGeneration.EvolveValue(maxMutation, mutationChance);
+            Bias += ValueGeneration.EvolveValue(maxMutation, maxVariation);
         }
 
         #endregion
