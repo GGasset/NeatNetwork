@@ -58,6 +58,21 @@ namespace NeatNetwork.NetworkFiles
 
         #region Evolution learning
 
+        internal void Evolve(double maxVariation, double mutationChance)
+        {
+            switch (neuronType)
+            {
+                case NeuronType.Neuron:
+                    Neuron.Evolve(maxVariation, mutationChance);
+                    break;
+                case NeuronType.LSTM:
+                    LSTMNeuron.Evolve(maxVariation, mutationChance);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         internal void AddConnection(int layerIndex, int neuronIndex, double weight)
         {
             switch (neuronType)
