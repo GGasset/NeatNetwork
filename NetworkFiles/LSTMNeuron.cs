@@ -85,11 +85,7 @@ namespace NeatNetwork.NetworkFiles
             return HiddenState;
         }
 
-        internal void DeleteMemory()
-        {
-            HiddenState = 0;
-            CellState = 0;
-        }
+        #region Gradient learning
 
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
         {
@@ -100,6 +96,14 @@ namespace NeatNetwork.NetworkFiles
             StoreSigmoidWeight -= gradients.StoreSigmoidWeight * learningRate;
             StoreTanhWeight -= gradients.StoreTanhWeight * learningRate;
             OutputWeight -= gradients.OutputWeight * learningRate;
+        }
+
+        #endregion
+
+        internal void DeleteMemory()
+        {
+            HiddenState = 0;
+            CellState = 0;
         }
     }
 }
