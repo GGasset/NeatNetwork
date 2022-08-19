@@ -29,8 +29,6 @@ namespace NeatNetwork.NetworkFiles
                 case NeuronType.LSTM:
                     activation = LSTMNeuron.Execute(previousNeuronsActivations, out ExecutionValues);
                     break;
-                case NeuronType.Recurrent:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
