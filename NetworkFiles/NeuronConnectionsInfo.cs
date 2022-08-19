@@ -40,6 +40,12 @@ namespace NeatNetwork.NetworkFiles
             Weights.Add(weight);
         }
 
+        internal void AddNewConnection(Point connectionPos, double weight)
+        {
+            ConnectedNeuronsPos.Add(connectionPos);
+            Weights.Add(weight);
+        }
+
         internal void AdjustToNewLayerBeingAdded(int layerInsertionIndex, bool isinsertedInPreviousLayer, int insertedLayerLength, double minWeight, double maxWeight, double weightClosestTo0)
         {
             for (int i = 0; i < ConnectedNeuronsPos.Count; i++)
