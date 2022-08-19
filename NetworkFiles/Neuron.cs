@@ -88,7 +88,7 @@ namespace NeatNetwork.NetworkFiles
         {
             Connections.Evolve(mutationChance, maxMutation);
 
-            Bias += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+            Bias += ValueGeneration.EvolveValue(maxMutation, mutationChance);
         }
 
         #endregion

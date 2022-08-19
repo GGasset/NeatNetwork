@@ -69,11 +69,11 @@ namespace NeatNetwork.NetworkFiles
                 Weights[i] -= weightGradients[i] * learningRate;
         }
 
-        internal void Evolve(double mutationChance, double maxVariation)
+        internal void Evolve(double maxVariation, double mutationChance)
         {
             for (int i = 0; i < Weights.Count; i++)
             {
-                Weights[i] += ValueGeneration.GetVariation(-maxVariation, maxVariation) * ValueGeneration.WillMutate(mutationChance);
+                Weights[i] += ValueGeneration.EvolveValue(maxVariation, mutationChance);
             }
         }
 

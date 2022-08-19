@@ -56,5 +56,7 @@ namespace NeatNetwork.Libraries
             double output = r.NextDouble();
             return Convert.ToInt32(output <= mutationChance);
         }
+
+        public static double EvolveValue(double maxVariation, double mutationChance) => GetVariation(-maxVariation, maxVariation) * WillMutate(mutationChance);
     }
 }
