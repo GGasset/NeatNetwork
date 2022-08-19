@@ -86,8 +86,7 @@ namespace NeatNetwork.NetworkFiles
 
         internal void Evolve(double mutationChance, double maxMutation)
         {
-            for (int i = 0; i < Connections.Weights.Count; i++)
-                Connections.Weights[i] += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
+            Connections.Evolve(mutationChance, maxMutation);
 
             Bias += ValueGeneration.GetVariation(-maxMutation, maxMutation) * ValueGeneration.WillMutate(mutationChance);
         }
