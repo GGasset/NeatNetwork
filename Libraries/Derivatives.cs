@@ -62,16 +62,16 @@ namespace NeatNetwork.Libraries
             switch (activation)
             {
                 case ActivationFunctions.Relu:
-                    output = ReluDerivative(neuronLinear);
+                    output = Relu(neuronLinear);
                     break;
                 case ActivationFunctions.Sigmoid:
-                    output = SigmoidDerivative(neuronLinear);
+                    output = Sigmoid(neuronLinear);
                     break;
                 case ActivationFunctions.Tanh:
-                    output = TanhDerivative(neuronLinear);
+                    output = Tanh(neuronLinear);
                     break;
                 case ActivationFunctions.Sine:
-                    output = SinDerivative(neuronLinear);
+                    output = Sin(neuronLinear);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -79,22 +79,24 @@ namespace NeatNetwork.Libraries
             return output;
         }
 
-        public static double SigmoidDerivative(double neuronActivation) => Sigmoid(neuronActivation) * (1 - Sigmoid(neuronActivation));
+        public static double Sigmoid(double neuronActivation) => Activation.Sigmoid(neuronActivation) * (1 - Activation.Sigmoid(neuronActivation));
 
         /// <param name="connectedNeuronActivation">ActivationFunction Connected to the weigth that is being computed</param>
-        public static double LinearFunctionDerivative(double connectedNeuronActivation) => connectedNeuronActivation;
+        public static double LinearFunctionWeight(double connectedNeuronActivation) => connectedNeuronActivation;
 
-        public static int ReluDerivative(double neuronActivation) => 1 * Convert.ToInt32(neuronActivation >= 0);
+        public static double LinearFunctionPreviousActivation(double connectedWeight) => connectedWeight;
 
-        public static double TanhDerivative(double neuronActivation) => 1 - Math.Pow(Tanh(neuronActivation), 2);
+        public static int Relu(double neuronActivation) => 1 * Convert.ToInt32(neuronActivation >= 0);
 
-        public static double SinDerivative(double neuronActivation) => Math.Cos(neuronActivation);
+        public static double Tanh(double neuronActivation) => 1 - Math.Pow(Activation.Tanh(neuronActivation), 2);
 
-        public static double LnDerivative(double neuronActivation) => 1 / neuronActivation;
+        public static double Sin(double neuronActivation) => Math.Cos(neuronActivation);
 
-        public static double MultiplicationDerivative(double a, double aDerivative, double b, double bDerivative) => a * aDerivative + b * bDerivative;
+        public static double Ln(double neuronActivation) => 1 / neuronActivation;
 
-        public static double SumDerivative(double aDerivative, double bDerivative) => aDerivative + bDerivative;
+        public static double Multiplication(double a, double aDerivative, double b, double bDerivative) => a * aDerivative + b * bDerivative;
+
+        public static double Sum(double aDerivative, double bDerivative) => aDerivative + bDerivative;
 
     }
 }
