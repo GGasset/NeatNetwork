@@ -96,14 +96,15 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal LSTMNeuron GetGradients(double costGradient, double hiddentStateGradient, double cellStateGradient, NeuronValues executionValues)
+        internal LSTMNeuron GetGradients(double[] costGradients, NeuronValues[] executionValues)
         {
             LSTMNeuron output = new LSTMNeuron();
 
-            costGradient += hiddentStateGradient;
-
-            // Forget gate derivatives
-
+            double[] cellStateDerivatives = new double[costGradients.Length];
+            for (int t = 0; t < costGradients.Length; t++)
+            {
+                // Forget Gate Derivatives
+            }
         }
 
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
