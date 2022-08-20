@@ -15,10 +15,10 @@ namespace NeatNetwork.NetworkFiles
         internal NeuronConnectionsInfo Connections;
         internal double Bias;
 
-        public Neuron(NeuronConnectionsInfo connections, double bias)
+        public Neuron()
         {
-            this.Connections = connections;
-            this.Bias = bias;
+            this.Connections = new NeuronConnectionsInfo();
+            this.Bias = 0;
         }
 
         /// <param name="neuronLayerIndex">layer 0 is input layer</param>
@@ -49,7 +49,7 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal GradientValues GetGradients(double cost, double linearFunction, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
+        internal GradientValues GetGradients(double cost, double linearFunction, List<double[]> neuronActivations, Activation.ActivationFunctions activation)
         {
             GradientValues output = new GradientValues();
             double activationDerivative = Derivatives.DerivativeOf(linearFunction, activation);
@@ -60,11 +60,33 @@ namespace NeatNetwork.NetworkFiles
             for (int i = 0; i < Connections.Length; i++)
             {
                 Point currentConnectionPos = Connections.ConnectedNeuronsPos[i];
-                output.weightGradients.Add(activationGradient * neuronOutputs[currentConnectionPos.X][currentConnectionPos.Y]);
+                output.weightGradients.Add(activationGradient * neuronActivations[currentConnectionPos.X][currentConnectionPos.Y]);
 
                 output.previousActivationGradientsPosition.Add(currentConnectionPos);
                 output.previousActivationGradients.Add(activationGradient * Connections.Weights[i]);
             }
+            return output;
+        }
+
+        /// <summary>
+        /// Function only used for RNNs
+        /// </summary>
+        /// <returns></returns>
+        internal Neuron GetGradients(double[] costs, double[] linearFunctions, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
+        {
+            Neuron output = new Neuron()
+            {
+                Connections = Connections,
+            };
+
+            for (int i = 0; i < Connections.Length; i++)
+                output.Connections.Weights[i] = 0;
+
+            int tCount = costs.Length;
+            
+            for (int i = 1; i < tCount; i++)
+                output.SubtractGrads(GetGradients(costs[i], linearFunctions[i], neuronActivations[i], activationFunction), -1);
+
             return output;
         }
 
