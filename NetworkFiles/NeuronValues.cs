@@ -16,6 +16,7 @@ namespace NeatNetwork.NetworkFiles
 
         // Recurrent and LSTM
         internal double InitialHiddenState;
+        internal double InitialHiddenStatePlusLinearFunction;
         internal double OutputHiddenState;
 
         // LSTM

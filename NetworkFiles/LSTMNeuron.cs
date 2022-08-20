@@ -23,7 +23,10 @@ namespace NeatNetwork.NetworkFiles
         internal double StoreTanhWeight;
         internal double OutputWeight;
 
-        
+        internal LSTMNeuron()
+        {
+            Connections = new NeuronConnectionsInfo();
+        }
 
         internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronExecutionVals)
         {
@@ -40,6 +43,9 @@ namespace NeatNetwork.NetworkFiles
                 linearFunction += previousLayerActivations[connectedPos.X][connectedPos.Y] * Connections.Weights[i];
             }
             neuronExecutionVals.LinearFunction = linearFunction;
+
+            HiddenState += linearFunction;
+            neuronExecutionVals.InitialHiddenStatePlusLinearFunction = HiddenState;
 
             double hiddenStateSigmoid = Activation.Sigmoid(HiddenState);
 
@@ -95,6 +101,9 @@ namespace NeatNetwork.NetworkFiles
             LSTMNeuron output = new LSTMNeuron();
 
             costGradient += hiddentStateGradient;
+
+            // Forget gate derivatives
+
         }
 
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
