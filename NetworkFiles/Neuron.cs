@@ -49,10 +49,10 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal GradientValues GetGradients(int layerIndex, int neuronIndex, double cost, List<double[]> linearFunctions, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
+        internal GradientValues GetGradients(double cost, double linearFunction, List<double[]> neuronOutputs, Activation.ActivationFunctions activation)
         {
             GradientValues output = new GradientValues();
-            double activationDerivative = Derivatives.DerivativeOf(linearFunctions[layerIndex][neuronIndex], activation);
+            double activationDerivative = Derivatives.DerivativeOf(linearFunction, activation);
             double activationGradient = cost * activationDerivative;
 
             output.biasGradient = activationGradient;

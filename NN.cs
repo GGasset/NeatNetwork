@@ -265,7 +265,7 @@ namespace NeatNetwork
                 for (int neuronIndex = 0; neuronIndex < layerLength; neuronIndex++)
                 {
                     double currentCost = costGrid[layerIndex + 1][neuronIndex];
-                    GradientValues currentGradients = Neurons[layerIndex][neuronIndex].GetGradients(layerIndex, neuronIndex, currentCost, linearFunctions, neuronActivations, ActivationFunction);
+                    GradientValues currentGradients = Neurons[layerIndex][neuronIndex].GetGradients(currentCost, linearFunctions[layerIndex][neuronIndex], neuronActivations, ActivationFunction);
                     output[layerIndex][neuronIndex] = currentGradients;
 
                     // update grid / set input costs
