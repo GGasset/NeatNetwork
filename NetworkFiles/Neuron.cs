@@ -85,8 +85,12 @@ namespace NeatNetwork.NetworkFiles
             int tCount = costs.Length;
             
             for (int i = 1; i < tCount; i++)
-                output.SubtractGrads(GetGradients(costs[i], linearFunctions[i], neuronActivations[i], activationFunction), -1);
-
+            {
+                GradientValues gradients = GetGradients(costs[i], linearFunctions[i], neuronActivations[i], activationFunction);
+                output.Bias += gradients.biasGradient;
+                for (int j = 0; j < gradients.weightGradients.Count; j++)
+                    output.Connections.Weights[j] -= gradients.weightGradients[j];
+            }
             return output;
         }
 
