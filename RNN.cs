@@ -18,9 +18,9 @@ namespace NeatNetwork
 
         public double[] Execute(double[] input) => Execute(input, out _);
 
-        public double[] Execute(double[] input, out List<List<NeuronValues>> networkExecutionValues)
+        public double[] Execute(double[] input, out List<NeuronValues[]> networkExecutionValues)
         {
-            networkExecutionValues = new List<List<NeuronValues>>();
+            networkExecutionValues = new List<NeuronValues[]>();
             List<double[]> neuronActivations = new List<double[]>()
             {
                 input
@@ -28,15 +28,15 @@ namespace NeatNetwork
 
             for (int i = 0; i < Length; i++)
             {
-                networkExecutionValues.Add(new List<NeuronValues>());
 
                 int layerLength = Neurons[i].Count;
                 neuronActivations.Add(new double[layerLength]);
+                networkExecutionValues.Add(new NeuronValues[layerLength]);
 
                 for (int j = 0; j < layerLength; j++)
                 {
                     neuronActivations[i + 1][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out NeuronValues neuronExecutionValues);
-                    networkExecutionValues[i].Add(neuronExecutionValues);
+                    networkExecutionValues[i][j] = neuronExecutionValues;
                 }
             }
 
