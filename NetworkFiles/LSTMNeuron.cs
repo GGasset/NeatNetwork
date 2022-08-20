@@ -23,6 +23,8 @@ namespace NeatNetwork.NetworkFiles
         internal double StoreTanhWeight;
         internal double OutputWeight;
 
+        
+
         internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronExecutionVals)
         {
             neuronExecutionVals = new NeuronValues(NeuronHolder.NeuronType.LSTM)
@@ -87,6 +89,13 @@ namespace NeatNetwork.NetworkFiles
         }
 
         #region Gradient learning
+
+        internal LSTMNeuron GetGradients(double costGradient, double hiddentStateGradient, double cellStateGradient, NeuronValues executionValues)
+        {
+            LSTMNeuron output = new LSTMNeuron();
+
+            costGradient += hiddentStateGradient;
+        }
 
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
         {
