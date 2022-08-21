@@ -100,30 +100,55 @@ namespace NeatNetwork.NetworkFiles
         {
             LSTMNeuron output = new LSTMNeuron();
 
-            double[] cellStateDerivatives = new double[costGradients.Length];
-            for (int t = 0; t < costGradients.Length; t++)
+            int tSCount = costGradients.Length;
+            double[] cellStateDerivatives = new double[tSCount];
+
+            double[] forgetWeightMultiplicationDerivatives = new double[tSCount];
+            double[] forgetGateMultiplicationDerivatives = new double[tSCount];
+
+            double[] storeGateSigmoidWeightMultiplicationDerivatives = new double[tSCount];
+            double[] storeGateTanhWeightMultiplicationDerivatives = new double[tSCount];
+            double[] storeGateMultiplicationDerivatives = new double[tSCount];
+
+            double[] hiddenStateSigmoidDerivatives = new double[tSCount];
+            double[] outputWeightMultiplicationDerivatives = new double[tSCount];
+            double[] outputGateMultiplicationDerivatives = new double[tSCount];
+
+            for (int t = 0; t < tSCount; t++)
             {
-                double hiddenStatePlusLinearFunctionSigmoidDerivative = Derivatives.Sigmoid(executionValues[t].InitialHiddenStatePlusLinearFunction);
+                double hiddenStateSigmoidDerivative = hiddenStateSigmoidDerivatives[t] = Derivatives.Sigmoid(executionValues[t].InitialHiddenStatePlusLinearFunction);
 
                 // Forget Gate Derivatives
-                double forgetGateWeightMultiplicationDerivative = Derivatives.Multiplication(ForgetWeight, 0,
-                                                                                             executionValues[t].AfterForgetGateBeforeForgetWeightMultiplication, hiddenStatePlusLinearFunctionSigmoidDerivative);
+                double forgetGateWeightMultiplicationDerivative = forgetWeightMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(ForgetWeight, 0,
+                                               executionValues[t].AfterForgetGateBeforeForgetWeightMultiplication, hiddenStateSigmoidDerivative);
 
-                double forgetGateCellStateMultiplicationDerivative = Derivatives.Multiplication(executionValues[t].InitialCellState, cellStateDerivatives[Math.Max(t - 1, 0)],
-                                                                                                executionValues[t].AfterForgetGateSigmoidAfterForgetWeightMultiplication, forgetGateWeightMultiplicationDerivative);
+                double forgetGateCellStateMultiplicationDerivative = forgetGateMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(executionValues[t].InitialCellState, cellStateDerivatives[Math.Max(t - 1, 0)],
+                                               executionValues[t].AfterForgetGateSigmoidAfterForgetWeightMultiplication, forgetGateWeightMultiplicationDerivative);
+
 
                 // Store Gate Derivatives
-                double storeGateSigmoidPathWeightMultiplicationDerivative = Derivatives.Multiplication(StoreSigmoidWeight, 0,
-                                                                                                       executionValues[t].AfterSigmoidStoreGateBeforeStoreWeightMultiplication, hiddenStatePlusLinearFunctionSigmoidDerivative);
+                double storeGateSigmoidWeightMultiplicationDerivative = storeGateSigmoidWeightMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(StoreSigmoidWeight, 0,
+                                               executionValues[t].AfterSigmoidStoreGateBeforeStoreWeightMultiplication, hiddenStateSigmoidDerivative);
 
-                double hiddenStatePlusLinearFunctionTanhDerivative = Derivatives.Tanh(executionValues[t].InitialHiddenStatePlusLinearFunction);
-                double storeGateTanhPathWeightMultiplicationDerivative = Derivatives.Multiplication(StoreTanhWeight, 0,
-                                                                                                    executionValues[t].AfterTanhStoreGateBeforeWeightMultiplication, hiddenStatePlusLinearFunctionTanhDerivative);
+                double hiddenStateTanhDerivative = Derivatives.Tanh(executionValues[t].InitialHiddenStatePlusLinearFunction);
+                double storeGateTanhWeightMultiplicationDerivative = storeGateTanhWeightMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(StoreTanhWeight, 0,
+                                               executionValues[t].AfterTanhStoreGateBeforeWeightMultiplication, hiddenStateTanhDerivative);
 
-                double storeGateMultiplicationDerivative = Derivatives.Multiplication(executionValues[t].)
+                double storeGateMultiplicationDerivative = storeGateMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(executionValues[t].AfterSigmoidStoreGateAfterStoreWeightMultiplication, storeGateSigmoidWeightMultiplicationDerivative,
+                                               executionValues[t].AfterTanhStoreGateAfterWeightMultiplication, storeGateTanhWeightMultiplicationDerivative);
+
+                cellStateDerivatives[t] = Derivatives.Sum(forgetGateCellStateMultiplicationDerivative, storeGateMultiplicationDerivative);
+                
+
+                // Output Gate Derivatives
             }
         }
-
+        
         internal void SubtractGrads(LSTMNeuron gradients, double learningRate)
         {
             Bias -= gradients.Bias * learningRate;
