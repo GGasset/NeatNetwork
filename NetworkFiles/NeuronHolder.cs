@@ -23,7 +23,7 @@ namespace NeatNetwork.NetworkFiles
                     ExecutionValues = new NeuronValues(neuronType)
                     {
                         LinearFunction = linearFunction,
-                        Activation = activation,
+                        Output = activation,
                     };
                     break;
                 case NeuronType.LSTM:

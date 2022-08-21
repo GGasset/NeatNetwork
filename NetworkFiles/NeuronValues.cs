@@ -11,7 +11,7 @@ namespace NeatNetwork.NetworkFiles
         internal readonly NeuronHolder.NeuronType NeuronType;
 
         // All neuron types
-        internal double Activation;
+        internal double Output;
         internal double LinearFunction;
 
         // Recurrent and LSTM
