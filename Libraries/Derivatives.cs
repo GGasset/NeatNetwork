@@ -86,13 +86,13 @@ namespace NeatNetwork.Libraries
 
         public static double LinearFunctionPreviousActivation(double connectedWeight) => connectedWeight;
 
-        public static int Relu(double neuronActivation) => 1 * Convert.ToInt32(neuronActivation >= 0);
+        public static int Relu(double activationFunctionInput) => 1 * Convert.ToInt32(activationFunctionInput >= 0);
 
-        public static double Tanh(double neuronActivation) => 1 - Math.Pow(Activation.Tanh(neuronActivation), 2);
+        public static double Tanh(double activationFunctionInput) => 1 - Math.Pow(Activation.Tanh(activationFunctionInput), 2);
 
-        public static double Sin(double neuronActivation) => Math.Cos(neuronActivation);
+        public static double Sin(double activationFunctionInput) => Math.Cos(activationFunctionInput);
 
-        public static double Ln(double neuronActivation) => 1 / neuronActivation;
+        public static double Ln(double activationFunctionInput) => 1 / activationFunctionInput;
 
         public static double Multiplication(double a, double aDerivative, double b, double bDerivative) => a * aDerivative + b * bDerivative;
 
