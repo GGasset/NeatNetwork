@@ -96,11 +96,17 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal LSTMNeuron GetGradients(double[] costGradients, NeuronValues[] executionValues)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="costGradients"></param>
+        /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
+        /// <returns></returns>
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<NeuronValues> executionValues)
         {
             LSTMNeuron output = new LSTMNeuron();
 
-            int tSCount = costGradients.Length;
+            int tSCount = costGradients.Count;
 
             double[] forgetWeightMultiplicationDerivatives = new double[tSCount];
             double[] forgetGateMultiplicationDerivatives = new double[tSCount];
