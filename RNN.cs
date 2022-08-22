@@ -43,6 +43,9 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
+        /// <summary>
+        /// For proper training and only if training use only after each train step, it isn't neccesary to use after each train step
+        /// </summary>
         public void DeleteMemory()
         {
             for (int i = 0; i < Length; i++)
