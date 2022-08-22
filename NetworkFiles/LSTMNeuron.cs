@@ -114,6 +114,8 @@ namespace NeatNetwork.NetworkFiles
             double[] outputWeightMultiplicationDerivatives = new double[tSCount];
             double[] outputGateMultiplicationDerivatives = new double[tSCount];
 
+            double[] outputCellStateTanhDerivatives = new double[tSCount];
+
             for (int t = 0; t < tSCount; t++)
             {
                 double hiddenStateSigmoidDerivative = hiddenStateSigmoidDerivatives[t] = Derivatives.Sigmoid(executionValues[t].InitialHiddenStatePlusLinearFunction);
@@ -143,9 +145,21 @@ namespace NeatNetwork.NetworkFiles
                                                executionValues[t].AfterTanhStoreGateAfterWeightMultiplication, storeGateTanhWeightMultiplicationDerivative);
 
                 cellStateDerivatives[t] = Derivatives.Sum(forgetGateCellStateMultiplicationDerivative, storeGateMultiplicationDerivative);
-                
+
 
                 // Output Gate Derivatives
+                double outputWeightMultiplicationDerivative = outputWeightMultiplicationDerivatives[t] = 
+                    Derivatives.Multiplication(OutputWeight, 0,
+                                               executionValues[t].AfterSigmoidBeforeWeightMultiplicationAtOutputGate, hiddenStateSigmoidDerivative);
+
+                double outputCellStateTanhDerivative = outputCellStateTanhDerivatives[t] = Derivatives.Tanh(executionValues[t].OutputCellState);
+
+                outputGateMultiplicationDerivatives[t] =
+                    Derivatives.Multiplication
+                    (
+                        executionValues[t].AfterSigmoidAfterWeightMultiplicationAtOutputGate, outputWeightMultiplicationDerivative,
+                        executionValues[t].AfterTanhOutputGate, outputCellStateTanhDerivative
+                    );
             }
         }
         
