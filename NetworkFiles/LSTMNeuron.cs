@@ -101,7 +101,6 @@ namespace NeatNetwork.NetworkFiles
             LSTMNeuron output = new LSTMNeuron();
 
             int tSCount = costGradients.Length;
-            double[] cellStateDerivatives = new double[tSCount];
 
             double[] forgetWeightMultiplicationDerivatives = new double[tSCount];
             double[] forgetGateMultiplicationDerivatives = new double[tSCount];
@@ -109,6 +108,7 @@ namespace NeatNetwork.NetworkFiles
             double[] storeGateSigmoidWeightMultiplicationDerivatives = new double[tSCount];
             double[] storeGateTanhWeightMultiplicationDerivatives = new double[tSCount];
             double[] storeGateMultiplicationDerivatives = new double[tSCount];
+            double[] storeGateSumDerivative = new double[tSCount];
 
             double[] hiddenStateSigmoidDerivatives = new double[tSCount];
             double[] outputWeightMultiplicationDerivatives = new double[tSCount];
@@ -126,7 +126,7 @@ namespace NeatNetwork.NetworkFiles
                                                executionValues[t].AfterForgetGateBeforeForgetWeightMultiplication, hiddenStateSigmoidDerivative);
 
                 double forgetGateCellStateMultiplicationDerivative = forgetGateMultiplicationDerivatives[t] = 
-                    Derivatives.Multiplication(executionValues[t].InitialCellState, cellStateDerivatives[Math.Max(t - 1, 0)],
+                    Derivatives.Multiplication(executionValues[t].InitialCellState, storeGateSumDerivative[Math.Max(t - 1, 0)],
                                                executionValues[t].AfterForgetGateSigmoidAfterForgetWeightMultiplication, forgetGateWeightMultiplicationDerivative);
 
 
@@ -144,7 +144,7 @@ namespace NeatNetwork.NetworkFiles
                     Derivatives.Multiplication(executionValues[t].AfterSigmoidStoreGateAfterStoreWeightMultiplication, storeGateSigmoidWeightMultiplicationDerivative,
                                                executionValues[t].AfterTanhStoreGateAfterWeightMultiplication, storeGateTanhWeightMultiplicationDerivative);
 
-                cellStateDerivatives[t] = Derivatives.Sum(forgetGateCellStateMultiplicationDerivative, storeGateMultiplicationDerivative);
+                storeGateSumDerivative[t] = Derivatives.Sum(forgetGateCellStateMultiplicationDerivative, storeGateMultiplicationDerivative);
 
 
                 // Output Gate Derivatives
@@ -160,6 +160,27 @@ namespace NeatNetwork.NetworkFiles
                         executionValues[t].AfterSigmoidAfterWeightMultiplicationAtOutputGate, outputWeightMultiplicationDerivative,
                         executionValues[t].AfterTanhOutputGate, outputCellStateTanhDerivative
                     );
+            }
+
+            double previousHiddenStateGradient, previousCellStateGradient = previousHiddenStateGradient = 0;
+            for (int t = tSCount - 1; t >= 0; t--)
+            {
+                costGradients[t] += previousHiddenStateGradient;
+
+                costGradients[t] *= outputGateMultiplicationDerivatives[t];
+
+                double cellStateGradient = outputCellStateTanhDerivatives[t] * costGradients[t] + previousCellStateGradient;
+
+
+                double storeGateGradient = cellStateGradient *= storeGateSumDerivative[t];
+
+                storeGateGradient *= storeGateMultiplicationDerivatives[t];
+
+                double storeGateSigmoidWeightMultiplicationGradient = storeGateGradient * storeGateSigmoidWeightMultiplicationDerivatives[t];
+
+                double forgetGateGradient = previousCellStateGradient = cellStateGradient *= forgetGateMultiplicationDerivatives[t];
+
+                double forgetWeightMultiplicationGradient = forgetGateGradient * forgetWeightMultiplicationDerivatives[t];
             }
         }
         
