@@ -26,6 +26,10 @@ namespace NeatNetwork.NetworkFiles
         internal LSTMNeuron()
         {
             Connections = new NeuronConnectionsInfo();
+            Bias = 0.0;
+            ForgetWeight = 0.0;
+            StoreSigmoidWeight = 0.0;
+            OutputWeight = 0.0;
         }
 
         internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronExecutionVals)
@@ -102,7 +106,7 @@ namespace NeatNetwork.NetworkFiles
         /// <param name="costGradients"></param>
         /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
         /// <returns></returns>
-        internal LSTMNeuron GetGradients(List<double> costGradients, List<NeuronValues> executionValues)
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<double[]> neuronsOutput, List<NeuronValues> executionValues)
         {
             LSTMNeuron output = new LSTMNeuron();
 
@@ -183,10 +187,29 @@ namespace NeatNetwork.NetworkFiles
                 storeGateGradient *= storeGateMultiplicationDerivatives[t];
 
                 double storeGateSigmoidWeightMultiplicationGradient = storeGateGradient * storeGateSigmoidWeightMultiplicationDerivatives[t];
+                double storeGateTanhWeightMultiplicationGradient = storeGateGradient * storeGateTanhWeightMultiplicationDerivatives[t];
 
                 double forgetGateGradient = previousCellStateGradient = cellStateGradient *= forgetGateMultiplicationDerivatives[t];
 
                 double forgetWeightMultiplicationGradient = forgetGateGradient * forgetWeightMultiplicationDerivatives[t];
+
+                // if GradientLearning doesn't work add not output gates gradients to hidden state gradients
+                double outputGateWeightMultiplicationGradient = costGradients[t] *= outputWeightMultiplicationDerivatives[t];
+
+                // if gradient learning doesn't work remember the addition when hidden state and cell input meet
+
+                costGradients[t] *= hiddenStateSigmoidDerivatives[t];
+
+
+                int cCount = Connections.Length;
+                double linearFunctionDerivative = 0;
+                for (int i = 0; i < cCount; i++)
+                {
+                    Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
+                    linearFunctionDerivative += 
+                }
+
+                //previousHiddenStateGradient = costGradients *= + outputGateMultiplicationDerivatives[t - 1]
             }
         }
         
