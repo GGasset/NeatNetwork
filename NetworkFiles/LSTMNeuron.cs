@@ -106,14 +106,18 @@ namespace NeatNetwork.NetworkFiles
         /// <param name="costGradients"></param>
         /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
         /// <returns></returns>
-        internal LSTMNeuron GetGradients(List<double> costGradients, List<double[]> networkNeuronOutputs, List<NeuronValues> executionValues, out double[] connectionsActivationGradients)
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<double[]> networkNeuronOutputs, List<NeuronValues> executionValues, out List<double[]> connectionsActivationGradients)
         {
             int cCount = Connections.Length;
 
-            connectionsActivationGradients = new double[cCount];
             LSTMNeuron output = new LSTMNeuron();
             output.Connections.ConnectedNeuronsPos = Connections.ConnectedNeuronsPos;
             output.Connections.Weights.AddRange(new double[Connections.Length]);
+
+            connectionsActivationGradients = new List<double[]>();
+            for (int i = 0; i < cCount; i++)
+                connectionsActivationGradients.Add(new double[cCount]);
+
 
             int tSCount = costGradients.Count;
 
@@ -194,15 +198,19 @@ namespace NeatNetwork.NetworkFiles
                 storeGateGradient *= storeGateMultiplicationDerivatives[t];
 
                 double storeGateSigmoidWeightMultiplicationGradient = storeGateGradient * storeGateSigmoidWeightMultiplicationDerivatives[t];
+                output.StoreSigmoidWeight += storeGateSigmoidWeightMultiplicationGradient;
+
                 double storeGateTanhWeightMultiplicationGradient = storeGateGradient * storeGateTanhWeightMultiplicationDerivatives[t];
+                output.StoreTanhWeight += storeGateTanhWeightMultiplicationGradient;
 
                 double forgetGateGradient = previousCellStateGradient = cellStateGradient *= forgetGateMultiplicationDerivatives[t];
 
                 double forgetWeightMultiplicationGradient = forgetGateGradient * forgetWeightMultiplicationDerivatives[t];
+                output.ForgetWeight += forgetWeightMultiplicationGradient;
 
                 // if GradientLearning doesn't work add not output gates gradients to hidden state gradients
                 double outputGateWeightMultiplicationGradient = costGradients[t] *= outputWeightMultiplicationDerivatives[t];
-
+                output.OutputWeight += outputGateWeightMultiplicationGradient;
 
                 costGradients[t] *= hiddenStateSigmoidDerivatives[t];
 
@@ -221,7 +229,7 @@ namespace NeatNetwork.NetworkFiles
                 {
                     Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
                     output.Connections.Weights[t] += networkNeuronOutputs[currentConnectedPos.X][currentConnectedPos.Y] * costGradients[t];
-                    connectionsActivationGradients[i] -= Connections.Weights[i] * costGradients[t];
+                    connectionsActivationGradients[t][i] -= Connections.Weights[i] * costGradients[t];
                 }
             }
             return output;
