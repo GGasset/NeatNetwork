@@ -8,7 +8,7 @@ namespace NeatNetwork.NetworkFiles
     public class NeuronConnectionsInfo
     {
         public int Length => Weights.Count;
-        internal List<Point> ConnectedNeuronsPos { get; private set; }
+        internal List<Point> ConnectedNeuronsPos;
         internal List<double> Weights;
 
         internal NeuronConnectionsInfo()
