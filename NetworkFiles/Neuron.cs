@@ -72,7 +72,7 @@ namespace NeatNetwork.NetworkFiles
         /// Function only used for RNNs
         /// </summary>
         /// <returns></returns>
-        internal Neuron GetGradients(List<double> costs, double[] linearFunctions, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
+        internal Neuron GetGradients(List<double> costs, List<NeuronValues> executionValues, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
         {
             Neuron output = new Neuron()
             {
@@ -86,7 +86,7 @@ namespace NeatNetwork.NetworkFiles
             
             for (int i = 1; i < tCount; i++)
             {
-                GradientValues gradients = GetGradients(costs[i], linearFunctions[i], neuronActivations[i], activationFunction);
+                GradientValues gradients = GetGradients(costs[i], executionValues[i].LinearFunction, neuronActivations[i], activationFunction);
                 output.Bias += gradients.biasGradient;
                 for (int j = 0; j < gradients.weightGradients.Count; j++)
                     output.Connections.Weights[j] -= gradients.weightGradients[j];
