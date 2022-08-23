@@ -131,6 +131,7 @@ namespace NeatNetwork.NetworkFiles
 
             double[] outputCellStateTanhDerivatives = new double[tSCount];
 
+            // Calculate Derivatives
             for (int t = 0; t < tSCount; t++)
             {
                 double hiddenStateSigmoidDerivative = hiddenStateSigmoidDerivatives[t] = Derivatives.Sigmoid(executionValues[t].InitialHiddenStatePlusLinearFunction);
@@ -177,6 +178,7 @@ namespace NeatNetwork.NetworkFiles
                     );
             }
 
+            // Calculate Gradients
             double previousHiddenStateGradient, previousCellStateGradient = previousHiddenStateGradient = 0;
             for (int t = tSCount - 1; t >= 0; t--)
             {
