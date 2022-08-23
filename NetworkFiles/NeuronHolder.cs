@@ -9,7 +9,7 @@ namespace NeatNetwork.NetworkFiles
 {
     internal class NeuronHolder
     {
-        public readonly NeuronType neuronType;
+        public NeuronType neuronType { get; private set; }
         internal Neuron Neuron;
         internal LSTMNeuron LSTMNeuron;
 
@@ -36,6 +36,25 @@ namespace NeatNetwork.NetworkFiles
         }
 
         #region Gradient learning
+
+        internal NeuronHolder GetGradients(double[] costGradients, Activation.ActivationFunctions activationFunction, out List<double[]> previousOutputsGradients)
+        {
+            NeuronHolder output = new NeuronHolder()
+            {
+                neuronType = neuronType,
+            };
+            previousOutputsGradients = new List<double[]>();
+            switch (neuronType)
+            {
+                case NeuronType.Neuron:
+
+                    break;
+                case NeuronType.LSTM:
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
 
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
         {
