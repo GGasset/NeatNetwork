@@ -16,6 +16,7 @@ namespace NeatNetwork
         internal List<List<Neuron>> Neurons;
         internal int InputLength;
         public int LayerCount => Neurons.Count;
+        public int[] Shape => GetShape();
 
         internal double InitialMaxMutationValue;
         internal List<List<double>> MaxMutationGrid;
@@ -257,7 +258,7 @@ namespace NeatNetwork
             }
 
             inputCosts = new double[neuronActivations[0].Length];
-            List<double[]> costGrid = GetNeuronCostsGrid(costs);
+            List<double[]> costGrid = ValueGeneration.GetNeuronCostsGrid(InputLength, Shape, costs);
 
             for (int layerIndex = Neurons.Count - 1; layerIndex >= 0; layerIndex--)
             {
@@ -288,29 +289,6 @@ namespace NeatNetwork
             for (int i = 0; i < LayerCount; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
-        }
-
-        internal List<double[]> GetNeuronCostsGrid(double[] outputCosts)
-        {
-            List<double[]> output = new List<double[]>
-            {
-                new double[InputLength]
-            };
-
-            for (int i = 0; i < Neurons.Count; i++)
-            {
-                int layerLength = Neurons[i].Count;
-                output.Add(new double[layerLength]);
-            }
-
-            int outputLayerLength = Neurons[Neurons.Count - 1].Count;
-            for (int i = 0; i < outputLayerLength; i++)
-            {
-                // Corresponds to output layerMaxMutation counting with input layerMaxMutation
-                output[Neurons.Count][i] = outputCosts[i];
-            }
-
-            return output;
         }
 
         #endregion
@@ -377,5 +355,13 @@ namespace NeatNetwork
 
         #endregion
 
+        private int[] GetShape()
+        {
+            int[] output = new int[Neurons.Count];
+            for (int i = 0; i < Neurons.Count; i++)
+                output[i] = Neurons[i].Count;
+
+            return output;
+        }
     }
 }

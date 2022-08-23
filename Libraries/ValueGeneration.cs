@@ -58,5 +58,29 @@ namespace NeatNetwork.Libraries
         }
 
         public static double EvolveValue(double maxVariation, double mutationChance) => GetVariation(-maxVariation, maxVariation) * WillMutate(mutationChance);
+
+        public static List<double[]> GetNeuronCostsGrid(int InputLength, int[] shape, double[] outputCosts)
+        {
+            List<double[]> output = new List<double[]>
+            {
+                new double[InputLength]
+            };
+
+            for (int i = 0; i < shape.Length; i++)
+            {
+                int layerLength = shape[i];
+                output.Add(new double[layerLength]);
+            }
+
+            int outputLayerLength = shape[shape.Length - 1];
+            for (int i = 0; i < outputLayerLength; i++)
+            {
+                // Corresponds to output layerMaxMutation counting with input layerMaxMutation
+                output[shape.Length][i] = outputCosts[i];
+            }
+
+            return output;
+        }
+
     }
 }
