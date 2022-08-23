@@ -72,7 +72,7 @@ namespace NeatNetwork.NetworkFiles
         /// Function only used for RNNs
         /// </summary>
         /// <returns></returns>
-        internal Neuron GetGradients(double[] costs, double[] linearFunctions, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
+        internal Neuron GetGradients(List<double> costs, double[] linearFunctions, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
         {
             Neuron output = new Neuron()
             {
@@ -82,7 +82,7 @@ namespace NeatNetwork.NetworkFiles
             for (int i = 0; i < Connections.Length; i++)
                 output.Connections.Weights[i] = 0;
 
-            int tCount = costs.Length;
+            int tCount = costs.Count;
             
             for (int i = 1; i < tCount; i++)
             {
