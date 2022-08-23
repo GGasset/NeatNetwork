@@ -37,7 +37,7 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal NeuronHolder GetGradients(double[] costGradients, Activation.ActivationFunctions activationFunction, out List<double[]> previousOutputsGradients)
+        internal NeuronHolder GetGradients(List<double> costGradients, List<List<double[]>> previousOutputs, List<NeuronValues> neuronExecutionValues, Activation.ActivationFunctions activationFunction, out List<double[]> previousOutputsGradients)
         {
             NeuronHolder output = new NeuronHolder()
             {
@@ -47,13 +47,15 @@ namespace NeatNetwork.NetworkFiles
             switch (neuronType)
             {
                 case NeuronType.Neuron:
-
+                    output.Neuron = Neuron.GetGradients(costGradients, neuronExecutionValues, previousOutputs, activationFunction);
                     break;
                 case NeuronType.LSTM:
+                    output.LSTMNeuron = LSTMNeuron.GetGradients(costGradients, previousOutputs, neuronExecutionValues, out previousOutputsGradients);
                     break;
                 default:
                     throw new NotImplementedException();
             }
+            return output;
         }
 
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
