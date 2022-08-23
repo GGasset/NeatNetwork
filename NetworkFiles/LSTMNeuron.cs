@@ -106,7 +106,7 @@ namespace NeatNetwork.NetworkFiles
         /// <param name="costGradients"></param>
         /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
         /// <returns></returns>
-        internal LSTMNeuron GetGradients(List<double> costGradients, List<double[]> networkNeuronOutputs, List<NeuronValues> executionValues, out List<double[]> connectionsActivationGradients)
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<List<double[]>> networkNeuronOutputs, List<NeuronValues> executionValues, out List<double[]> connectionsActivationGradients)
         {
             int cCount = Connections.Length;
 
@@ -220,7 +220,7 @@ namespace NeatNetwork.NetworkFiles
                 for (int i = 0; i < cCount; i++)
                 {
                     Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
-                    linearFunctionDerivative += networkNeuronOutputs[currentConnectedPos.X][currentConnectedPos.Y];
+                    linearFunctionDerivative += networkNeuronOutputs[t][currentConnectedPos.X][currentConnectedPos.Y];
                 }
 
                 previousHiddenStateGradient = costGradients[t] *= linearFunctionDerivative + outputGateMultiplicationDerivatives[t - 1];
@@ -228,7 +228,7 @@ namespace NeatNetwork.NetworkFiles
                 for (int i = 0; i < cCount; i++)
                 {
                     Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
-                    output.Connections.Weights[t] += networkNeuronOutputs[currentConnectedPos.X][currentConnectedPos.Y] * costGradients[t];
+                    output.Connections.Weights[t] += networkNeuronOutputs[t][currentConnectedPos.X][currentConnectedPos.Y] * costGradients[t];
                     connectionsActivationGradients[t][i] -= Connections.Weights[i] * costGradients[t];
                 }
             }
