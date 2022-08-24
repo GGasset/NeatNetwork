@@ -59,11 +59,11 @@ namespace NeatNetwork.Libraries
 
         public static double EvolveValue(double maxVariation, double mutationChance) => GetVariation(-maxVariation, maxVariation) * WillMutate(mutationChance);
 
-        public static List<double[]> GetNetworkCostGrid(int InputLength, int[] shape, double[] outputCosts)
+        public static List<double[]> GetNetworkCostGrid(int inputLength, int[] shape, double[] outputCosts)
         {
             List<double[]> output = new List<double[]>
             {
-                new double[InputLength]
+                new double[inputLength]
             };
 
             for (int i = 0; i < shape.Length; i++)
@@ -82,7 +82,32 @@ namespace NeatNetwork.Libraries
             return output;
         }
 
-        /// <Returns>A list which contains a network which contains a list with a layer with a neuron contained in a list with each time step for the neuron, the array represents time for the neuron</Returns>
-        public static List<List<double[]>> GetTemporalNetworkCostGrid()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="outputCosts">A list that represents time steps which contains output layers costs</param>
+        /// <returns>A 3D grid in which you select layer costs then neuron costs and finally a time step</returns>
+        public static List<List<List<double>>> GetTemporalNetworkCostGrid(List<List<double>> outputCosts, int inputLength, int[] shape)
+        {
+            List<List<List<double>>> output = new List<List<List<double>>>();
+            int tSCount = outputCosts.Count;
+            int lastLayerI = shape.Length - 1;
+
+            for (int layerI = 0; layerI <= shape.Length; layerI++)
+            {
+                output.Add(new List<List<double>>());
+
+                int layerLength = layerI > 0? shape[layerI - 1] : inputLength;
+                for (int neuronI = 0; neuronI < layerLength; neuronI++)
+                {
+                    output[layerI].Add(new List<double>());
+                    for (int t = 0; t < tSCount; t++)
+                    {
+                        output[layerI][neuronI].Add(layerI == lastLayerI? outputCosts[t][neuronI] : 0);
+                    }
+                }
+            }
+            return output;
+        }
     }
 }
