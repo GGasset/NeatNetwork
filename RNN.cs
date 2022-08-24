@@ -47,17 +47,39 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
-        public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, bool deleteMemoryBeforeAndAfter = true) =>
-            SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction, deleteMemoryBeforeAndAfter), learningRate);
+        public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, double batchSize, Cost.CostFunctions costFunction, double learningRate)
+        {
+            List<List<List<NeuronHolder>>> gradients = new List<List<List<NeuronHolder>>>();
 
-        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryBeforeAndAfter = true)
+            batchSize = Math.Abs(batchSize);
+            batchSize *= 1 * Convert.ToInt16(batchSize > 1) + X.Count * Convert.ToInt16(batchSize <= 1);
+            batchSize = Math.Ceiling(batchSize);
+
+
+            Random r = new Random(DateTime.Now.Millisecond);
+            for (int i = 0; i < batchSize; i++)
+            {
+                int dataI = r.Next(X.Count);
+                gradients.Add(GetSupervisedLearningGradients(X[dataI], y[dataI], costFunction));
+
+                X.RemoveAt(dataI);
+                y.RemoveAt(dataI);
+            }
+
+            SubtractGrads(gradients, learningRate);
+        }
+
+        public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate) =>
+            SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction), learningRate);
+
+        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryBefore = true)
         {
             List<double[]> outputs = new List<double[]>();
             List<List<NeuronExecutionValues[]>> networkExecutionsValues = new List<List<NeuronExecutionValues[]>>();
             List<List<double[]>> networkExecutionsNeuronOutputs = new List<List<double[]>>();
             List<double[]> costGradients = new List<double[]>();
 
-            if (deleteMemoryBeforeAndAfter)
+            if (deleteMemoryBefore)
                 DeleteMemory();
 
             int tSCount = X.Count;
@@ -73,9 +95,6 @@ namespace NeatNetwork
             }
 
             var output = GetGradients(costGradients, networkExecutionsValues, networkExecutionsNeuronOutputs);
-
-            if (deleteMemoryBeforeAndAfter)
-                DeleteMemory();
 
             return output;
         }
@@ -116,6 +135,12 @@ namespace NeatNetwork
                 }
             }
             return output;
+        }
+
+        internal void SubtractGrads(List<List<List<NeuronHolder>>> gradients, double learningRate)
+        {
+            foreach (var networkGradients in gradients)
+                SubtractGrads(networkGradients, learningRate);
         }
 
         internal void SubtractGrads(List<List<NeuronHolder>> gradients, double learningRate)
