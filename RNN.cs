@@ -47,12 +47,18 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
-        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryAfterward = true)
+        public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, bool deleteMemoryBeforeAndAfter = true) =>
+            SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction, deleteMemoryBeforeAndAfter), learningRate);
+
+        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryBeforeAndAfter = true)
         {
             List<double[]> outputs = new List<double[]>();
             List<List<NeuronExecutionValues[]>> networkExecutionsValues = new List<List<NeuronExecutionValues[]>>();
             List<List<double[]>> networkExecutionsNeuronOutputs = new List<List<double[]>>();
             List<double[]> costGradients = new List<double[]>();
+
+            if (deleteMemoryBeforeAndAfter)
+                DeleteMemory();
 
             int tSCount = X.Count;
             for (int i = 0; i < tSCount; i++)
@@ -68,7 +74,7 @@ namespace NeatNetwork
 
             var output = GetGradients(costGradients, networkExecutionsValues, networkExecutionsNeuronOutputs);
 
-            if (deleteMemoryAfterward)
+            if (deleteMemoryBeforeAndAfter)
                 DeleteMemory();
 
             return output;
