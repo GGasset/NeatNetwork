@@ -34,7 +34,7 @@ namespace NeatNetwork.NetworkFiles
 
         internal double Execute(List<double[]> previousLayerActivations, out NeuronExecutionValues neuronExecutionVals)
         {
-            neuronExecutionVals = new NeuronExecutionValues(NeuronHolder.NeuronType.LSTM)
+            neuronExecutionVals = new NeuronExecutionValues(NeuronHolder.NeuronTypes.LSTM)
             {
                 InitialCellState = CellState,
                 InitialHiddenState = HiddenState,

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NeatNetwork.NetworkFiles;
+using NeatNetwork.Libraries;
 using static NeatNetwork.Libraries.Activation;
 
 namespace NeatNetwork
@@ -11,6 +12,7 @@ namespace NeatNetwork
     public class RNN
     {
         public int Length => Neurons.Count;
+        public int InputLength => Neurons[0][0].Connections.Length;
 
         internal ActivationFunctions ActivationFunction;
         internal List<List<NeuronHolder>> Neurons;
@@ -45,7 +47,11 @@ namespace NeatNetwork
 
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<List<NeuronExecutionValues>>> executionValues)
         {
-
+            List<List<double[]>> executionGradients = new List<List<double[]>>();
+            for (int i = 0; i < costGradients.Count; i++)
+            {
+                executionGradients.Add(ValueGeneration.GetNeuronCostsGrid())
+            }
         }
 
         /// <summary>

@@ -8,7 +8,7 @@ namespace NeatNetwork.NetworkFiles
 {
     public class NeuronExecutionValues
     {
-        internal readonly NeuronHolder.NeuronType NeuronType;
+        internal readonly NeuronHolder.NeuronTypes NeuronType;
 
         // All neuron types
         internal double Output;
@@ -41,7 +41,7 @@ namespace NeatNetwork.NetworkFiles
         internal double AfterTanhOutputGate;
 
 
-        internal NeuronExecutionValues(NeuronHolder.NeuronType neuronType)
+        internal NeuronExecutionValues(NeuronHolder.NeuronTypes neuronType)
         {
             NeuronType = neuronType;
         }

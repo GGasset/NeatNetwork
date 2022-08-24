@@ -9,24 +9,25 @@ namespace NeatNetwork.NetworkFiles
 {
     internal class NeuronHolder
     {
-        public NeuronType neuronType { get; private set; }
+        public NeuronTypes NeuronType { get; private set; }
         internal Neuron Neuron;
         internal LSTMNeuron LSTMNeuron;
+        internal NeuronConnectionsInfo Connections => GetNeuronConnectionsInfo();
 
         internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronExecutionValues ExecutionValues)
         {
             double activation;
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     activation = Neuron.Execute(previousNeuronsActivations, activationFunction, out double linearFunction);
-                    ExecutionValues = new NeuronExecutionValues(neuronType)
+                    ExecutionValues = new NeuronExecutionValues(NeuronType)
                     {
                         LinearFunction = linearFunction,
                         Output = activation,
                     };
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     activation = LSTMNeuron.Execute(previousNeuronsActivations, out ExecutionValues);
                     break;
                 default:
@@ -41,15 +42,15 @@ namespace NeatNetwork.NetworkFiles
         {
             NeuronHolder output = new NeuronHolder()
             {
-                neuronType = neuronType,
+                NeuronType = NeuronType,
             };
             previousOutputsGradients = new List<double[]>();
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     output.Neuron = Neuron.GetGradients(costGradients, neuronExecutionValues, previousOutputs, activationFunction);
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     output.LSTMNeuron = LSTMNeuron.GetGradients(costGradients, previousOutputs, neuronExecutionValues, out previousOutputsGradients);
                     break;
                 default:
@@ -60,15 +61,15 @@ namespace NeatNetwork.NetworkFiles
 
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
         {
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     Neuron.SubtractGrads(gradients.Neuron, learningRate);
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     LSTMNeuron.SubtractGrads(gradients.LSTMNeuron, learningRate);
                     break;
-                case NeuronType.Recurrent:
+                case NeuronTypes.Recurrent:
                     throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
@@ -81,12 +82,12 @@ namespace NeatNetwork.NetworkFiles
 
         internal void Evolve(double maxVariation, double mutationChance)
         {
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     Neuron.Evolve(maxVariation, mutationChance);
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     LSTMNeuron.Evolve(maxVariation, mutationChance);
                     break;
                 default:
@@ -96,12 +97,12 @@ namespace NeatNetwork.NetworkFiles
 
         internal void AddConnection(int layerIndex, int neuronIndex, double weight)
         {
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     Neuron.Connections.AddNewConnection(layerIndex, neuronIndex, weight);
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     LSTMNeuron.Connections.AddNewConnection(layerIndex, neuronIndex, weight);
                     break;
                 default:
@@ -113,21 +114,34 @@ namespace NeatNetwork.NetworkFiles
 
         internal void DeleteMemory()
         {
-            switch (neuronType)
+            switch (NeuronType)
             {
-                case NeuronType.Neuron:
+                case NeuronTypes.Neuron:
                     break;
-                case NeuronType.LSTM:
+                case NeuronTypes.LSTM:
                     LSTMNeuron.DeleteMemory();
                     break;
-                case NeuronType.Recurrent:
+                case NeuronTypes.Recurrent:
                     throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public enum NeuronType
+        private NeuronConnectionsInfo GetNeuronConnectionsInfo()
+        {
+            switch (NeuronType)
+            {
+                case NeuronTypes.Neuron:
+                    return Neuron.Connections;
+                case NeuronTypes.LSTM:
+                    return LSTMNeuron.Connections;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public enum NeuronTypes
         {
             Neuron,
             LSTM,
