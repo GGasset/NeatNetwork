@@ -258,7 +258,7 @@ namespace NeatNetwork
             }
 
             inputCosts = new double[neuronActivations[0].Length];
-            List<double[]> costGrid = ValueGeneration.GetNeuronCostsGrid(InputLength, Shape, costs);
+            List<double[]> costGrid = ValueGeneration.GetNetworkCostGrid(InputLength, Shape, costs);
 
             for (int layerIndex = Neurons.Count - 1; layerIndex >= 0; layerIndex--)
             {

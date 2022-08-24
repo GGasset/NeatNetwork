@@ -59,7 +59,7 @@ namespace NeatNetwork.Libraries
 
         public static double EvolveValue(double maxVariation, double mutationChance) => GetVariation(-maxVariation, maxVariation) * WillMutate(mutationChance);
 
-        public static List<double[]> GetNeuronCostsGrid(int InputLength, int[] shape, double[] outputCosts)
+        public static List<double[]> GetNetworkCostGrid(int InputLength, int[] shape, double[] outputCosts)
         {
             List<double[]> output = new List<double[]>
             {
@@ -82,5 +82,7 @@ namespace NeatNetwork.Libraries
             return output;
         }
 
+        /// <Returns>A list which contains a network which contains a list with a layer with a neuron contained in a list with each time step for the neuron, the array represents time for the neuron</Returns>
+        public static List<List<double[]>> GetTemporalNetworkCostGrid()
     }
 }
