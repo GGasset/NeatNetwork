@@ -50,6 +50,8 @@ namespace NeatNetwork
         public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, double batchSize, Cost.CostFunctions costFunction, double learningRate)
         {
             List<List<List<NeuronHolder>>> gradients = new List<List<List<NeuronHolder>>>();
+            X = new List<List<double[]>>(X.ToArray());
+            y = new List<List<double[]>>(y.ToArray());
 
             batchSize = Math.Abs(batchSize);
             batchSize *= 1 * Convert.ToInt16(batchSize > 1) + X.Count * Convert.ToInt16(batchSize <= 1);
