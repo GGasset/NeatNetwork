@@ -19,12 +19,12 @@ namespace NeatNetwork
         internal List<List<NeuronHolder>> Neurons;
 
 
-        public double[] Execute(double[] input) => Execute(input, out _);
+        public double[] Execute(double[] input) => Execute(input, out _,  out _);
 
-        public double[] Execute(double[] input, out List<NeuronExecutionValues[]> networkExecutionValues)
+        public double[] Execute(double[] input, out List<NeuronExecutionValues[]> networkExecutionValues, out List<double[]> neuronActivations)
         {
             networkExecutionValues = new List<NeuronExecutionValues[]>();
-            List<double[]> neuronActivations = new List<double[]>()
+            neuronActivations = new List<double[]>()
             {
                 input
             };
@@ -46,12 +46,17 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
-        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<List<NeuronExecutionValues>>> executionValues)
+        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations)
         {
-            List<List<double[]>> executionGradients = new List<List<double[]>>();
-            for (int i = 0; i < costGradients.Count; i++)
+            List<List<List<double>>> executionGradients = ValueGeneration.GetTemporalNetworkCostGrid(costGradients, InputLength, Shape);
+            int tSCount = costGradients.Count;
+
+            for (int layerI = Neurons.Count - 1; layerI >= 0; layerI--)
             {
-                executionGradients.Add(ValueGeneration.GetNeuronCostsGrid(InputLength, ))
+                for (int neuronI = 0; neuronI < Neurons[layerI].Count; neuronI++)
+                {
+                    Neurons[layerI][neuronI].GetGradients(executionGradients[layerI][neuronI], neuronActivations, , ActivationFunction, out List<double[]> )
+                }
             }
         }
 
