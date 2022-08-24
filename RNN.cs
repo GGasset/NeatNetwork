@@ -13,6 +13,7 @@ namespace NeatNetwork
     {
         public int Length => Neurons.Count;
         public int InputLength => Neurons[0][0].Connections.Length;
+        public int[] Shape => GetShape();
 
         internal ActivationFunctions ActivationFunction;
         internal List<List<NeuronHolder>> Neurons;
@@ -50,7 +51,7 @@ namespace NeatNetwork
             List<List<double[]>> executionGradients = new List<List<double[]>>();
             for (int i = 0; i < costGradients.Count; i++)
             {
-                executionGradients.Add(ValueGeneration.GetNeuronCostsGrid())
+                executionGradients.Add(ValueGeneration.GetNeuronCostsGrid(InputLength, ))
             }
         }
 
@@ -62,6 +63,14 @@ namespace NeatNetwork
             for (int i = 0; i < Length; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
                     Neurons[i][j].DeleteMemory();
+        }
+
+        private int[] GetShape()
+        {
+            int[] shape = new int[Length];
+            for (int i = 0; i < Neurons.Count; i++)
+                shape[i] = Neurons[i].Count;
+            return shape;
         }
     }
 }
