@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,18 +47,47 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
+        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y)
+        {
+
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="costGradients"></param>
+        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layers and finally neurons</param>
+        /// <param name="neuronActivations"></param>
+        /// <returns></returns>
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations)
         {
-            List<List<List<double>>> executionGradients = ValueGeneration.GetTemporalNetworkCostGrid(costGradients, InputLength, Shape);
+            List<List<NeuronHolder>> output = new List<List<NeuronHolder>>();
+            List<List<List<double>>> neuronOutputGradientsGrid = ValueGeneration.GetTemporalNetworkCostGrid(costGradients, InputLength, Shape);
             int tSCount = costGradients.Count;
 
             for (int layerI = Neurons.Count - 1; layerI >= 0; layerI--)
             {
+                output.Add(new List<NeuronHolder>());
                 for (int neuronI = 0; neuronI < Neurons[layerI].Count; neuronI++)
                 {
-                    Neurons[layerI][neuronI].GetGradients(executionGradients[layerI][neuronI], neuronActivations, , ActivationFunction, out List<double[]> )
+                    List<NeuronExecutionValues> neuronExecutionValues = new List<NeuronExecutionValues>();
+                    for (int t = 0; t < tSCount; t++)
+                        neuronExecutionValues.Add(executionValues[t][layerI][neuronI]);
+
+                    NeuronHolder cNeuron = Neurons[layerI][neuronI];
+
+                    output[layerI].Add(cNeuron.GetGradients(neuronOutputGradientsGrid[layerI][neuronI], neuronActivations, neuronExecutionValues, ActivationFunction, out List<double[]> connectionsGradients));
+
+                    // Update neuronOutputGradientsGrid
+                    for (int t = 0; t < tSCount; t++)
+                        for (int i = 0; i < cNeuron.Connections.Length; i++)
+                        {
+                            Point connectedNeuronPos = cNeuron.Connections.ConnectedNeuronsPos[i];
+                            neuronOutputGradientsGrid[connectedNeuronPos.X][connectedNeuronPos.Y][t] -= connectionsGradients[t][i];
+                        }
                 }
             }
+            return output;
         }
 
         /// <summary>
