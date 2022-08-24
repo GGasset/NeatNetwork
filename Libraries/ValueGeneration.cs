@@ -87,7 +87,7 @@ namespace NeatNetwork.Libraries
         /// </summary>
         /// <param name="outputCosts">A list that represents time steps which contains output layers costs</param>
         /// <returns>A 3D grid in which you select layer costs then neuron costs and finally a time step</returns>
-        public static List<List<List<double>>> GetTemporalNetworkCostGrid(List<List<double>> outputCosts, int inputLength, int[] shape)
+        public static List<List<List<double>>> GetTemporalNetworkCostGrid(List<double[]> outputCosts, int inputLength, int[] shape)
         {
             List<List<List<double>>> output = new List<List<List<double>>>();
             int tSCount = outputCosts.Count;
