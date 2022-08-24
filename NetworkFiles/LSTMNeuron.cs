@@ -32,9 +32,9 @@ namespace NeatNetwork.NetworkFiles
             OutputWeight = 0.0;
         }
 
-        internal double Execute(List<double[]> previousLayerActivations, out NeuronValues neuronExecutionVals)
+        internal double Execute(List<double[]> previousLayerActivations, out NeuronExecutionValues neuronExecutionVals)
         {
-            neuronExecutionVals = new NeuronValues(NeuronHolder.NeuronType.LSTM)
+            neuronExecutionVals = new NeuronExecutionValues(NeuronHolder.NeuronType.LSTM)
             {
                 InitialCellState = CellState,
                 InitialHiddenState = HiddenState,
@@ -106,7 +106,7 @@ namespace NeatNetwork.NetworkFiles
         /// <param name="costGradients"></param>
         /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
         /// <returns></returns>
-        internal LSTMNeuron GetGradients(List<double> costGradients, List<List<double[]>> networkNeuronOutputs, List<NeuronValues> executionValues, out List<double[]> connectionsActivationGradients)
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<List<double[]>> networkNeuronOutputs, List<NeuronExecutionValues> executionValues, out List<double[]> connectionsActivationGradients)
         {
             int cCount = Connections.Length;
 

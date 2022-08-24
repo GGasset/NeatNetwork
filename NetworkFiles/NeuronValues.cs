@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NeatNetwork.NetworkFiles
 {
-    public class NeuronValues
+    public class NeuronExecutionValues
     {
         internal readonly NeuronHolder.NeuronType NeuronType;
 
@@ -41,7 +41,7 @@ namespace NeatNetwork.NetworkFiles
         internal double AfterTanhOutputGate;
 
 
-        internal NeuronValues(NeuronHolder.NeuronType neuronType)
+        internal NeuronExecutionValues(NeuronHolder.NeuronType neuronType)
         {
             NeuronType = neuronType;
         }

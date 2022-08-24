@@ -13,14 +13,14 @@ namespace NeatNetwork.NetworkFiles
         internal Neuron Neuron;
         internal LSTMNeuron LSTMNeuron;
 
-        internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronValues ExecutionValues)
+        internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronExecutionValues ExecutionValues)
         {
             double activation;
             switch (neuronType)
             {
                 case NeuronType.Neuron:
                     activation = Neuron.Execute(previousNeuronsActivations, activationFunction, out double linearFunction);
-                    ExecutionValues = new NeuronValues(neuronType)
+                    ExecutionValues = new NeuronExecutionValues(neuronType)
                     {
                         LinearFunction = linearFunction,
                         Output = activation,
@@ -37,7 +37,7 @@ namespace NeatNetwork.NetworkFiles
 
         #region Gradient learning
 
-        internal NeuronHolder GetGradients(List<double> costGradients, List<List<double[]>> previousOutputs, List<NeuronValues> neuronExecutionValues, Activation.ActivationFunctions activationFunction, out List<double[]> previousOutputsGradients)
+        internal NeuronHolder GetGradients(List<double> costGradients, List<List<double[]>> previousOutputs, List<NeuronExecutionValues> neuronExecutionValues, Activation.ActivationFunctions activationFunction, out List<double[]> previousOutputsGradients)
         {
             NeuronHolder output = new NeuronHolder()
             {

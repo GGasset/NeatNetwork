@@ -18,9 +18,9 @@ namespace NeatNetwork
 
         public double[] Execute(double[] input) => Execute(input, out _);
 
-        public double[] Execute(double[] input, out List<NeuronValues[]> networkExecutionValues)
+        public double[] Execute(double[] input, out List<NeuronExecutionValues[]> networkExecutionValues)
         {
-            networkExecutionValues = new List<NeuronValues[]>();
+            networkExecutionValues = new List<NeuronExecutionValues[]>();
             List<double[]> neuronActivations = new List<double[]>()
             {
                 input
@@ -31,16 +31,21 @@ namespace NeatNetwork
 
                 int layerLength = Neurons[i].Count;
                 neuronActivations.Add(new double[layerLength]);
-                networkExecutionValues.Add(new NeuronValues[layerLength]);
+                networkExecutionValues.Add(new NeuronExecutionValues[layerLength]);
 
                 for (int j = 0; j < layerLength; j++)
                 {
-                    neuronActivations[i + 1][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out NeuronValues neuronExecutionValues);
+                    neuronActivations[i + 1][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out NeuronExecutionValues neuronExecutionValues);
                     networkExecutionValues[i][j] = neuronExecutionValues;
                 }
             }
 
             return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<List<NeuronExecutionValues>>> executionValues)
+        {
+
         }
 
         /// <summary>

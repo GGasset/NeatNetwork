@@ -72,7 +72,7 @@ namespace NeatNetwork.NetworkFiles
         /// Function only used for RNNs
         /// </summary>
         /// <returns></returns>
-        internal Neuron GetGradients(List<double> costs, List<NeuronValues> executionValues, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
+        internal Neuron GetGradients(List<double> costs, List<NeuronExecutionValues> executionValues, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
         {
             Neuron output = new Neuron()
             {
