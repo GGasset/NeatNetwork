@@ -91,7 +91,7 @@ namespace NeatNetwork.Libraries
         {
             List<List<List<double>>> output = new List<List<List<double>>>();
             int tSCount = outputCosts.Count;
-            int lastLayerI = shape.Length - 1;
+            int lastLayerI = shape.Length;
 
             for (int layerI = 0; layerI <= shape.Length; layerI++)
             {

@@ -4,6 +4,7 @@ using NeatNetwork.Libraries;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static NeatNetwork.NetworkFiles.NeuronHolder;
 
 namespace NeatNetwork
 {
@@ -11,6 +12,46 @@ namespace NeatNetwork
     {
         static void Main(string[] args)
         {
+            RNN n = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.Neuron }, Activation.ActivationFunctions.Sigmoid);
+            List<List<double[]>> X = new List<List<double[]>>()
+            {
+                new List<double[]>()
+                {
+                    new double[]
+                    {
+                        10,
+                    },
+                    new double[]
+                    {
+                        35
+                    }
+                },
+            };
+
+            List<List<double[]>> y = new List<List<double[]>>()
+            {
+                new List<double[]>()
+                {
+                    new double[]
+                    {
+                        0.5
+                    },
+                    new double[]
+                    {
+                        0.7
+                    }
+                },
+            };
+
+            for (int i = 0; i < 10000; i++)
+            {
+                n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, 1);
+            }
+
+            n.DeleteMemory();
+
+            Console.WriteLine(n.Execute(X[0][0])[0]);
+            Console.WriteLine(n.Execute(X[0][1])[0]);
 
 
              /*List<double[]> X = new List<double[]>()

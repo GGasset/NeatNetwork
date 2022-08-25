@@ -14,6 +14,10 @@ namespace NeatNetwork
     {
         public int Length => Neurons.Count;
         public int InputLength => Neurons[0][0].Connections.Length;
+
+        /// <summary>
+        /// Doesn't include input
+        /// </summary>
         public int[] Shape => GetShape();
 
         internal ActivationFunctions ActivationFunction;
@@ -32,10 +36,14 @@ namespace NeatNetwork
         public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias = 1, double minWeight = -1.5, double maxWeight = 1.5, double weightClosestTo0 = .37)
         {
             ActivationFunction = activationFunction;
+            Neurons = new List<List<NeuronHolder>>();
             for (int i = 1; i < shape.Length; i++)
+            {
+                Neurons.Add(new List<NeuronHolder>());
                 for (int j = 0; j < shape[i]; j++)
-                    Neurons[i].Add(new NeuronHolder(layerTypes[i], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
-                
+                    Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+            }
+
         }
 
         public double[] Execute(double[] input) => Execute(input, out _,  out _);
@@ -131,8 +139,9 @@ namespace NeatNetwork
             List<List<NeuronHolder>> output = new List<List<NeuronHolder>>();
             List<List<List<double>>> neuronOutputGradientsGrid = ValueGeneration.GetTemporalNetworkCostGrid(costGradients, InputLength, Shape);
             int tSCount = costGradients.Count;
+            int lastLayerI = Neurons.Count - 1;
 
-            for (int layerI = Neurons.Count - 1; layerI >= 0; layerI--)
+            for (int layerI = lastLayerI; layerI >= 0; layerI--)
             {
                 output.Add(new List<NeuronHolder>());
                 for (int neuronI = 0; neuronI < Neurons[layerI].Count; neuronI++)
@@ -143,7 +152,7 @@ namespace NeatNetwork
 
                     NeuronHolder cNeuron = Neurons[layerI][neuronI];
 
-                    output[layerI].Add(cNeuron.GetGradients(neuronOutputGradientsGrid[layerI][neuronI], neuronActivations, neuronExecutionValues, ActivationFunction, out List<double[]> connectionsGradients));
+                    output[lastLayerI - layerI].Add(cNeuron.GetGradients(neuronOutputGradientsGrid[layerI][neuronI], neuronActivations, neuronExecutionValues, ActivationFunction, out List<double[]> connectionsGradients));
 
                     // Update neuronOutputGradientsGrid
                     for (int t = 0; t < tSCount; t++)
