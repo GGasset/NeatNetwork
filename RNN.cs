@@ -20,6 +20,15 @@ namespace NeatNetwork
         internal List<List<NeuronHolder>> Neurons;
 
 
+        public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias, double minWeight, double maxWeight, double weightClosestTo0)
+        {
+            ActivationFunction = activationFunction;
+            for (int i = 1; i < shape.Length; i++)
+                for (int j = 0; j < shape[i]; j++)
+                    Neurons[i].Add(new NeuronHolder(layerTypes[i], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+                
+        }
+
         public double[] Execute(double[] input) => Execute(input, out _,  out _);
 
         public double[] Execute(double[] input, out List<NeuronExecutionValues[]> networkExecutionValues, out List<double[]> neuronActivations)

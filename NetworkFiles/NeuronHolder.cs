@@ -7,12 +7,33 @@ using System.Threading.Tasks;
 
 namespace NeatNetwork.NetworkFiles
 {
-    internal class NeuronHolder
+    public class NeuronHolder
     {
         public NeuronTypes NeuronType { get; private set; }
         internal Neuron Neuron;
         internal LSTMNeuron LSTMNeuron;
         internal NeuronConnectionsInfo Connections => GetNeuronConnectionsInfo();
+
+        internal NeuronHolder()
+        {
+
+        }
+
+        internal NeuronHolder(NeuronTypes neuronType, int layerIndex, int previousLayerLength, double defaultBias = 1, double maxWeight = 1.5, double minWeight = -1.5, double valueClosestTo0 = 0.37)
+        {
+            NeuronType = neuronType;
+            switch (neuronType)
+            {
+                case NeuronTypes.Neuron:
+                    Neuron = new Neuron(layerIndex, previousLayerLength, maxWeight, defaultBias, minWeight, valueClosestTo0);
+                    break;
+                case NeuronTypes.LSTM:
+                    LSTMNeuron = new LSTMNeuron(layerIndex, previousLayerLength, maxWeight, defaultBias, minWeight, valueClosestTo0);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
 
         internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronExecutionValues ExecutionValues)
         {

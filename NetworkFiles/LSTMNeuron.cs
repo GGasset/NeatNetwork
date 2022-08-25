@@ -10,7 +10,7 @@ using static NeatNetwork.Libraries.ValueGeneration;
 
 namespace NeatNetwork.NetworkFiles
 {
-    internal class LSTMNeuron
+    public class LSTMNeuron
     {
         internal double CellState;
         internal double HiddenState;
@@ -23,7 +23,18 @@ namespace NeatNetwork.NetworkFiles
         internal double StoreTanhWeight;
         internal double OutputWeight;
 
-        internal LSTMNeuron()
+        public LSTMNeuron(int layerIndex, int previousLayerLength, double defaultBias, double minWeight, double maxWeight, double valueClosestTo0)
+        {
+            Bias = defaultBias;
+            Connections = new NeuronConnectionsInfo(layerIndex, previousLayerLength, minWeight, maxWeight, valueClosestTo0);
+
+            ForgetWeight = GenerateWeight(minWeight, maxWeight, valueClosestTo0);
+            StoreSigmoidWeight = GenerateWeight(minWeight, maxWeight, valueClosestTo0);
+            StoreTanhWeight = GenerateWeight(minWeight, maxWeight, valueClosestTo0);
+            OutputWeight = GenerateWeight(minWeight, maxWeight, valueClosestTo0);
+        } 
+
+        public LSTMNeuron()
         {
             Connections = new NeuronConnectionsInfo();
             Bias = 0.0;

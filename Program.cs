@@ -11,7 +11,9 @@ namespace NeatNetwork
     {
         static void Main(string[] args)
         {
-             List<double[]> X = new List<double[]>()
+
+
+             /*List<double[]> X = new List<double[]>()
              {
                  new double[] { 0,0 },
                  new double[] { 1,0 },
@@ -51,7 +53,7 @@ namespace NeatNetwork
                         world.SetFirstNetworkScore(-meanCost);
 
                     /*double score = cn.Execute(X[1])[0];
-                    world.SetNextNetworkToBeScoredScore(score);*/
+                    world.SetNextNetworkToBeScoredScore(score);*
                     j++;
                 }
                 world.DropWorstNetworks(.5);
@@ -66,7 +68,7 @@ namespace NeatNetwork
                 double output = n.Execute(X[i])[0];
                 double expected = y[i][0];
                 Console.WriteLine($"Output: {output}, Expected: {expected}");
-            }
+            }*/
 
             // NN Supervised learning demonstration
             /*NN world = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);

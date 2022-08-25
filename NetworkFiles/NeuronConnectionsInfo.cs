@@ -17,6 +17,18 @@ namespace NeatNetwork.NetworkFiles
             ConnectedNeuronsPos = new List<Point>();
         }
 
+        internal NeuronConnectionsInfo(int layerIndex, int previousLayerLength, double minWeight, double maxWeight, double valueClosestTo0)
+        {
+            Weights = new List<double>();
+            ConnectedNeuronsPos = new List<Point>();
+
+            for (int i = 0; i < previousLayerLength; i++)
+            {
+                Point connectionPos = new Point(layerIndex - 1, i);
+                AddNewConnection(connectionPos, ValueGeneration.GenerateWeight(minWeight, maxWeight, valueClosestTo0));
+            }
+        }
+
         internal NeuronConnectionsInfo(List<Point> connectedNeuronsPos, List<double> weights)
         {
             this.ConnectedNeuronsPos = connectedNeuronsPos;

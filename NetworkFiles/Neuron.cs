@@ -22,14 +22,11 @@ namespace NeatNetwork.NetworkFiles
         }
 
         /// <param name="neuronLayerIndex">layer 0 is input layer</param>
-        public Neuron(int neuronLayerIndex, double defaultBias, int previousLayerLenght, double maxWeight, double minWeight, double weightClosestTo0)
+        public Neuron(int neuronLayerIndex, int previousLayerLenght, double defaultBias, double maxWeight, double minWeight, double weightClosestTo0)
         {
             Bias = defaultBias;
-            Connections = new NeuronConnectionsInfo();
-            for (int i = 0; i < previousLayerLenght; i++)
-            {
-                Connections.AddNewConnection(neuronLayerIndex - 1, i, maxWeight, minWeight, weightClosestTo0);
-            }
+            Connections = new NeuronConnectionsInfo(neuronLayerIndex, previousLayerLenght, minWeight, maxWeight, weightClosestTo0);
+            
         }
 
         internal double Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction, out double linearFunction)
