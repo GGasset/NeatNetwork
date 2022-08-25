@@ -19,8 +19,17 @@ namespace NeatNetwork
         internal ActivationFunctions ActivationFunction;
         internal List<List<NeuronHolder>> Neurons;
 
-
-        public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias, double minWeight, double maxWeight, double weightClosestTo0)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shape">Includes input layer</param>
+        /// <param name="layerTypes">Doesn't include input layer</param>
+        /// <param name="activationFunction"></param>
+        /// <param name="startingBias"></param>
+        /// <param name="minWeight"></param>
+        /// <param name="maxWeight"></param>
+        /// <param name="weightClosestTo0"></param>
+        public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias = 1, double minWeight = -1.5, double maxWeight = 1.5, double weightClosestTo0 = .37)
         {
             ActivationFunction = activationFunction;
             for (int i = 1; i < shape.Length; i++)
