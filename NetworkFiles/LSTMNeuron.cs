@@ -281,5 +281,31 @@ namespace NeatNetwork.NetworkFiles
             HiddenState = 0;
             CellState = 0;
         }
+
+        public LSTMNeuron(string str)
+        {
+            str = str.Replace("Bias: ", "").Replace(" Forget weight: ", "").Replace(" Store sigmoid weight: ", "").Replace(" Store tanh weight: ", "").Replace(" Output weight: ", "")
+                .Replace(" Cell state: ", "").Replace(" Hidden state: ", "").Replace(" Connections: ", "");
+
+            string[] values = str.Split(new char[] { '^' });
+
+            Bias = Convert.ToDouble(values[0]);
+
+            ForgetWeight = Convert.ToDouble(values[1]);
+            StoreSigmoidWeight = Convert.ToDouble(values[2]);
+            StoreTanhWeight = Convert.ToDouble(values[3]);
+            OutputWeight = Convert.ToDouble(values[4]);
+            CellState = Convert.ToDouble(values[5]);
+            HiddenState = Convert.ToDouble(values[6]);
+            Connections = new NeuronConnectionsInfo(values[7]);
+        }
+
+        public override string ToString()
+        {
+            string output = string.Empty;
+            output += $"Bias: {Bias}^ Forget weight: {ForgetWeight}^ Store sigmoid weight: {StoreSigmoidWeight}^ Store tanh weight: {StoreTanhWeight}^ Output weight: {OutputWeight}^" +
+                $" Cell state: {CellState}^ Hidden state: {HiddenState}^ Connections: {Connections.ToString()}";
+            return output;
+        }
     }
 }
