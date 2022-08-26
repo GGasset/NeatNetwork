@@ -66,5 +66,12 @@ namespace NeatNetwork
                 n.DeleteMemory();
             }
         }
+
+
+        public void GiveReward(double reward)
+        {
+            CurrentDefaultReward += reward;
+            RewardHistory[RewardHistory.Count - 1] = CurrentDefaultReward;
+        }
     }
 }
