@@ -22,7 +22,7 @@ namespace NeatNetwork
         public ReinforcementLearningRNN(RNN n, double learningRate = .5)
         {
             this.n = n;
-            learningRate = LearningRate;
+            LearningRate = learningRate;
 
             neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
             neuronOutputs = new List<List<double[]>>();
