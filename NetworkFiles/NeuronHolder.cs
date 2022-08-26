@@ -69,7 +69,7 @@ namespace NeatNetwork.NetworkFiles
             switch (NeuronType)
             {
                 case NeuronTypes.Neuron:
-                    output.Neuron = Neuron.GetGradients(costGradients, neuronExecutionValues, previousOutputs, activationFunction);
+                    output.Neuron = Neuron.GetGradients(costGradients, neuronExecutionValues, previousOutputs, activationFunction, out previousOutputsGradients);
                     break;
                 case NeuronTypes.LSTM:
                     output.LSTMNeuron = LSTMNeuron.GetGradients(costGradients, previousOutputs, neuronExecutionValues, out previousOutputsGradients);
@@ -82,7 +82,7 @@ namespace NeatNetwork.NetworkFiles
 
         internal void SubtractGrads(NeuronHolder gradients, double learningRate)
         {
-            switch (NeuronType)
+            switch (gradients.NeuronType)
             {
                 case NeuronTypes.Neuron:
                     Neuron.SubtractGrads(gradients.Neuron, learningRate);

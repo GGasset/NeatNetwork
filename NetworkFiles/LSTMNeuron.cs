@@ -117,7 +117,7 @@ namespace NeatNetwork.NetworkFiles
         /// <param name="costGradients"></param>
         /// <param name="executionValues">for proper training executionValues must have all the values since its memory was initialized</param>
         /// <returns></returns>
-        internal LSTMNeuron GetGradients(List<double> costGradients, List<List<double[]>> networkNeuronOutputs, List<NeuronExecutionValues> executionValues, out List<double[]> connectionsActivationGradients)
+        internal LSTMNeuron GetGradients(List<double> costGradients, List<List<double[]>> networkNeuronOutputs, List<NeuronExecutionValues> executionValues, out List<double[]> neuronInputGradients)
         {
             int cCount = Connections.Length;
 
@@ -125,9 +125,9 @@ namespace NeatNetwork.NetworkFiles
             output.Connections.ConnectedNeuronsPos = Connections.ConnectedNeuronsPos;
             output.Connections.Weights.AddRange(new double[Connections.Length]);
 
-            connectionsActivationGradients = new List<double[]>();
-            for (int i = 0; i < cCount; i++)
-                connectionsActivationGradients.Add(new double[cCount]);
+            neuronInputGradients = new List<double[]>();
+            /*for (int i = 0; i < cCount; i++)
+                neuronInputGradients.Add(new double[cCount]);*/
 
 
             int tSCount = costGradients.Count;
@@ -234,15 +234,17 @@ namespace NeatNetwork.NetworkFiles
                     linearFunctionDerivative += networkNeuronOutputs[t][currentConnectedPos.X][currentConnectedPos.Y];
                 }
 
-                previousHiddenStateGradient = costGradients[t] *= linearFunctionDerivative + outputGateMultiplicationDerivatives[t - 1];
+                previousHiddenStateGradient = costGradients[t] *= linearFunctionDerivative + (t == 0? 0 : outputGateMultiplicationDerivatives[t - 1]);
 
+                neuronInputGradients.Add(new double[cCount]);
                 for (int i = 0; i < cCount; i++)
                 {
                     Point currentConnectedPos = Connections.ConnectedNeuronsPos[i];
-                    output.Connections.Weights[t] += networkNeuronOutputs[t][currentConnectedPos.X][currentConnectedPos.Y] * costGradients[t];
-                    connectionsActivationGradients[t][i] -= Connections.Weights[i] * costGradients[t];
+                    output.Connections.Weights[i] += networkNeuronOutputs[t][currentConnectedPos.X][currentConnectedPos.Y] * costGradients[t];
+                    neuronInputGradients[tSCount - 1 - t][i] -= Connections.Weights[i] * costGradients[t];
                 }
             }
+            neuronInputGradients.Reverse();
             return output;
         }
         

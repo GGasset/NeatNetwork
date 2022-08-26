@@ -69,8 +69,11 @@ namespace NeatNetwork.NetworkFiles
         /// Function only used for RNNs
         /// </summary>
         /// <returns></returns>
-        internal Neuron GetGradients(List<double> costs, List<NeuronExecutionValues> executionValues, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction)
+        internal Neuron GetGradients(List<double> costs, List<NeuronExecutionValues> executionValues, List<List<double[]>> neuronActivations, Activation.ActivationFunctions activationFunction, out List<double[]> previousNeuronsGradients)
         {
+            int tCount = costs.Count;
+            int cCount = Connections.Length;
+
             Neuron output = new Neuron()
             {
                 Connections = Connections,
@@ -79,14 +82,20 @@ namespace NeatNetwork.NetworkFiles
             for (int i = 0; i < Connections.Length; i++)
                 output.Connections.Weights[i] = 0;
 
-            int tCount = costs.Count;
-            
-            for (int i = 1; i < tCount; i++)
+            previousNeuronsGradients = new List<double[]>();
+            for (int i = 0; i < tCount; i++)
+                previousNeuronsGradients.Add(new double[cCount]);
+
+            for (int t = tCount - 1; t >= 0; t--)
             {
-                GradientValues gradients = GetGradients(costs[i], executionValues[i].LinearFunction, neuronActivations[i], activationFunction);
+                GradientValues gradients = GetGradients(costs[t], executionValues[t].LinearFunction, neuronActivations[t], activationFunction);
                 output.Bias += gradients.biasGradient;
-                for (int j = 0; j < gradients.weightGradients.Count; j++)
-                    output.Connections.Weights[j] -= gradients.weightGradients[j];
+
+                for (int i = 0; i < cCount; i++)
+                {
+                    output.Connections.Weights[i] += gradients.weightGradients[i];
+                    previousNeuronsGradients[t][i] -= gradients.previousActivationGradients[i];
+                }
             }
             return output;
         }

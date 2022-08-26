@@ -152,7 +152,7 @@ namespace NeatNetwork
 
                     NeuronHolder cNeuron = Neurons[layerI][neuronI];
 
-                    output[lastLayerI - layerI].Add(cNeuron.GetGradients(neuronOutputGradientsGrid[layerI][neuronI], neuronActivations, neuronExecutionValues, ActivationFunction, out List<double[]> connectionsGradients));
+                    output[lastLayerI - layerI].Add(cNeuron.GetGradients(neuronOutputGradientsGrid[layerI + 1][neuronI], neuronActivations, neuronExecutionValues, ActivationFunction, out List<double[]> connectionsGradients));
 
                     // Update neuronOutputGradientsGrid
                     for (int t = 0; t < tSCount; t++)
@@ -163,6 +163,7 @@ namespace NeatNetwork
                         }
                 }
             }
+            output.Reverse();
             return output;
         }
 
