@@ -184,7 +184,7 @@ namespace NeatNetwork
         }
 
         /// <summary>
-        /// For proper training and only if training use only after each train step, it isn't neccesary to use after each train step
+        /// For proper training use only after each train step, it isn't neccesary to use after each train step
         /// </summary>
         public void DeleteMemory()
         {
