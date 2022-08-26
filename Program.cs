@@ -23,7 +23,7 @@ namespace NeatNetwork
                     },
                     new double[]
                     {
-                        35
+                        10
                     }
                 },
             };
@@ -57,8 +57,8 @@ namespace NeatNetwork
 
 
              /*List<double[]> X = new List<double[]>()
-             {
-                 new double[] { 0,0 },
+             {----------
+                              new double[] { 0,0 },
                  new double[] { 1,0 },
                  new double[] { 0,1 },
                  new double[] { 1,1 },
