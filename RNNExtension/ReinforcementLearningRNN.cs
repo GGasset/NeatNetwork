@@ -17,7 +17,6 @@ namespace NeatNetwork
         List<List<double[]>> neuronOutputs;
 
         List<double> RewardHistory;
-        double CurrentDefaultReward;
 
         public ReinforcementLearningRNN(RNN n, double learningRate = .5)
         {
@@ -27,15 +26,16 @@ namespace NeatNetwork
             neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
             neuronOutputs = new List<List<double[]>>();
             RewardHistory = new List<double>();
-            CurrentDefaultReward = 0;
         }
 
+        /// <summary>
+        /// For proper training you must give a reward after calling this function
+        /// </summary>
         public double[] Execute(double[] input)
         {
             var output = n.Execute(input, out List<NeuronExecutionValues[]> networkExecutionValues, out List<double[]> neuronExecutionOutputs);
             neuronExecutionValues.Add(networkExecutionValues);
             neuronOutputs.Add(neuronExecutionOutputs);
-            RewardHistory.Add(CurrentDefaultReward);
 
             return output;
         }
@@ -70,8 +70,7 @@ namespace NeatNetwork
 
         public void GiveReward(double reward)
         {
-            CurrentDefaultReward += reward;
-            RewardHistory[RewardHistory.Count - 1] = CurrentDefaultReward;
+            RewardHistory.Add(reward);
         }
     }
 }
