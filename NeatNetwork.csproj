@@ -60,6 +60,7 @@
     <Compile Include="NNExtension\ReinforcementLearningNN.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RNNExtension\ReinforcementLearningRNN.cs" />
     <Compile Include="RNN.cs" />
   </ItemGroup>
   <ItemGroup>
