@@ -129,15 +129,21 @@ namespace NeatNetwork
 
             return output;
         }
-        
+
+        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layers and finally neurons</param>
+        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations) =>
+            GetGradients(costGradients, executionValues, neuronActivations, out _);
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="costGradients"></param>
         /// <param name="executionValues">3D Grid in which time is the highest dimension and then layers and finally neurons</param>
         /// <param name="neuronActivations"></param>
+        /// <param name="inputCosts"></param>
         /// <returns></returns>
-        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations)
+        internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations, out List<List<double>> inputCosts)
         {
             List<List<NeuronHolder>> output = new List<List<NeuronHolder>>();
             List<List<List<double>>> neuronOutputGradientsGrid = ValueGeneration.GetTemporalNetworkCostGrid(costGradients, InputLength, Shape);
@@ -167,6 +173,7 @@ namespace NeatNetwork
                 }
             }
             output.Reverse();
+            inputCosts = neuronOutputGradientsGrid[0];
             return output;
         }
 
