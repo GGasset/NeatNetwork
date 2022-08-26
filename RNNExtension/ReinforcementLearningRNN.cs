@@ -29,6 +29,10 @@ namespace NeatNetwork
             return output;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deleteMemory">If set to false training data and memories won't be deleted</param>
         public void TerminateAgent(bool deleteMemory = true)
         {
             int tSCount = neuronOutputs.Count;
