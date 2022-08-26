@@ -73,6 +73,8 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
+        #region Gradient Learning
+
         public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, double batchSize, Cost.CostFunctions costFunction, double learningRate)
         {
             List<List<List<NeuronHolder>>> gradients = new List<List<List<NeuronHolder>>>();
@@ -189,6 +191,9 @@ namespace NeatNetwork
                 for (int j = 0; j < Neurons[i].Count; j++)
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
         }
+
+        #endregion
+
 
         /// <summary>
         /// For proper training use only after each train step, it isn't neccesary to use after each train step
