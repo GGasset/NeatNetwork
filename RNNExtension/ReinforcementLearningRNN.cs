@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NeatNetwork.NetworkFiles;
+using NeatNetwork.Libraries;
 
 namespace NeatNetwork
 {
     internal class ReinforcementLearningRNN
     {
         public RNN n;
-        List<double[]> Inputs;
+        public double LearningRate;
+
         List<List<NeuronExecutionValues[]>> neuronExecutionValues;
         List<List<double[]>> neuronOutputs;
 
@@ -25,6 +27,29 @@ namespace NeatNetwork
             RewardHistory.Add(CurrentDefaultReward);
 
             return output;
+        }
+
+        public void TerminateAgent(bool deleteMemory = true)
+        {
+            int tSCount = neuronOutputs.Count;
+            List<double[]> costGradients = new List<double[]>();
+            for (int t = 0; t < tSCount; t++)
+            {
+                List<double[]> currentNeuronOutputs = neuronOutputs[t];
+                double[] currentNetworkOutputs = currentNeuronOutputs[currentNeuronOutputs.Count - 1];
+                costGradients.Add(Derivatives.DerivativeOf(currentNetworkOutputs, RewardHistory[t]));
+            }
+
+            var gradients = n.GetGradients(costGradients, neuronExecutionValues, neuronOutputs);
+            n.SubtractGrads(gradients, LearningRate);
+
+            if (deleteMemory)
+            {
+                neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
+                neuronOutputs = new List<List<double[]>>();
+                RewardHistory = new List<double>();
+                n.DeleteMemory();
+            }
         }
     }
 }
