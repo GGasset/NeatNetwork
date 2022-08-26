@@ -142,11 +142,27 @@ namespace NeatNetwork.NetworkFiles
                 case NeuronTypes.LSTM:
                     LSTMNeuron.DeleteMemory();
                     break;
-                case NeuronTypes.Recurrent:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public override string ToString()
+        {
+            string output = string.Empty;
+            output += $"NeuronType: {Enum.GetName(typeof(NeuronTypes), NeuronType)}&";
+            switch (NeuronType)
+            {
+                case NeuronTypes.Neuron:
+                    output += Neuron.ToString();
+                    break;
+                case NeuronTypes.LSTM:
+                    output += LSTMNeuron.ToString();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return output;
         }
 
         private NeuronConnectionsInfo GetNeuronConnectionsInfo()

@@ -297,6 +297,7 @@ namespace NeatNetwork.NetworkFiles
             OutputWeight = Convert.ToDouble(values[4]);
             CellState = Convert.ToDouble(values[5]);
             HiddenState = Convert.ToDouble(values[6]);
+
             Connections = new NeuronConnectionsInfo(values[7]);
         }
 
