@@ -147,6 +147,24 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        public NeuronHolder(string str)
+        {
+            str = str.Replace("NeuronType: ", "");
+            string[] values = str.Split('&');
+            NeuronType = (NeuronTypes)Enum.Parse(typeof(NeuronTypes), values[0]);
+            switch (NeuronType)
+            {
+                case NeuronTypes.Neuron:
+                    Neuron = new Neuron(values[1]);
+                    break;
+                case NeuronTypes.LSTM:
+                    LSTMNeuron = new LSTMNeuron(values[1]);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public override string ToString()
         {
             string output = string.Empty;
