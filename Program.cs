@@ -12,7 +12,7 @@ namespace NeatNetwork
     {
         static void Main(string[] args)
         {
-            RNN n = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.Neuron }, Activation.ActivationFunctions.Sigmoid);
+            RNN n = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid);
             List<List<double[]>> X = new List<List<double[]>>()
             {
                 new List<double[]>()
@@ -43,15 +43,17 @@ namespace NeatNetwork
                 },
             };
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 100000; i++)
             {
-                n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, 1);
+                n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, .5);
+                Console.WriteLine(n.Execute(X[0][0])[0]);
+                Console.WriteLine(n.Execute(X[0][1])[0]);
+                Console.WriteLine("---------------------");
             }
 
             n.DeleteMemory();
 
-            Console.WriteLine(n.Execute(X[0][0])[0]);
-            Console.WriteLine(n.Execute(X[0][1])[0]);
+            Console.ReadLine();
 
 
              /*List<double[]> X = new List<double[]>()
