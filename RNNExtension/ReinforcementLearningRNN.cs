@@ -8,7 +8,7 @@ using NeatNetwork.Libraries;
 
 namespace NeatNetwork
 {
-    internal class ReinforcementLearningRNN
+    public class ReinforcementLearningRNN
     {
         public RNN n;
         public double LearningRate;
@@ -18,6 +18,17 @@ namespace NeatNetwork
 
         List<double> RewardHistory;
         double CurrentDefaultReward;
+
+        public ReinforcementLearningRNN(RNN n, double learningRate = .5)
+        {
+            this.n = n;
+            learningRate = LearningRate;
+
+            neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
+            neuronOutputs = new List<List<double[]>>();
+            RewardHistory = new List<double>();
+            CurrentDefaultReward = 0;
+        }
 
         public double[] Execute(double[] input)
         {
