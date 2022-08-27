@@ -43,8 +43,7 @@ namespace NeatNetwork
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="deleteMemory">If set to false training data and memories won't be deleted, 
-        /// Warning: this can cause problems at training because maybe the agent wouldn't be doung the same after being trained, so don't abuse it1</param>
+        /// <param name="deleteMemory">If set to false memories won't be deleted</param>
         public void TerminateAgent(bool deleteMemory = true)
         {
             int tSCount = neuronOutputs.Count;
@@ -59,11 +58,13 @@ namespace NeatNetwork
             var gradients = n.GetGradients(costGradients, neuronExecutionValues, neuronOutputs);
             n.SubtractGrads(gradients, LearningRate);
 
+
+            neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
+            neuronOutputs = new List<List<double[]>>();
+            RewardHistory = new List<double>();
+
             if (deleteMemory)
             {
-                neuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
-                neuronOutputs = new List<List<double[]>>();
-                RewardHistory = new List<double>();
                 n.DeleteMemory();
             }
         }
