@@ -43,7 +43,8 @@ namespace NeatNetwork
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="deleteMemory">If set to false training data and memories won't be deleted, this can cause problems at training because maybe the agent wouldn't be doung the same after being trained, so don't abuse it1</param>
+        /// <param name="deleteMemory">If set to false training data and memories won't be deleted, 
+        /// Warning: this can cause problems at training because maybe the agent wouldn't be doung the same after being trained, so don't abuse it1</param>
         public void TerminateAgent(bool deleteMemory = true)
         {
             int tSCount = neuronOutputs.Count;
