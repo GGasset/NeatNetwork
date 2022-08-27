@@ -43,7 +43,7 @@ namespace NeatNetwork
                 },
             };
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 500000; i++)
             {
                 n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, .5);
                 Console.WriteLine(n.Execute(X[0][0])[0]);
