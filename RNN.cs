@@ -217,6 +217,7 @@ namespace NeatNetwork
                 output = output.Remove(output.LastIndexOf('/'));
                 output += "\n";
             }
+            output = output.Remove(output.LastIndexOf('\n'));
             return output;
         }
 
