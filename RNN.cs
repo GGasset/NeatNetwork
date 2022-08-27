@@ -132,7 +132,7 @@ namespace NeatNetwork
             return output;
         }
 
-        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layers and finally neurons</param>
+        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layersStrs and finally neurons</param>
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations) =>
             GetGradients(costGradients, executionValues, neuronActivations, out _);
 
@@ -141,7 +141,7 @@ namespace NeatNetwork
         /// 
         /// </summary>
         /// <param name="costGradients"></param>
-        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layers and finally neurons</param>
+        /// <param name="executionValues">3D Grid in which time is the highest dimension and then layersStrs and finally neurons</param>
         /// <param name="neuronActivations"></param>
         /// <param name="inputGradients"></param>
         /// <returns></returns>
@@ -203,6 +203,36 @@ namespace NeatNetwork
             for (int i = 0; i < Length; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
                     Neurons[i][j].DeleteMemory();
+        }
+
+        public override string ToString()
+        {
+            string output = string.Empty;
+            foreach (var layer in Neurons)
+            {
+                foreach (var neuron in layer)
+                {
+                    output += neuron.ToString() + "/";
+                }
+                output = output.Remove(output.LastIndexOf('/'));
+                output += "\n";
+            }
+            return output;
+        }
+
+        public RNN(string str)
+        {
+            Neurons = new List<List<NeuronHolder>>();
+            string[] layersStrs = str.Split('\n');
+
+            for (int i = 0; i < layersStrs.Length; i++)
+            {
+                Neurons.Add(new List<NeuronHolder>());
+
+                string[] neuronsStrs = layersStrs[i].Split('/');
+                foreach (var neuronStr in neuronsStrs)
+                    Neurons[i].Add(new NeuronHolder(neuronStr));
+            }
         }
 
         private int[] GetShape()
