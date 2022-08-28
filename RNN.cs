@@ -23,6 +23,19 @@ namespace NeatNetwork
         internal ActivationFunctions ActivationFunction;
         internal List<List<NeuronHolder>> Neurons;
 
+        internal double InitialMaxMutationValue;
+        internal List<List<double>> MaxMutationGrid;
+        internal double MaxWeight;
+        internal double MinWeight;
+        internal double WeightClosestTo0;
+        internal double NewBiasValue;
+        internal double NewNeuronChance;
+        internal double NewLayerChance;
+        internal double FieldMaxMutation;
+        internal double MaxMutationOfFieldMaxMutation;
+        internal double MaxMutationOfMutationValueOfFieldMaxMutation;
+        internal double MutationChance;
+
         /// <summary>
         /// 
         /// </summary>
@@ -33,7 +46,9 @@ namespace NeatNetwork
         /// <param name="minWeight"></param>
         /// <param name="maxWeight"></param>
         /// <param name="weightClosestTo0"></param>
-        public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias = 1, double minWeight = -1.5, double maxWeight = 1.5, double weightClosestTo0 = .37)
+        public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias = 1, double minWeight = -1.5, double maxWeight = 1.5, double weightClosestTo0 = .37,
+            double newNeuronChance = .05, double newLayerChance = .02, double mutationChance = .2, 
+            double fieldMaxMutation = .27, double maxMutationOfFieldMaxMutation = .03, double maxMutationOfMutationValueOfFieldMaxMutation = .01)
         {
             ActivationFunction = activationFunction;
             Neurons = new List<List<NeuronHolder>>();
@@ -44,6 +59,17 @@ namespace NeatNetwork
                     Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
             }
 
+            NewBiasValue = startingBias;
+            MaxWeight = maxWeight;
+            MinWeight = minWeight;
+            WeightClosestTo0 = weightClosestTo0;
+
+            NewNeuronChance = newNeuronChance;
+            NewLayerChance = newLayerChance;
+            MutationChance = mutationChance;
+            FieldMaxMutation = fieldMaxMutation;
+            MaxMutationOfFieldMaxMutation = maxMutationOfFieldMaxMutation;
+            MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfFieldMaxMutation;
         }
 
         public double[] Execute(double[] input) => Execute(input, out _,  out _);
