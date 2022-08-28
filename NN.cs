@@ -27,7 +27,7 @@ namespace NeatNetwork
         internal double NewNeuronChance;
         internal double NewLayerChance;
         internal double FieldMaxMutation;
-        internal double MaxMutationOfieldMaxMutation;
+        internal double MaxMutationOFieldMaxMutation;
         internal double MaxMutationOfMutationValueOfFieldMaxMutation;
         internal double MutationChance;
 
@@ -63,7 +63,7 @@ namespace NeatNetwork
             this.WeightClosestTo0 = weightClosestTo0;
             this.NewBiasValue = startingBias;
             this.InitialMaxMutationValue = initialMaxMutationValue;
-            this.MaxMutationOfieldMaxMutation = maxMutationOfMutationValues;
+            this.MaxMutationOFieldMaxMutation = maxMutationOfMutationValues;
             this.MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfMutationValues;
             this.MutationChance = mutationChance;
             this.FieldMaxMutation = fieldMaxMutation;
@@ -109,7 +109,7 @@ namespace NeatNetwork
         {
             string str = "";
 
-            str += $"{InitialMaxMutationValue}\n{MaxWeight}\n{MinWeight}\n{WeightClosestTo0}\n{NewBiasValue}\n{NewNeuronChance}\n{NewLayerChance}\n{FieldMaxMutation}\n{MaxMutationOfieldMaxMutation}\n" +
+            str += $"{InitialMaxMutationValue}\n{MaxWeight}\n{MinWeight}\n{WeightClosestTo0}\n{NewBiasValue}\n{NewNeuronChance}\n{NewLayerChance}\n{FieldMaxMutation}\n{MaxMutationOFieldMaxMutation}\n" +
                 $"{MaxMutationOfMutationValueOfFieldMaxMutation}\n{MutationChance}\n{Enum.GetName(typeof(Activation.ActivationFunctions), ActivationFunction)}\n";
             str += "HIHI\n";
             foreach (var layerMaxMutation in MaxMutationGrid)
@@ -145,7 +145,7 @@ namespace NeatNetwork
             NewNeuronChance = Convert.ToDouble(fieldsStrs[5]);
             NewLayerChance = Convert.ToDouble(fieldsStrs[6]);
             FieldMaxMutation = Convert.ToDouble(fieldsStrs[7]);
-            MaxMutationOfieldMaxMutation = Convert.ToDouble(fieldsStrs[8]);
+            MaxMutationOFieldMaxMutation = Convert.ToDouble(fieldsStrs[8]);
             MaxMutationOfMutationValueOfFieldMaxMutation = Convert.ToDouble(fieldsStrs[9]);
             MutationChance = Convert.ToDouble(fieldsStrs[10]);
             ActivationFunction = (Activation.ActivationFunctions)Enum.Parse(typeof(Activation.ActivationFunctions), fieldsStrs[11]);
@@ -297,7 +297,7 @@ namespace NeatNetwork
 
         internal void Evolve()
         {
-            InitialMaxMutationValue += GetVariation(-MaxMutationOfieldMaxMutation, MaxMutationOfieldMaxMutation) * WillMutate(MutationChance);
+            InitialMaxMutationValue += GetVariation(-MaxMutationOFieldMaxMutation, MaxMutationOFieldMaxMutation) * WillMutate(MutationChance);
 
             MaxWeight += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
             MinWeight += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
@@ -308,15 +308,15 @@ namespace NeatNetwork
             NewNeuronChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
             NewLayerChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
 
-            FieldMaxMutation += GetVariation(-MaxMutationOfieldMaxMutation, MaxMutationOfieldMaxMutation) * WillMutate(MutationChance);
-            MaxMutationOfieldMaxMutation += GetVariation(-MaxMutationOfMutationValueOfFieldMaxMutation, MaxMutationOfMutationValueOfFieldMaxMutation) * WillMutate(MutationChance);
+            FieldMaxMutation += GetVariation(-MaxMutationOFieldMaxMutation, MaxMutationOFieldMaxMutation) * WillMutate(MutationChance);
+            MaxMutationOFieldMaxMutation += GetVariation(-MaxMutationOfMutationValueOfFieldMaxMutation, MaxMutationOfMutationValueOfFieldMaxMutation) * WillMutate(MutationChance);
             MutationChance += GetVariation(-FieldMaxMutation, FieldMaxMutation) * WillMutate(MutationChance);
 
             for (int i = 0; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
                 {
                     Neurons[i][j].Evolve(MaxMutationGrid[i][j], MutationChance);
-                    MaxMutationGrid[i][j] += GetVariation(-MaxMutationOfieldMaxMutation, MaxMutationOfieldMaxMutation) * WillMutate(MutationChance);
+                    MaxMutationGrid[i][j] += GetVariation(-MaxMutationOFieldMaxMutation, MaxMutationOFieldMaxMutation) * WillMutate(MutationChance);
                 }
 
             int insertionIndex = new Random(RandomI++).Next(Neurons.Count - 1);
