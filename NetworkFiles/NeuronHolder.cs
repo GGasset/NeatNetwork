@@ -196,41 +196,6 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
-        internal NeuronExecutionValues GetRecurrentState()
-        {
-            NeuronExecutionValues output = new NeuronExecutionValues(NeuronType);
-            switch (NeuronType)
-            {
-                case NeuronTypes.Neuron:
-                    break;
-                case NeuronTypes.LSTM:
-                    output.OutputCellState = LSTMNeuron.CellState;
-                    output.OutputHiddenState = LSTMNeuron.HiddenState;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            return output;
-        }
-
-        internal void SetRecurentState(NeuronExecutionValues recurrentState)
-        {
-            if (recurrentState.NeuronType != NeuronType)
-                throw new ArgumentException("Error while setting recurrent state, NeuronTypes doesn't match");
-
-            switch (NeuronType)
-            {
-                case NeuronTypes.Neuron:
-                    break;
-                case NeuronTypes.LSTM:
-                    LSTMNeuron.CellState = recurrentState.OutputCellState;
-                    LSTMNeuron.HiddenState = recurrentState.OutputHiddenState;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
         public enum NeuronTypes
         {
             Neuron,
