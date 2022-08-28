@@ -194,7 +194,14 @@ namespace NeatNetwork
 
         #endregion
 
+        #region Evolution learning
 
+        public void AddInputNeuron()
+        {
+
+        }
+
+        #endregion
         /// <summary>
         /// For proper training use only after each train step, it isn't neccesary to use after each train step
         /// </summary>
