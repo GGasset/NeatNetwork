@@ -224,7 +224,9 @@ namespace NeatNetwork
 
         public void AddInputNeuron()
         {
-
+            int previousInputLength = InputLength;
+            for (int i = 0; i < Neurons[0].Count; i++)
+                Neurons[0][i].AddConnection(0, previousInputLength, ValueGeneration.GenerateWeight(MinWeight, MaxWeight, WeightClosestTo0));
         }
 
         #endregion
