@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Libraries\DiskHandler.cs" />
+    <Compile Include="Libraries\Range.cs" />
     <Compile Include="Libraries\ValueGeneration.cs" />
     <Compile Include="Libraries\Activation.cs" />
     <Compile Include="Libraries\Cost.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="NNExtension\ReinforcementLearningNN.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RNNExtension\Groupings\NetworkConnectionsInfo.cs" />
     <Compile Include="RNNExtension\ReinforcementLearningRNN.cs" />
     <Compile Include="RNN.cs" />
   </ItemGroup>
