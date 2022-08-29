@@ -63,7 +63,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RNNExtension\Groupings\AgroupatedNetwork.cs" />
-    <Compile Include="RNNExtension\Groupings\NetworkConnectionsInfo.cs" />
+    <Compile Include="RNNExtension\Groupings\Connection.cs" />
     <Compile Include="RNNExtension\Groupings\NetworkGroup.cs" />
     <Compile Include="RNNExtension\ReinforcementLearningRNN.cs" />
     <Compile Include="RNN.cs" />
