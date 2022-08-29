@@ -111,15 +111,17 @@ namespace NeatNetwork
             batchSize *= 1 * Convert.ToInt16(batchSize > 1) + X.Count * Convert.ToInt16(batchSize <= 1);
             batchSize = Math.Ceiling(batchSize);
 
-
+            DeleteMemory();
             Random r = new Random(DateTime.Now.Millisecond);
             for (int i = 0; i < batchSize; i++)
             {
                 int dataI = r.Next(X.Count);
-                gradients.Add(GetSupervisedLearningGradients(X[dataI], y[dataI], costFunction));
+                gradients.Add(GetSupervisedLearningGradients(X[dataI], y[dataI], costFunction, false));
 
                 X.RemoveAt(dataI);
                 y.RemoveAt(dataI);
+
+                DeleteMemory();
             }
 
             SubtractGrads(gradients, learningRate);
@@ -128,7 +130,10 @@ namespace NeatNetwork
         public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate) =>
             SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction), learningRate);
 
-        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryBeforeAndAfter = true)
+        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, bool deleteMemoryBeforeAndAfter = true) =>
+            GetSupervisedLearningGradients(X, y, costFunction, out _, deleteMemoryBeforeAndAfter);
+
+        internal List<List<NeuronHolder>> GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, out List<List<double>> inputGradients, bool deleteMemoryBeforeAndAfter = true)
         {
             List<double[]> outputs = new List<double[]>();
             List<List<NeuronExecutionValues[]>> networkExecutionsValues = new List<List<NeuronExecutionValues[]>>();
@@ -150,7 +155,7 @@ namespace NeatNetwork
                 costGradients.Add(Derivatives.DerivativeOf(currentNetworkOutput, y[i], costFunction));
             }
 
-            var output = GetGradients(costGradients, networkExecutionsValues, networkExecutionsNeuronOutputs);
+            var output = GetGradients(costGradients, networkExecutionsValues, networkExecutionsNeuronOutputs, out inputGradients);
 
             if (deleteMemoryBeforeAndAfter)
                 DeleteMemory();
