@@ -4,14 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeatNetwork.RNNExtension.Groupings
+namespace NeatNetwork.Groupings
 {
     public class NetworkGroup
     {
 
-        internal void ClearInputForNetwork(int i)
-        {
-
-        }
     }
 }
