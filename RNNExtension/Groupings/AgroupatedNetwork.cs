@@ -8,7 +8,7 @@ namespace NeatNetwork.Groupings
 {
     internal class AgroupatedNetwork
     {
-        internal List<double> input;
+        private List<double> input;
         internal List<Connection> connections;
         public RNN n;
 
