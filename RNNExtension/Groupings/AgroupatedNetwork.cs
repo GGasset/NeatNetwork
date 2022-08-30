@@ -20,6 +20,16 @@ namespace NeatNetwork.Groupings
             ClearInput();
         }
 
+        /// <summary>
+        /// Connecting to -1 will mean input connected
+        /// </summary>
+        /// <param name="connectedNetworkI"></param>
+        /// <param name="connectedNetworkOutputLength"></param>
+        /// <param name="inputRange"></param>
+        /// <param name="outputRange"></param>
+        /// <param name="maxWeight"></param>
+        /// <param name="minWeight"></param>
+        /// <param name="weightClosestTo0"></param>
         internal void Connect(int connectedNetworkI, int connectedNetworkOutputLength, Range inputRange, Range outputRange, double maxWeight, double minWeight, double weightClosestTo0)
         {
             var connection = new Connection(inputRange, connectedNetworkI, outputRange, n.InputLength, connectedNetworkOutputLength, maxWeight, minWeight, weightClosestTo0);
