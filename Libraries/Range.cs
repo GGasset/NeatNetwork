@@ -12,7 +12,7 @@ namespace NeatNetwork.Libraries
         public int ToI;
         public int Length => ToI - FromI;
 
-        private int HashCode;
+        private readonly int HashCode;
         private static int NextHashCode = 0;
 
         public Range(int from, int to)
