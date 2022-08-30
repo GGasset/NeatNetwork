@@ -14,6 +14,7 @@ namespace NeatNetwork
     {
         public int Length => Neurons.Count;
         public int InputLength => Neurons[0][0].Connections.Length;
+        public int OutputLength => Neurons[Neurons.Count - 1].Count;
 
         /// <summary>
         /// Doesn't include input
