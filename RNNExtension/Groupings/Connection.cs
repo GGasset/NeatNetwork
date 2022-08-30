@@ -13,8 +13,55 @@ namespace NeatNetwork.Groupings
     public class Connection
     {
         internal Range InputRange;
-        internal Range ConnectedNetworkOutputRange;
-        internal List<List<double>> weights;
         internal int ConnectedNetworkI;
+        internal Range ConnectedNetworkOutputRange;
+
+        /// <summary>
+        /// List containing input neuron weights, input connected to output
+        /// </summary>
+        internal List<List<double>> Weights;
+
+        internal Connection(Range inputRange, int connectedNetworkI, Range connectedNetworkOutputRange, int inputLength, int connectedNetworkOutputLength, double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            InputRange = inputRange;
+            ConnectedNetworkI = connectedNetworkI;
+            ConnectedNetworkOutputRange = connectedNetworkOutputRange;
+
+            int inputRangeLength = inputRange.Length;
+            inputRangeLength = Math.Min(inputRangeLength, inputLength);
+            inputRangeLength += inputLength - inputRangeLength * Convert.ToInt32(inputRange == Range.WholeRange);
+
+            int outputRangeLength = connectedNetworkOutputRange.Length;
+            outputRangeLength = Math.Min(outputRangeLength, connectedNetworkOutputLength);
+            outputRangeLength += outputRangeLength - connectedNetworkOutputLength * Convert.ToInt32(inputRange == Range.WholeRange);
+
+            Weights = new List<List<double>>();
+            for (int i = 0; i < inputRangeLength; i++)
+            {
+                Weights.Add(new List<double>());
+                for (int j = 0; j < outputRangeLength; j++)
+                {
+                    Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
+                }
+            }
+        }
+
+        internal void AddInputNeuron(double outputLength, double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            Weights.Add(new List<double>());
+            int i = Weights.Count - 1;
+            for (int j = 0; j < outputLength; j++)
+            {
+                Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
+            }
+        }
+
+        internal void AddOutputNeuron(double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            for (int i = 0; i < Weights.Count; i++)
+            {
+                Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
+            }
+        }
     }
 }
