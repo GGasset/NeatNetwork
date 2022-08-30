@@ -10,6 +10,7 @@ namespace NeatNetwork.Libraries
     {
         public int FromI;
         public int ToI;
+        public int Length => ToI - FromI;
 
         private int HashCode;
         private static int NextHashCode = 0;
