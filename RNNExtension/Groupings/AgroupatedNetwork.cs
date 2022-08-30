@@ -12,7 +12,7 @@ namespace NeatNetwork.Groupings
         internal List<Connection> connections;
         public RNN n;
 
-        public List<int> networksConnectedToThis { get; private set; }
+        public List<int> ConnectedNetworksI { get; private set; }
 
 
         internal void ClearInput() => input = new List<double>(new double[n.InputLength]);
