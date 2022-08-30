@@ -24,7 +24,7 @@ namespace NeatNetwork.Libraries
             NextHashCode++;
         }
 
-        public Range WholeRange => new Range(0, -1);
+        public static Range WholeRange => new Range(0, -1);
 
         public static bool operator ==(Range a, Range b) => a.FromI == b.FromI && a.ToI == b.ToI;
         public static bool operator !=(Range a, Range b) => !(a == b);
