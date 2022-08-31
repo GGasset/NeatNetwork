@@ -8,13 +8,25 @@ namespace NeatNetwork.Libraries
 {
     public class Range
     {
+        /// <summary>
+        /// Inclusive
+        /// </summary>
         public int FromI;
+
+        /// <summary>
+        /// Inclusive
+        /// </summary>
         public int ToI;
         public int Length => ToI - FromI;
 
         private readonly int HashCode;
         private static int NextHashCode = 0;
 
+        /// <summary>
+        /// Ranges are inclusive
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
         public Range(int from, int to)
         {
             FromI = from;
