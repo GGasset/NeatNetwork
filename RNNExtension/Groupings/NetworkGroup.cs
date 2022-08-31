@@ -147,7 +147,13 @@ namespace NeatNetwork.Groupings
         /// <returns></returns>
         internal List<int> GetNetworksConnectedTo(int index)
         {
-
+            List<int> output = new List<int>();
+            for (int i = 0; i < Networks.Count; i++)
+            {
+                if (Networks[i].IsConnectedTo(index))
+                    output.Add(i);
+            }
+            return output;
         }
 
         /// <summary>
