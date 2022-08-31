@@ -45,5 +45,14 @@ namespace NeatNetwork.Groupings
         }
 
         internal void ClearInput() => input = new List<double>(new double[n.InputLength]);
+
+        public bool IsConnectedTo(int networkI)
+        {
+            for (int i = 0; i < Connections.Count; i++)
+                if (Connections[i].ConnectedNetworkI == networkI)
+                    return true;
+
+            return false;
+        }
     }
 }
