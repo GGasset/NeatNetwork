@@ -31,7 +31,7 @@ namespace NeatNetwork.Groupings
         {
             int tSCount = costGradients.Count;
 
-            // NetworkOutputGradients is a list representing execution order containing other list representing time containing a cost arrays
+            // NetworkOutputGradients is a list representing execution order containing other list representing time containing a cost arrays for networks
             List<List<double[]>> networksOutputCostGradients = new List<List<double[]>>();
             for (int i = 0; i < ExecutionOrder.Count; i++)
             {
@@ -62,16 +62,14 @@ namespace NeatNetwork.Groupings
 
                 cNetwork.n.GetGradients(costGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
 
-                foreach (var connection in cNetwork.Connections)
+                // Save all connections executions but if the current network is executed clear the saved list because cNetwork input is cleared
+                // This can handle multiple executions of different networks without cNetwork being executed
+                List<int> influentialExecutedNetworks = new List<int>();
+                for (int j = 0; j < i; j++)
                 {
-                    int currentProcessedInputToI = connection.InputRange.ToI;
-                    currentProcessedInputToI += (cNetwork.n.InputLength + 1) * Convert.ToInt32(connection.InputRange == Range.WholeRange);
-                    int inputFromI = connection.InputRange.FromI;
-
-                    for (int j = inputFromI; j < currentProcessedInputToI; j++)
-                    {
-
-                    }
+                    influentialExecutedNetworks.Add(ExecutionOrder[j]);
+                    if (ExecutionOrder[j] == ExecutionOrder[i])
+                        influentialExecutedNetworks.Clear();
                 }
             }
         }
