@@ -68,10 +68,17 @@ namespace NeatNetwork.Groupings
                 List<int> influentialExecutedNetworks = new List<int>();
                 for (int j = 0; j < i; j++)
                 {
-                    influentialExecutedNetworks.Add(ExecutionOrder[j]);
-                    if (ExecutionOrder[j] == ExecutionOrder[i])
+                    if (ExecutionOrder[j] == currentExecutionIndex)
+                    {
                         influentialExecutedNetworks.Clear();
+                    }
+                    else if (cNetwork.IsConnectedTo(ExecutionOrder[j]))
+                    {
+                        influentialExecutedNetworks.Add(ExecutionOrder[j]);
+                    }
                 }
+
+
             }
         }
 
