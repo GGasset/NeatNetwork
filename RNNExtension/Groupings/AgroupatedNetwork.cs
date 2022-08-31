@@ -54,5 +54,16 @@ namespace NeatNetwork.Groupings
 
             return false;
         }
+
+        internal Connection GetConnectionConnectedTo(int networkI)
+        {
+            for (int i = 0; i < Connections.Count; i++)
+            {
+                if (Connections[i].ConnectedNetworkI == networkI)
+                    return Connections[i];
+            }
+
+            throw new ArgumentException("Connection doesn't exists");
+        }
     }
 }
