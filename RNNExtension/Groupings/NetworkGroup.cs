@@ -138,5 +138,30 @@ namespace NeatNetwork.Groupings
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">-1 means connected to input</param>
+        /// <returns></returns>
+        internal List<int> GetNetworksConnectedTo(int index)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="networkIndex"></param>
+        /// <returns>Null if connection doesn't exist</returns>
+        internal Connection GetOutputConnection(int networkIndex)
+        {
+            foreach (var connection in OutputConnections)
+                if (connection.ConnectedNetworkI == networkIndex)
+                    return connection;
+
+            return null;
+        }
     }
 }
