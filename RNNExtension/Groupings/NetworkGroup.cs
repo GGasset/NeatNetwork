@@ -12,10 +12,13 @@ namespace NeatNetwork.Groupings
     {
         internal List<AgroupatedNetwork> Networks;
         public List<int> ExecutionOrder;
+        public List<Connection> OutputConnections;
 
         public NetworkGroup()
         {
-
+            Networks = new List<AgroupatedNetwork>();
+            ExecutionOrder = new List<int>();
+            OutputConnections = new List<Connection>();
         }
 
         #region Gradient Learning
@@ -42,6 +45,7 @@ namespace NeatNetwork.Groupings
                 }
             }
             
+            // TODO: Pass output costs to output connected networks
 
             for (int i = ExecutionOrder.Count - 1; i >= 0; i--)
             {
@@ -61,7 +65,7 @@ namespace NeatNetwork.Groupings
 
                 AgroupatedNetwork cNetwork = Networks[ExecutionOrder[i]];
 
-                cNetwork.n.GetGradients(costGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
+                cNetwork.n.GetGradients(networksOutputCostGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
 
                 // Save all connections executions but if the current network is executed clear the saved list because cNetwork input is cleared
                 // This can handle multiple executions of different networks without cNetwork being executed
@@ -78,7 +82,10 @@ namespace NeatNetwork.Groupings
                     }
                 }
 
+                foreach (var influentialNetworkI in influentialExecutedNetworks)
+                {
 
+                }
             }
         }
 
