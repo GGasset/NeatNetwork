@@ -47,6 +47,7 @@ namespace NeatNetwork.Groupings
             {
                 int currentExecutionIndex = ExecutionOrder[i];
 
+                // Putting relevant values in a better formatted manner for training, a list representing time
                 List<double[]> currentCostGradients = new List<double[]>();
                 List < List<NeuronExecutionValues[]>> currentExecutionValues = new List<List<NeuronExecutionValues[]>>();
                 List < List<double[]>> currentNeuronActivations = new List<List<double[]>>();
