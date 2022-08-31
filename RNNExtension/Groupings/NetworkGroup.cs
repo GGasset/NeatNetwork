@@ -14,11 +14,21 @@ namespace NeatNetwork.Groupings
         public List<int> ExecutionOrder;
         internal List<Connection> OutputConnections;
 
-        public NetworkGroup()
+        public readonly int InputLength;
+        public readonly int OutputLength;
+
+        public NetworkGroup(int inputLength, int outputLength)
         {
             Networks = new List<AgroupatedNetwork>();
             ExecutionOrder = new List<int>();
             OutputConnections = new List<Connection>();
+            InputLength = inputLength;
+            OutputLength = outputLength;
+        }
+
+        public double[] Execute(double[] input)
+        {
+
         }
 
         #region Gradient Learning
