@@ -75,16 +75,11 @@ namespace NeatNetwork.Groupings
             throw new ArgumentException("Connection doesn't exists");
         }
 
-        internal Range GetOutputRange(int connectionIndex)
-        {
+        internal Range GetOutputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].ConnectedNetworkOutputRange, false);
 
-        }
+        internal Range GetInputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].InputRange, true);
 
-        internal Range GetInputRange(int connectionIndex)
-        {
-        }
-
-        internal Range FormatRange(Range range, bool isInputRange = true)
+        internal Range FormatRange(Range range, bool isInputRange)
         {
             if (range != Range.WholeRange)
             {
