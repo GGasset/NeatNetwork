@@ -20,6 +20,15 @@ namespace NeatNetwork.Groupings
             ClearInput();
         }
 
+        internal void GetInput(double[] wholeInput, Connection connection)
+        {
+            double[] input = new double[connection.ConnectedNetworkOutputRange.Length];
+            for (int i = 0; i < ; i++)
+            {
+
+            }
+        }
+
         /// <summary>
         /// Connecting to -1 will mean input connected
         /// </summary>
@@ -46,6 +55,7 @@ namespace NeatNetwork.Groupings
 
         internal void ClearInput() => input = new List<double>(new double[n.InputLength]);
 
+        // TODO: implement optimized search
         public bool IsConnectedTo(int networkI)
         {
             for (int i = 0; i < Connections.Count; i++)
@@ -55,15 +65,36 @@ namespace NeatNetwork.Groupings
             return false;
         }
 
+        // TODO implement optimized search
         internal Connection GetConnectionConnectedTo(int networkI)
         {
             for (int i = 0; i < Connections.Count; i++)
-            {
                 if (Connections[i].ConnectedNetworkI == networkI)
                     return Connections[i];
-            }
 
             throw new ArgumentException("Connection doesn't exists");
+        }
+
+        internal Range GetOutputRange(int connectionIndex)
+        {
+
+        }
+
+        internal Range GetInputRange(int connectionIndex)
+        {
+        }
+
+        internal Range FormatRange(Range range, bool isInputRange = true)
+        {
+            if (range != Range.WholeRange)
+            {
+                return range;
+            }
+            else
+            {
+                int toI = n.InputLength * Convert.ToInt32(isInputRange) + n.OutputLength * Convert.ToInt32(!isInputRange);
+                return new Range(range.FromI, toI);
+            }
         }
     }
 }
