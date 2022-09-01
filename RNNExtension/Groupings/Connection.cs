@@ -96,6 +96,14 @@ namespace NeatNetwork.Groupings
             }
         }
 
-        internal Range FormatRange(int inputLength, int connectedOutputLength)
+        internal Range FormatRange(int inputLength, int connectedOutputLength, bool isInputRange) 
+            => new Range
+            (
+                InputRange.FromI * Convert.ToInt32(isInputRange) + ConnectedOutputRange.FromI * Convert.ToInt32(!isInputRange)
+                ,
+                InputRange.ToI * Convert.ToInt32(isInputRange) + (1 + inputLength) * Convert.ToInt32(isInputRange && InputRange == Range.WholeRange)
+                +
+                ConnectedOutputRange.ToI * Convert.ToInt32(!isInputRange) + (1 + connectedOutputLength) * Convert.ToInt32(!isInputRange && ConnectedOutputRange == Range.WholeRange)
+            );
     }
 }
