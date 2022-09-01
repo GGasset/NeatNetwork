@@ -30,6 +30,8 @@ namespace NeatNetwork.Groupings
 
         public double[] Execute(double[] input)
         {
+            ClearOutput();
+
             List<int> inputConnectedNetworks = GetNetworksConnectedTo(-1);
             foreach (var networkI in inputConnectedNetworks)
             {
@@ -51,12 +53,9 @@ namespace NeatNetwork.Groupings
 
                 Connection outputConnection = GetOutputConnection(currentExecutionNetwork);
                 if (outputConnection != null)
-                {
-
-                }
+                    PassOutput(nOutput, outputConnection);
             }
 
-            ClearOutput();
         }
 
         #region Gradient Learning
