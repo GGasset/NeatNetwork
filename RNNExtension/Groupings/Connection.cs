@@ -14,7 +14,7 @@ namespace NeatNetwork.Groupings
     {
         internal Range InputRange { get; private set; }
         internal int ConnectedNetworkI;
-        internal Range OutputRange { get; private set; }
+        internal Range ConnectedOutputRange { get; private set; }
 
         /// <summary>
         /// List containing input neuron weights, input connected to output
@@ -25,7 +25,7 @@ namespace NeatNetwork.Groupings
         {
             InputRange = inputRange;
             ConnectedNetworkI = connectedNetworkI;
-            OutputRange = connectedNetworkOutputRange;
+            ConnectedOutputRange = connectedNetworkOutputRange;
 
             int inputRangeLength = inputRange.Length;
             inputRangeLength = Math.Min(inputRangeLength, inputLength);
@@ -46,9 +46,36 @@ namespace NeatNetwork.Groupings
             }
         }
 
-        internal void AddInputNeuron(double outputLength, bool incrementFromI, double maxWeight, double minWeight, double weightClosestTo0)
+        #region Gradient learning
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="wholeInputCostGradients"></param>
+        /// <returns>List of size of the connected network output</returns>
+        internal List<double> GetGradients(List<double> wholeInputCostGradients, double[] connectedNetworkOutput, out Connection weightGradients, int inputLength)
         {
-            InputRange.ToI += Convert.ToInt32(incrementFromI);
+            List<double> output = new List<double>();
+            for (int i = 0; i < connectedNetworkOutput.Length; i++)
+                output.Add(0);
+
+            Range inputRange = 
+
+            for (int neuronI = 0; neuronI < length; neuronI++)
+            {
+
+            }
+        }
+
+
+        #endregion
+
+        /// <summary>
+        /// If InputRange == Range.WholeRange InputRange.ToI will be incremented
+        /// </summary>
+        internal void AddInputNeuron(double outputLength, double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            InputRange.ToI += Convert.ToInt32(InputRange == Range.WholeRange);
             Weights.Add(new List<double>());
             int i = Weights.Count - 1;
             for (int j = 0; j < outputLength; j++)
@@ -57,13 +84,18 @@ namespace NeatNetwork.Groupings
             }
         }
 
-        internal void AddOutputNeuron(bool incrementToI, double maxWeight, double minWeight, double weightClosestTo0)
+        /// <summary>
+        /// If OutputRange == Range.WholeRange OutputRange.ToI will be incremented
+        /// </summary>
+        internal void AddOutputNeuron(double maxWeight, double minWeight, double weightClosestTo0)
         {
-            OutputRange.ToI += Convert.ToInt32(incrementToI);
+            ConnectedOutputRange.ToI += Convert.ToInt32(ConnectedOutputRange == Range.WholeRange);
             for (int i = 0; i < Weights.Count; i++)
             {
                 Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
             }
         }
+
+        internal Range FormatRange(int inputLength, int connectedOutputLength)
     }
 }
