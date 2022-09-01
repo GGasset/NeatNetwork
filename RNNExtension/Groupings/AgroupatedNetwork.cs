@@ -82,17 +82,7 @@ namespace NeatNetwork.Groupings
 
         internal Range GetInputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].InputRange, true);
 
-        internal Range FormatRange(Range range, bool isInputRange)
-        {
-            if (range != Range.WholeRange)
-            {
-                return range;
-            }
-            else
-            {
-                int toI = n.InputLength * Convert.ToInt32(isInputRange) + n.OutputLength * Convert.ToInt32(!isInputRange);
-                return new Range(range.FromI, toI);
-            }
-        }
+        internal Range FormatRange(int connectionI, int connectedNetworkOutputLength, bool isInputRange)
+            => Connections[connectionI].FormatRange(n.InputLength, connectedNetworkOutputLength, isInputRange);
     }
 }
