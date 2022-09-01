@@ -14,7 +14,7 @@ namespace NeatNetwork.Groupings
     {
         internal Range InputRange { get; private set; }
         internal int ConnectedNetworkI;
-        internal Range ConnectedNetworkOutputRange { get; private set; }
+        internal Range OutputRange { get; private set; }
 
         /// <summary>
         /// List containing input neuron weights, input connected to output
@@ -25,7 +25,7 @@ namespace NeatNetwork.Groupings
         {
             InputRange = inputRange;
             ConnectedNetworkI = connectedNetworkI;
-            ConnectedNetworkOutputRange = connectedNetworkOutputRange;
+            OutputRange = connectedNetworkOutputRange;
 
             int inputRangeLength = inputRange.Length;
             inputRangeLength = Math.Min(inputRangeLength, inputLength);
@@ -59,7 +59,7 @@ namespace NeatNetwork.Groupings
 
         internal void AddOutputNeuron(bool incrementToI, double maxWeight, double minWeight, double weightClosestTo0)
         {
-            ConnectedNetworkOutputRange.ToI += Convert.ToInt32(incrementToI);
+            OutputRange.ToI += Convert.ToInt32(incrementToI);
             for (int i = 0; i < Weights.Count; i++)
             {
                 Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
