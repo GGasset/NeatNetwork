@@ -17,6 +17,8 @@ namespace NeatNetwork.Groupings
         public readonly int InputLength;
         public readonly int OutputLength;
 
+        private double[] Output;
+
         public NetworkGroup(int inputLength, int outputLength)
         {
             Networks = new List<AgroupatedNetwork>();
@@ -28,7 +30,33 @@ namespace NeatNetwork.Groupings
 
         public double[] Execute(double[] input)
         {
+            List<int> inputConnectedNetworks = GetNetworksConnectedTo(-1);
+            foreach (var networkI in inputConnectedNetworks)
+            {
+                Connection inputConnectedConnection = Networks[networkI].GetConnectionConnectedTo(-1);
+                Networks[networkI].PassInput(input, inputConnectedConnection);
+            }
 
+            for (int i = 0; i < ExecutionOrder.Count; i++)
+            {
+                int currentExecutionNetwork = ExecutionOrder[i];
+
+                double[] nOutput = Networks[currentExecutionNetwork].n.Execute(input, out List<NeuronExecutionValues[]> neuronExecutionValues, out List<double[]> neuronActivations);
+
+                List<int> networksConnectedToCurrentNetwork = GetNetworksConnectedTo(currentExecutionNetwork);
+                foreach (var networkIConnectedToCurrentNetwork in networksConnectedToCurrentNetwork)
+                {
+                    Networks[networkIConnectedToCurrentNetwork].PassInput(nOutput, Networks[networkIConnectedToCurrentNetwork].GetConnectionConnectedTo(currentExecutionNetwork));
+                }
+
+                Connection outputConnection = GetOutputConnection(currentExecutionNetwork);
+                if (outputConnection != null)
+                {
+
+                }
+            }
+
+            ClearOutput();
         }
 
         #region Gradient Learning
@@ -69,7 +97,7 @@ namespace NeatNetwork.Groupings
                     for (int neuronI = 0; neuronI < cConnection.InputRange.Length; neuronI++)
                     {
                         connectionsGradients[networkI][connectionI].Add(new List<double>());
-                        for (int weightI = 0; weightI < cConnection.ConnectedNetworkOutputRange.Length; weightI++)
+                        for (int weightI = 0; weightI < cConnection.OutputRange.Length; weightI++)
                         {
                             connectionsGradients[networkI][connectionI][neuronI].Add(0);
                         }
@@ -84,7 +112,7 @@ namespace NeatNetwork.Groupings
                 for (int neuronI = 0; neuronI < OutputConnections[connectionI].InputRange.Length; neuronI++)
                 {
                     outputConnectionsGradients[connectionI].Add(new List<double>());
-                    for (int weightI = 0; weightI < OutputConnections[connectionI].ConnectedNetworkOutputRange.Length; weightI++)
+                    for (int weightI = 0; weightI < OutputConnections[connectionI].OutputRange.Length; weightI++)
                     {
                         outputConnectionsGradients[connectionI][neuronI].Add(0);
                     }
@@ -169,5 +197,19 @@ namespace NeatNetwork.Groupings
 
             return null;
         }
+
+        internal void PassOutput(double[] networkOutput, Connection connection)
+        {
+            Range inputRange = connection.InputRange, outputRange = connection.OutputRange;
+            for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
+            {
+                for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
+                {
+                    Output[networkInputI] += networkOutput[inputI] * connection.Weights[networkInputI - inputRange.FromI][inputI - outputRange.FromI];
+                }
+            }
+        }
+
+        private void ClearOutput() => Output = new double[OutputLength];
     }
 }
