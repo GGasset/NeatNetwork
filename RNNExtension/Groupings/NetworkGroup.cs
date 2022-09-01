@@ -56,6 +56,7 @@ namespace NeatNetwork.Groupings
                     PassOutput(nOutput, outputConnection);
             }
 
+            return Output;
         }
 
         #region Gradient Learning
@@ -96,7 +97,7 @@ namespace NeatNetwork.Groupings
                     for (int neuronI = 0; neuronI < cConnection.InputRange.Length; neuronI++)
                     {
                         connectionsGradients[networkI][connectionI].Add(new List<double>());
-                        for (int weightI = 0; weightI < cConnection.OutputRange.Length; weightI++)
+                        for (int weightI = 0; weightI < cConnection.ConnectedOutputRange.Length; weightI++)
                         {
                             connectionsGradients[networkI][connectionI][neuronI].Add(0);
                         }
@@ -111,7 +112,7 @@ namespace NeatNetwork.Groupings
                 for (int neuronI = 0; neuronI < OutputConnections[connectionI].InputRange.Length; neuronI++)
                 {
                     outputConnectionsGradients[connectionI].Add(new List<double>());
-                    for (int weightI = 0; weightI < OutputConnections[connectionI].OutputRange.Length; weightI++)
+                    for (int weightI = 0; weightI < OutputConnections[connectionI].ConnectedOutputRange.Length; weightI++)
                     {
                         outputConnectionsGradients[connectionI][neuronI].Add(0);
                     }
@@ -199,7 +200,7 @@ namespace NeatNetwork.Groupings
 
         internal void PassOutput(double[] networkOutput, Connection connection)
         {
-            Range inputRange = connection.InputRange, outputRange = connection.OutputRange;
+            Range inputRange = connection.InputRange, outputRange = connection.ConnectedOutputRange;
             for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
             {
                 for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
