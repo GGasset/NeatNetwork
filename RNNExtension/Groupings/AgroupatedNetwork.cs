@@ -20,12 +20,15 @@ namespace NeatNetwork.Groupings
             ClearInput();
         }
 
-        internal void GetInput(double[] wholeInput, Connection connection)
+        internal void PassInput(double[] wholeInput, Connection connection)
         {
-            double[] input = new double[connection.ConnectedNetworkOutputRange.Length];
-            for (int i = 0; i < ; i++)
+            Range inputRange = connection.InputRange, outputRange = connection.OutputRange;
+            for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
             {
-
+                for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
+                {
+                    input[networkInputI] += wholeInput[inputI] * connection.Weights[networkInputI - inputRange.FromI][inputI - outputRange.FromI];
+                }
             }
         }
 
@@ -75,7 +78,7 @@ namespace NeatNetwork.Groupings
             throw new ArgumentException("Connection doesn't exists");
         }
 
-        internal Range GetOutputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].ConnectedNetworkOutputRange, false);
+        internal Range GetOutputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].OutputRange, false);
 
         internal Range GetInputRange(int connectionIndex) => FormatRange(Connections[connectionIndex].InputRange, true);
 
