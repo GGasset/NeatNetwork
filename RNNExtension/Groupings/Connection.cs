@@ -12,7 +12,7 @@ namespace NeatNetwork.Groupings
     /// </summary>
     public class Connection
     {
-        internal Range InputRange { get; private set; }
+        internal Range NetworkInputRange { get; private set; }
         internal int ConnectedNetworkI;
         internal Range ConnectedOutputRange { get; private set; }
 
@@ -23,7 +23,7 @@ namespace NeatNetwork.Groupings
 
         internal Connection(Range inputRange, int connectedNetworkI, Range connectedNetworkOutputRange, int inputLength, int connectedNetworkOutputLength, double maxWeight, double minWeight, double weightClosestTo0)
         {
-            InputRange = inputRange;
+            NetworkInputRange = inputRange;
             ConnectedNetworkI = connectedNetworkI;
             ConnectedOutputRange = connectedNetworkOutputRange;
 
@@ -53,16 +53,16 @@ namespace NeatNetwork.Groupings
         /// </summary>
         /// <param name="wholeInputCostGradients"></param>
         /// <returns>List of size of the connected network output</returns>
-        internal List<double> GetGradients(List<double> wholeInputCostGradients, double[] connectedNetworkOutput, out Connection weightGradients, int inputLength)
+        internal List<double> GetGradients(List<double> wholeInputCostGradients, double[] connectedNetworkOutput, out Connection weightGradients, int NetworkInputLength)
         {
             List<double> output = new List<double>();
             for (int i = 0; i < connectedNetworkOutput.Length; i++)
                 output.Add(0);
 
-            weightGradients = new Connection(InputRange, ConnectedNetworkI, ConnectedOutputRange, inputLength, connectedNetworkOutput.Length, 0, 0, 0);
+            weightGradients = new Connection(NetworkInputRange, ConnectedNetworkI, ConnectedOutputRange, NetworkInputLength, connectedNetworkOutput.Length, 0, 0, 0);
 
-            Range inputRange = FormatRange(inputLength, connectedNetworkOutput.Length, true);
-            Range connectedOutputRange = FormatRange(inputLength, connectedNetworkOutput.Length, false);
+            Range inputRange = FormatRange(NetworkInputLength, connectedNetworkOutput.Length, true);
+            Range connectedOutputRange = FormatRange(NetworkInputLength, connectedNetworkOutput.Length, false);
 
             for (int neuronI = inputRange.FromI; neuronI < inputRange.ToI; neuronI++)
             {
@@ -80,11 +80,11 @@ namespace NeatNetwork.Groupings
         #endregion
 
         /// <summary>
-        /// If InputRange == Range.WholeRange InputRange.ToI will be incremented
+        /// If NetworkInputRange == Range.WholeRange NetworkInputRange.ToI will be incremented
         /// </summary>
         internal void AddInputNeuron(double outputLength, double maxWeight, double minWeight, double weightClosestTo0)
         {
-            InputRange.ToI += Convert.ToInt32(InputRange == Range.WholeRange);
+            NetworkInputRange.ToI += Convert.ToInt32(NetworkInputRange == Range.WholeRange);
             Weights.Add(new List<double>());
             int i = Weights.Count - 1;
             for (int j = 0; j < outputLength; j++)
@@ -105,12 +105,12 @@ namespace NeatNetwork.Groupings
             }
         }
 
-        internal Range FormatRange(int inputLength, int connectedOutputLength, bool isInputRange) 
+        internal Range FormatRange(int NetworkInputLength, int connectedOutputLength, bool isInputRange) 
             => new Range
             (
-                InputRange.FromI * Convert.ToInt32(isInputRange) + ConnectedOutputRange.FromI * Convert.ToInt32(!isInputRange)
+                NetworkInputRange.FromI * Convert.ToInt32(isInputRange) + ConnectedOutputRange.FromI * Convert.ToInt32(!isInputRange)
                 ,
-                InputRange.ToI * Convert.ToInt32(isInputRange) + (inputLength) * Convert.ToInt32(isInputRange && InputRange == Range.WholeRange)
+                NetworkInputRange.ToI * Convert.ToInt32(isInputRange) + (NetworkInputLength) * Convert.ToInt32(isInputRange && NetworkInputRange == Range.WholeRange)
                 +
                 ConnectedOutputRange.ToI * Convert.ToInt32(!isInputRange) + (connectedOutputLength) * Convert.ToInt32(!isInputRange && ConnectedOutputRange == Range.WholeRange)
             );
