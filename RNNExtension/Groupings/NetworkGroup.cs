@@ -82,13 +82,13 @@ namespace NeatNetwork.Groupings
         /// 
         /// </summary>
         /// <param name="costGradients">upper list is cronologically ordered containing an array of output costs</param>
-        /// <param name="connectionsGradients"> List representing networks networkI, containing lists representing connections gradients of the network</param>
+        /// <param name="connectionsGradients">list representing time, then, list ExecutionOrder execution I, containing lists representing connections gradients of the network</param>
         /// <param name="executionValues">upper list is cronologically ordered containing list of executions in execution order</param>
         /// <param name="neuronActivations">upper list is cronologically ordered containing list of executions in execution order</param>
         /// <param name="outputConnectionsGradients">List representing time, then the list of output connections gradients ordered by index</param>
         /// <param name="groupOutputs">List represting time then list of Execution order, of group outputs</param>
         /// <returns></returns>
-        internal List<List<List<NeuronHolder>>> GetGradients(List<double[]> costGradients, out List<List<Connection>> connectionsGradients, out List<List<Connection>> outputConnectionsGradients, List<List<List<NeuronExecutionValues[]>>> executionValues, List<List<List<double[]>>> neuronActivations, List<List<double[]>> groupOutputs)
+        internal List<List<List<NeuronHolder>>> GetGradients(List<double[]> costGradients, out List<List<List<Connection>>> connectionsGradients, out List<List<Connection>> outputConnectionsGradients, List<List<List<NeuronExecutionValues[]>>> executionValues, List<List<List<double[]>>> neuronActivations, List<List<double[]>> groupOutputs)
         {
             int tSCount = groupOutputs.Count;
 
@@ -103,9 +103,27 @@ namespace NeatNetwork.Groupings
                 }
             }
 
+            connectionsGradients = new List<List<List<Connection>>>();
+            for (int t = 0; t < tSCount; t++)
+            {
+                connectionsGradients.Add(new List<List<Connection>>());
+                for (int executionI = 0; executionI < ExecutionOrder.Count; executionI++)
+                {
+                    connectionsGradients[t].Add(new List<Connection>());
+                    var cNetwork = Networks[ExecutionOrder[executionI]];
+                    for (int connectionI = 0; connectionI < cNetwork.Connections.Count; connectionI++)
+                    {
+                        connectionsGradients[t][executionI].Add(null);
+                    }
+                }
+            }
+
+            outputConnectionsGradients = new List<List<Connection>>();
+
             // Pass output costs to output connected networks
             for (int t = 0; t < tSCount; t++)
             {
+                outputConnectionsGradients.Add(new List<Connection>());
                 for (int i = 0; i < OutputConnections.Count; i++)
                 {
                     int connectedNetworkI = OutputConnections[i].ConnectedNetworkI;
@@ -142,7 +160,7 @@ namespace NeatNetwork.Groupings
 
                 AgroupatedNetwork cNetwork = Networks[ExecutionOrder[i]];
 
-                cNetwork.n.GetGradients(networksOutputCostGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
+                List<List<NeuronHolder>> cNetworkGradients cNetwork.n.GetGradients(networksOutputCostGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
 
                 // Save all connections executions but if the current network is executed clear the saved list because connectedNetwork input is cleared
                 // This can handle multiple executions of different networks without connectedNetwork being executed
@@ -165,10 +183,13 @@ namespace NeatNetwork.Groupings
                 {
                     foreach (var influentialExecutionI in influentialExecutionsIndexes)
                     {
-                        Connection cConnection = cNetwork.GetConnectionConnectedTo(ExecutionOrder[influentialExecutionI]);
+                        Connection cConnection = cNetwork.GetConnectionConnectedTo(ExecutionOrder[influentialExecutionI], out int connectionI);
                         double[] connectedNetworkOutput = neuronActivations[t][ExecutionOrder[influentialExecutionI]][cNetwork.n.Length - 1];
 
                         List<double> connectedNetworkOutputCosts = cConnection.GetGradients(inputGradients[t], connectedNetworkOutput, out Connection weightGradients, cNetwork.n.InputLength);
+
+                        networksOutputCostGradients[t][influentialExecutionI] = SubtractLists(connectedNetworkOutputCosts, networksOutputCostGradients[t][influentialExecutionI]);
+                        connectionsGradients[t][currentExecutionNetworkI][connectionI] = weightGradients;
                     }
                 }
             }
