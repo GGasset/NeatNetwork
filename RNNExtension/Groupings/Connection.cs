@@ -59,12 +59,21 @@ namespace NeatNetwork.Groupings
             for (int i = 0; i < connectedNetworkOutput.Length; i++)
                 output.Add(0);
 
-            Range inputRange = 
+            weightGradients = new Connection(InputRange, ConnectedNetworkI, ConnectedOutputRange, inputLength, connectedNetworkOutput.Length, 0, 0, 0);
 
-            for (int neuronI = 0; neuronI < length; neuronI++)
+            Range inputRange = FormatRange(inputLength, connectedNetworkOutput.Length, true);
+            Range connectedOutputRange = FormatRange(inputLength, connectedNetworkOutput.Length, false);
+
+            for (int neuronI = inputRange.FromI; neuronI < inputRange.ToI; neuronI++)
             {
-
+                for (int weightI = connectedOutputRange.FromI; weightI < connectedOutputRange.ToI; weightI++)
+                {
+                    output[weightI] -= wholeInputCostGradients[neuronI] * Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI];
+                    weightGradients.Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI] += wholeInputCostGradients[neuronI] * connectedNetworkOutput[weightI];
+                }
             }
+
+            return output;
         }
 
 
@@ -101,9 +110,9 @@ namespace NeatNetwork.Groupings
             (
                 InputRange.FromI * Convert.ToInt32(isInputRange) + ConnectedOutputRange.FromI * Convert.ToInt32(!isInputRange)
                 ,
-                InputRange.ToI * Convert.ToInt32(isInputRange) + (1 + inputLength) * Convert.ToInt32(isInputRange && InputRange == Range.WholeRange)
+                InputRange.ToI * Convert.ToInt32(isInputRange) + (inputLength) * Convert.ToInt32(isInputRange && InputRange == Range.WholeRange)
                 +
-                ConnectedOutputRange.ToI * Convert.ToInt32(!isInputRange) + (1 + connectedOutputLength) * Convert.ToInt32(!isInputRange && ConnectedOutputRange == Range.WholeRange)
+                ConnectedOutputRange.ToI * Convert.ToInt32(!isInputRange) + (connectedOutputLength) * Convert.ToInt32(!isInputRange && ConnectedOutputRange == Range.WholeRange)
             );
     }
 }
