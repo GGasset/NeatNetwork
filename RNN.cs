@@ -48,8 +48,8 @@ namespace NeatNetwork
         /// <param name="maxWeight"></param>
         /// <param name="weightClosestTo0"></param>
         public RNN(int[] shape, NeuronHolder.NeuronTypes[] layerTypes, ActivationFunctions activationFunction, double startingBias = 1, double minWeight = -1.5, double maxWeight = 1.5, double weightClosestTo0 = .37,
-            double newNeuronChance = .05, double newLayerChance = .02, double mutationChance = .2, 
-            double fieldMaxMutation = .27, double maxMutationOfFieldMaxMutation = .03, double maxMutationOfMutationValueOfFieldMaxMutation = .01)
+            double newNeuronChance = .05, double newLayerChance = .02, double mutationChance = .2,
+            double initialMaxMutationGridValue = .5, double fieldMaxMutation = .07, double maxMutationOfFieldMaxMutation = .03, double maxMutationOfMutationValueOfFieldMaxMutation = .01)
         {
             ActivationFunction = activationFunction;
             Neurons = new List<List<NeuronHolder>>();
@@ -68,9 +68,12 @@ namespace NeatNetwork
             NewNeuronChance = newNeuronChance;
             NewLayerChance = newLayerChance;
             MutationChance = mutationChance;
+            InitialMaxMutationValue = initialMaxMutationGridValue;
             FieldMaxMutation = fieldMaxMutation;
             MaxMutationOfFieldMaxMutation = maxMutationOfFieldMaxMutation;
             MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfFieldMaxMutation;
+
+            // TODO: initialize max mutation grid
         }
 
         public double[] Execute(double[] input) => Execute(input, out _,  out _);
