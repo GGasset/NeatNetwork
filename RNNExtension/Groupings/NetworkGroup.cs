@@ -103,20 +103,27 @@ namespace NeatNetwork.Groupings
                 }
             }
 
+            // TODO: Pass output costs to output connected networks
             for (int t = 0; t < tSCount; t++)
             {
-                // TODO: Pass output costs to output connected networks
                 for (int i = 0; i < OutputConnections.Count; i++)
                 {
-
-                    // Do once for each execution of the connectedNetwork
                     int connectedNetworkI = OutputConnections[i].ConnectedNetworkI;
                     var connectedNetwork = Networks[connectedNetworkI].n;
 
-                    List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
-                    outputConnectionsGradients[t].Add(weightGradients);
+                    List<int> connectedNetworkExecutionsI = new List<int>();
+                    for (int i = 0; i < ExecutionOrder.Count; i++)
+                    {
 
-                    networksOutputCostGradients[]
+                    }
+
+                    foreach (var connectedNetworkExecutionI in connectedNetworkExecutionsI)
+                    {
+                        List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
+                        outputConnectionsGradients[t].Add(weightGradients);
+
+                        networksOutputCostGradients[connectedNetworkExecutionI][t] = AddLists(connectedNetworkOutputGradients, networksOutputCostGradients[connectedNetworkExecutionI][t]);
+                    }
                 }
             }
 
@@ -155,7 +162,7 @@ namespace NeatNetwork.Groupings
 
                 foreach (var influentialNetworkI in influentialExecutedNetworks)
                 {
-                    // TODO: Calculate cost gradients for respecting connections and outputs
+                    // TODO: Calculate cost gradients for respecting connections and networks outputs
                 }
             }
         }
@@ -207,11 +214,11 @@ namespace NeatNetwork.Groupings
 
         private void ClearOutput() => Output = new double[OutputLength];
 
-        private List<double> AddLists(List<double> a, double[] b)
+        private double[] AddLists(List<double> a, double[] b)
         {
-            List<double> output = new List<double>();
+            double[] output = new double[b.Length];
             for (int i = 0; i < a.Count; i++)
-                output.Add(a[i] + b[i]);
+                output[i] = a[i] + b[i];
             return output;
         }
     }
