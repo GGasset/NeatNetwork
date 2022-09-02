@@ -103,7 +103,7 @@ namespace NeatNetwork.Groupings
                 }
             }
 
-            // TODO: Pass output costs to output connected networks
+            // Pass output costs to output connected networks
             for (int t = 0; t < tSCount; t++)
             {
                 for (int i = 0; i < OutputConnections.Count; i++)
@@ -112,10 +112,9 @@ namespace NeatNetwork.Groupings
                     var connectedNetwork = Networks[connectedNetworkI].n;
 
                     List<int> connectedNetworkExecutionsI = new List<int>();
-                    for (int i = 0; i < ExecutionOrder.Count; i++)
-                    {
-
-                    }
+                    for (int j = 0; j < ExecutionOrder.Count; j++)
+                        if (ExecutionOrder[j] == connectedNetworkI)
+                            connectedNetworkExecutionsI.Add(j);
 
                     foreach (var connectedNetworkExecutionI in connectedNetworkExecutionsI)
                     {
