@@ -201,7 +201,7 @@ namespace NeatNetwork.Groupings
 
         internal void PassOutput(double[] networkOutput, Connection connection)
         {
-            Range inputRange = connection.InputRange, outputRange = connection.ConnectedOutputRange;
+            Range inputRange = connection.NetworkInputRange, outputRange = connection.ConnectedOutputRange;
             for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
             {
                 for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
