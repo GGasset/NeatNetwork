@@ -28,7 +28,9 @@ namespace NeatNetwork.Groupings
             OutputLength = outputLength;
         }
 
-        public double[] Execute(double[] input)
+        public double[] Execute(double[] input) => Execute(input, out _, out _);
+
+        public double[] Execute(double[] input, out List<List<NeuronExecutionValues[]>> networksNeuronExecutionValues, out List<List<double[]>> networksNeuronOutputs)
         {
             ClearOutput();
 
@@ -39,12 +41,18 @@ namespace NeatNetwork.Groupings
                 Networks[networkI].PassInput(input, inputConnectedConnection);
             }
 
+            networksNeuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
+            networksNeuronOutputs = new List<List<double[]>>();
+
             for (int i = 0; i < ExecutionOrder.Count; i++)
             {
                 int currentExecutionNetwork = ExecutionOrder[i];
 
                 double[] nOutput = Networks[currentExecutionNetwork].n.Execute(input, out List<NeuronExecutionValues[]> 
                     neuronExecutionValues, out List<double[]> neuronActivations);
+
+                networksNeuronExecutionValues.Add(neuronExecutionValues);
+                networksNeuronOutputs.Add(neuronActivations);
 
                 List<int> networksConnectedToCurrentNetwork = GetNetworksConnectedTo(currentExecutionNetwork);
                 foreach (var networkIConnectedToCurrentNetwork in networksConnectedToCurrentNetwork)
