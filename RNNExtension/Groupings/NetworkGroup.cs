@@ -43,7 +43,8 @@ namespace NeatNetwork.Groupings
             {
                 int currentExecutionNetwork = ExecutionOrder[i];
 
-                double[] nOutput = Networks[currentExecutionNetwork].n.Execute(input, out List<NeuronExecutionValues[]> neuronExecutionValues, out List<double[]> neuronActivations);
+                double[] nOutput = Networks[currentExecutionNetwork].n.Execute(input, out List<NeuronExecutionValues[]> 
+                    neuronExecutionValues, out List<double[]> neuronActivations);
 
                 List<int> networksConnectedToCurrentNetwork = GetNetworksConnectedTo(currentExecutionNetwork);
                 foreach (var networkIConnectedToCurrentNetwork in networksConnectedToCurrentNetwork)
@@ -123,7 +124,7 @@ namespace NeatNetwork.Groupings
 
             for (int i = ExecutionOrder.Count - 1; i >= 0; i--)
             {
-                int currentExecutionIndex = ExecutionOrder[i];
+                int currentExecutionNetworkI = ExecutionOrder[i];
 
                 // Putting relevant values in a better formatted manner for training, a list representing time
                 List<double[]> currentCostGradients = new List<double[]>();
@@ -132,9 +133,9 @@ namespace NeatNetwork.Groupings
 
                 for (int t = 0; t < tSCount; t++)
                 {
-                    currentCostGradients.Add(costGradients[t][currentExecutionIndex]);
-                    currentExecutionValues.Add(executionValues[t][currentExecutionIndex]);
-                    currentNeuronActivations.Add(neuronActivations[t][currentExecutionIndex]);
+                    currentCostGradients.Add(costGradients[t][currentExecutionNetworkI]);
+                    currentExecutionValues.Add(executionValues[t][currentExecutionNetworkI]);
+                    currentNeuronActivations.Add(neuronActivations[t][currentExecutionNetworkI]);
                 }
 
                 AgroupatedNetwork cNetwork = Networks[ExecutionOrder[i]];
@@ -146,7 +147,7 @@ namespace NeatNetwork.Groupings
                 List<int> influentialExecutedNetworks = new List<int>();
                 for (int j = 0; j < i; j++)
                 {
-                    if (ExecutionOrder[j] == currentExecutionIndex)
+                    if (ExecutionOrder[j] == currentExecutionNetworkI)
                     {
                         influentialExecutedNetworks.Clear();
                     }
@@ -158,9 +159,7 @@ namespace NeatNetwork.Groupings
 
                 foreach (var influentialNetworkI in influentialExecutedNetworks)
                 {
-                    // TODO: Calculate cost gradients for respecting connections
-
-                    // TODO: Calculate output costs for connected networks
+                    // TODO: Calculate cost gradients for respecting connections and outputs
                 }
             }
         }
