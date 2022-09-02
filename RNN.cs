@@ -178,7 +178,7 @@ namespace NeatNetwork
         /// <param name="costGradients"></param>
         /// <param name="executionValues">3D Grid in which time is the highest dimension and then layersStrs and finally neurons</param>
         /// <param name="neuronActivations"></param>
-        /// <param name="inputGradients"></param>
+        /// <param name="inputGradients">List that represents time containing input costs</param>
         /// <returns></returns>
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations, out List<List<double>> inputGradients)
         {
