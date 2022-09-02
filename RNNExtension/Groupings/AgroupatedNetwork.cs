@@ -68,12 +68,17 @@ namespace NeatNetwork.Groupings
             return false;
         }
 
+        internal Connection GetConnectionConnectedTo(int networkI) => GetConnectionConnectedTo(networkI, out _);
+
         // TODO implement optimized search
-        internal Connection GetConnectionConnectedTo(int networkI)
+        internal Connection GetConnectionConnectedTo(int networkI, out int connectionI)
         {
             for (int i = 0; i < Connections.Count; i++)
                 if (Connections[i].ConnectedNetworkI == networkI)
+                {
+                    connectionI = i;
                     return Connections[i];
+                }
 
             throw new ArgumentException("Connection doesn't exists");
         }
