@@ -121,7 +121,7 @@ namespace NeatNetwork.Groupings
                         List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
                         outputConnectionsGradients[t].Add(weightGradients);
 
-                        networksOutputCostGradients[connectedNetworkExecutionI][t] = AddLists(connectedNetworkOutputGradients, networksOutputCostGradients[connectedNetworkExecutionI][t]);
+                        networksOutputCostGradients[connectedNetworkExecutionI][t] = SubtractLists(connectedNetworkOutputGradients, networksOutputCostGradients[connectedNetworkExecutionI][t]);
                     }
                 }
             }
@@ -146,22 +146,30 @@ namespace NeatNetwork.Groupings
 
                 // Save all connections executions but if the current network is executed clear the saved list because connectedNetwork input is cleared
                 // This can handle multiple executions of different networks without connectedNetwork being executed
-                List<int> influentialExecutedNetworks = new List<int>();
+                List<int> influentialExecutionsIndexes = new List<int>();
                 for (int j = 0; j < i; j++)
                 {
                     if (ExecutionOrder[j] == currentExecutionNetworkI)
                     {
-                        influentialExecutedNetworks.Clear();
+                        influentialExecutionsIndexes.Clear();
                     }
                     else if (cNetwork.IsConnectedTo(ExecutionOrder[j]))
                     {
-                        influentialExecutedNetworks.Add(ExecutionOrder[j]);
+                        influentialExecutionsIndexes.Add(j);
                     }
                 }
 
-                foreach (var influentialNetworkI in influentialExecutedNetworks)
+                // TODO: Calculate cost gradients for respecting connections and networks outputs
+
+                for (int t = 0; t < tSCount; t++)
                 {
-                    // TODO: Calculate cost gradients for respecting connections and networks outputs
+                    foreach (var influentialExecutionI in influentialExecutionsIndexes)
+                    {
+                        Connection cConnection = cNetwork.GetConnectionConnectedTo(ExecutionOrder[influentialExecutionI]);
+                        double[] connectedNetworkOutput = neuronActivations[t][ExecutionOrder[influentialExecutionI]][cNetwork.n.Length - 1];
+
+                        List<double> connectedNetworkOutputCosts = cConnection.GetGradients(inputGradients[t], connectedNetworkOutput, out Connection weightGradients, cNetwork.n.InputLength);
+                    }
                 }
             }
         }
@@ -213,11 +221,11 @@ namespace NeatNetwork.Groupings
 
         private void ClearOutput() => Output = new double[OutputLength];
 
-        private double[] AddLists(List<double> a, double[] b)
+        private double[] SubtractLists(List<double> a, double[] b)
         {
             double[] output = new double[b.Length];
             for (int i = 0; i < a.Count; i++)
-                output[i] = a[i] + b[i];
+                output[i] = a[i] - b[i];
             return output;
         }
     }
