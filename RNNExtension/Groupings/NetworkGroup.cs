@@ -214,6 +214,26 @@ namespace NeatNetwork.Groupings
             return output;
         }
 
+        internal void SubtractGrads(NetworkGroupGradients gradients)
+        {
+            int tSCount = gradients.outputConnectionsGradients.Count;
+            for (int i = 0; i < ExecutionOrder.Count; i++)
+                Networks[ExecutionOrder[i]].n.SubtractGrads(gradients.NetworksGradients[i], learningRate);
+
+            for (int t = 0; t < tSCount; t++)
+            {
+                for (int i = 0; i < ExecutionOrder.Count; i++)
+                {
+                    int cNetworkI = ExecutionOrder[i];
+                    for (int connectionI = 0; connectionI < Networks[cNetworkI].Connections.Count; connectionI++)
+                        Networks[ExecutionOrder[i]].Connections[connectionI].SubtractGrads(gradients.ConnectionsGradients[t][i][connectionI], learningRate);
+                }
+
+                for (int i = 0; i < OutputConnections.Count; i++)
+                    OutputConnections[i].SubtractGrads(gradients.outputConnectionsGradients[t][i], learningRate);
+            }
+        }
+
         #endregion
 
 
