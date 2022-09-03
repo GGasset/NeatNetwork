@@ -21,15 +21,17 @@ namespace NeatNetwork.Groupings
         public readonly int InputLength;
         public readonly int OutputLength;
 
+        internal double learningRate;
         private double[] Output;
 
-        public NetworkGroup(int inputLength, int outputLength)
+        public NetworkGroup(int inputLength, int outputLength, double learningRate)
         {
             Networks = new List<AgroupatedNetwork>();
             ExecutionOrder = new List<int>();
             OutputConnections = new List<Connection>();
             InputLength = inputLength;
             OutputLength = outputLength;
+            this.learningRate = learningRate;
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _, out _);
@@ -77,6 +79,19 @@ namespace NeatNetwork.Groupings
         }
 
         #region Gradient Learning
+
+        internal NetworkGroupGradients GetGradients(List<double[]> costGradients, List<List<List<NeuronExecutionValues[]>>> executionValues, List<List<List<double[]>>> neuronActivations, List<List<double[]>> groupOutputs)
+        {
+            var networkGradients = GetGradients(costGradients, out List<List<List<Connection>>> connectionsGradients, out List<List<Connection>> outputConnectionsGradients, executionValues, neuronActivations, groupOutputs);
+            var output = new NetworkGroupGradients()
+            {
+                NetworksGradients = networkGradients,
+                ConnectionsGradients = connectionsGradients,
+                ExecutionOrder = ExecutionOrder,
+                outputConnectionsGradients = outputConnectionsGradients
+            };
+            return output;
+        }
 
         /// <summary>
         /// 
