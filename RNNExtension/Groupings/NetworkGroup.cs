@@ -21,7 +21,7 @@ namespace NeatNetwork.Groupings
         public readonly int InputLength;
         public readonly int OutputLength;
 
-        internal double learningRate;
+        public double learningRate;
         private double[] Output;
 
         public NetworkGroup(int inputLength, int outputLength, double learningRate)
