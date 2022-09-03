@@ -8,7 +8,7 @@ using NeatNetwork.NetworkFiles;
 
 namespace NeatNetwork.Groupings
 {
-    internal class AgroupatedNetwork
+    public class AgroupatedNetwork
     {
         private List<double> input;
         internal List<Connection> Connections;

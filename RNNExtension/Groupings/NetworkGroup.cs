@@ -10,13 +10,13 @@ namespace NeatNetwork.Groupings
 {
     public class NetworkGroup
     {
-        internal List<AgroupatedNetwork> Networks;
+        public List<AgroupatedNetwork> Networks;
 
         /// <summary>
         /// For proper training don't put an output connected network twice or more times
         /// </summary>
         public List<int> ExecutionOrder;
-        public List<Connection> OutputConnections;
+        internal List<Connection> OutputConnections;
 
         public readonly int InputLength;
         public readonly int OutputLength;
@@ -276,6 +276,18 @@ namespace NeatNetwork.Groupings
         }
 
         /// <summary>
+        /// Connections are backward connected, that means, input is connected to output and not otherwise
+        /// </summary>
+        public void Connect(int fromNetworkI, Range fromInputRange, int toNetworkI, Range toInputRange)
+        {
+            if (fromNetworkI == toNetworkI || fromNetworkI < 0 || toNetworkI < 0 || fromNetworkI >= Networks.Count || toNetworkI >= Networks.Count)
+                throw new ArgumentException();
+
+            var cNetwork = Networks[fromNetworkI].n;
+            Networks[fromNetworkI].Connect(toNetworkI, Networks[toNetworkI].n.OutputLength, fromInputRange, toInputRange, cNetwork.MaxWeight, cNetwork.MinWeight, cNetwork.WeightClosestTo0);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="networkIndex"></param>
@@ -310,5 +322,7 @@ namespace NeatNetwork.Groupings
                 output[i] = a[i] - b[i];
             return output;
         }
+
+        public void AddN(RNN n) => Networks.Add(new AgroupatedNetwork(n));
     }
 }
