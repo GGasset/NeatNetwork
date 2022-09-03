@@ -76,6 +76,13 @@ namespace NeatNetwork.Groupings
             return output;
         }
 
+        internal void SubtractGrads(Connection connectionGradients)
+        {
+            for (int neuronI = 0; neuronI < Weights.Count; neuronI++)
+                for (int weightI = 0; weightI < Weights[neuronI].Count; weightI++)
+                    Weights[neuronI][weightI] -= connectionGradients.Weights[neuronI][weightI];
+        }
+
 
         #endregion
 
@@ -96,7 +103,7 @@ namespace NeatNetwork.Groupings
         /// <summary>
         /// If OutputRange == Range.WholeRange OutputRange.ToI will be incremented
         /// </summary>
-        internal void AddOutputNeuron(double maxWeight, double minWeight, double weightClosestTo0)
+        internal void AddConnectedOutputNeuron(double maxWeight, double minWeight, double weightClosestTo0)
         {
             ConnectedOutputRange.ToI += Convert.ToInt32(ConnectedOutputRange == Range.WholeRange);
             for (int i = 0; i < Weights.Count; i++)
