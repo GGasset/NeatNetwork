@@ -76,11 +76,11 @@ namespace NeatNetwork.Groupings
             return output;
         }
 
-        internal void SubtractGrads(Connection connectionGradients)
+        internal void SubtractGrads(Connection connectionGradients, double learningRate)
         {
             for (int neuronI = 0; neuronI < Weights.Count; neuronI++)
                 for (int weightI = 0; weightI < Weights[neuronI].Count; weightI++)
-                    Weights[neuronI][weightI] -= connectionGradients.Weights[neuronI][weightI];
+                    Weights[neuronI][weightI] -= connectionGradients.Weights[neuronI][weightI] * learningRate;
         }
 
 
