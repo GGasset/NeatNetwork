@@ -80,6 +80,9 @@ namespace NeatNetwork.Groupings
 
         #region Gradient Learning
 
+        public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction) =>
+            SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction));
+
         internal NetworkGroupGradients GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction)
         {
             List<double[]> costGradients = new List<double[]>();
