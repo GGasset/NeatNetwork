@@ -322,7 +322,7 @@ namespace NeatNetwork.Groupings
 
         private void ClearOutput() => Output = new double[OutputLength];
 
-        private double[] SubtractLists(List<double> a, double[] b)
+        private static double[] SubtractLists(List<double> a, double[] b)
         {
             double[] output = new double[b.Length];
             for (int i = 0; i < a.Count; i++)
