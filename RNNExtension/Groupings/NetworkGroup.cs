@@ -90,6 +90,7 @@ namespace NeatNetwork.Groupings
             List<List<List<double[]>>> neuronOutputs = new List<List<List<double[]>>>();
             List<List<double[]>> executionsOutputs = new List<List<double[]>>();
 
+            DeleteMemories();
             for (int i = 0; i < X.Count; i++)
             {
                 var output = Execute(X[i], out List<List<NeuronExecutionValues[]>> networksNeuronExecutionValues, out List<List<double[]>> networksNeuronOutputs, out List<double[]> groupExecutionOutputs);
@@ -99,6 +100,8 @@ namespace NeatNetwork.Groupings
                 neuronOutputs.Add(networksNeuronOutputs);
                 executionsOutputs.Add(groupExecutionOutputs);
             }
+            DeleteMemories();
+
             return GetGradients(costGradients, executionValues, neuronOutputs, executionsOutputs);
         }
 
@@ -258,6 +261,14 @@ namespace NeatNetwork.Groupings
 
         #endregion
 
+        /// <summary>
+        /// Use it when not training because when training its done automatically
+        /// </summary>
+        public void DeleteMemories()
+        {
+            for (int i = 0; i < Networks.Count; i++)
+                Networks[i].n.DeleteMemory();
+        }
 
         /// <summary>
         /// 
