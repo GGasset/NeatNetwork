@@ -80,6 +80,25 @@ namespace NeatNetwork.Groupings
 
         #region Gradient Learning
 
+        internal NetworkGroupGradients GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction)
+        {
+            List<double[]> costGradients = new List<double[]>();
+            List<List<List<NeuronExecutionValues[]>>> executionValues = new List<List<List<NeuronExecutionValues[]>>>();
+            List<List<List<double[]>>> neuronOutputs = new List<List<List<double[]>>>();
+            List<List<double[]>> executionsOutputs = new List<List<double[]>>();
+
+            for (int i = 0; i < X.Count; i++)
+            {
+                var output = Execute(X[i], out List<List<NeuronExecutionValues[]>> networksNeuronExecutionValues, out List<List<double[]>> networksNeuronOutputs, out List<double[]> groupExecutionOutputs);
+
+                costGradients.Add(Derivatives.DerivativeOf(output, y[i], costFunction));
+                executionValues.Add(networksNeuronExecutionValues);
+                neuronOutputs.Add(networksNeuronOutputs);
+                executionsOutputs.Add(groupExecutionOutputs);
+            }
+            return GetGradients(costGradients, executionValues, neuronOutputs, executionsOutputs);
+        }
+
         internal NetworkGroupGradients GetGradients(List<double[]> costGradients, List<List<List<NeuronExecutionValues[]>>> executionValues, List<List<List<double[]>>> neuronActivations, List<List<double[]>> groupOutputs)
         {
             var networkGradients = GetGradients(costGradients, out List<List<List<Connection>>> connectionsGradients, out List<List<Connection>> outputConnectionsGradients, executionValues, neuronActivations, groupOutputs);
