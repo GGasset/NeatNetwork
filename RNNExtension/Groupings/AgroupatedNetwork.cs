@@ -59,17 +59,6 @@ namespace NeatNetwork.Groupings
 
         internal void ClearInput() => input = new List<double>(new double[n.InputLength]);
 
-        #region Gradient learning
-
-        internal void SubtractGrads(List<List<NeuronHolder>> networkGradients, List<Connection> connectionsGradients, double learningRate)
-        {
-            n.SubtractGrads(networkGradients, learningRate);
-            for (int i = 0; i < Connections.Count; i++)
-                Connections[i].SubtractGrads(connectionsGradients[i], learningRate);
-        }
-
-        #endregion
-
         // TODO: implement optimized search
         public bool IsConnectedTo(int networkI)
         {
