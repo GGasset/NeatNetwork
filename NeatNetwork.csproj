@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Libraries\DiskHandler.cs" />
     <Compile Include="Libraries\GradientsNetworkAssociation.cs" />
+    <Compile Include="Libraries\NetworkGroupGradients.cs" />
     <Compile Include="Libraries\Range.cs" />
     <Compile Include="Libraries\ValueGeneration.cs" />
     <Compile Include="Libraries\Activation.cs" />
