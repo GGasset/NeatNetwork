@@ -83,6 +83,14 @@ namespace NeatNetwork.Groupings
         public void TrainBySupervisedLearning(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction) =>
             SubtractGrads(GetSupervisedLearningGradients(X, y, costFunction));
 
+
+        /// <summary>
+        /// TODO: out average cost
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="y"></param>
+        /// <param name="costFunction"></param>
+        /// <returns></returns>
         internal NetworkGroupGradients GetSupervisedLearningGradients(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction)
         {
             List<double[]> costGradients = new List<double[]>();
