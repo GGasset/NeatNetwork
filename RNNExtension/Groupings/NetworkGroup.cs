@@ -87,9 +87,10 @@ namespace NeatNetwork.Groupings
         /// <param name="neuronActivations">upper list is cronologically ordered containing list of executions in execution order</param>
         /// <param name="outputConnectionsGradients">List representing time, then the list of output connections gradients ordered by index</param>
         /// <param name="groupOutputs">List represting time then list of Execution order, of group outputs</param>
-        /// <returns></returns>
+        /// <returns>List that represents execution order containing network gradients</returns>
         internal List<List<List<NeuronHolder>>> GetGradients(List<double[]> costGradients, out List<List<List<Connection>>> connectionsGradients, out List<List<Connection>> outputConnectionsGradients, List<List<List<NeuronExecutionValues[]>>> executionValues, List<List<List<double[]>>> neuronActivations, List<List<double[]>> groupOutputs)
         {
+            List<List<List<NeuronHolder>>> output = new List<List<List<NeuronHolder>>>();
             int tSCount = groupOutputs.Count;
 
             // NetworkOutputGradients is a list representing execution order containing other list representing time containing a cost arrays for networks
@@ -160,7 +161,8 @@ namespace NeatNetwork.Groupings
 
                 AgroupatedNetwork cNetwork = Networks[ExecutionOrder[i]];
 
-                List<List<NeuronHolder>> cNetworkGradients cNetwork.n.GetGradients(networksOutputCostGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
+                List<List<NeuronHolder>> cNetworkGradients = cNetwork.n.GetGradients(networksOutputCostGradients[i], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
+                output.Add(cNetworkGradients);
 
                 // Save all connections executions but if the current network is executed clear the saved list because connectedNetwork input is cleared
                 // This can handle multiple executions of different networks without connectedNetwork being executed
@@ -193,6 +195,8 @@ namespace NeatNetwork.Groupings
                     }
                 }
             }
+
+            return output;
         }
 
         #endregion
