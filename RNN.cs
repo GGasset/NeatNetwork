@@ -13,7 +13,7 @@ namespace NeatNetwork
     public class RNN
     {
         public int Length => Neurons.Count;
-        public int InputLength => Neurons[0][0].Connections.Length;
+        public readonly int InputLength;
         public int OutputLength => Neurons[Neurons.Count - 1].Count;
 
         /// <summary>
@@ -59,6 +59,8 @@ namespace NeatNetwork
                 for (int j = 0; j < shape[i]; j++)
                     Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
             }
+
+            InputLength = shape[0];
 
             NewBiasValue = startingBias;
             MaxWeight = maxWeight;

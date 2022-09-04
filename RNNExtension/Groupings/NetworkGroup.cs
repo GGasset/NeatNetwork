@@ -45,8 +45,8 @@ namespace NeatNetwork.Groupings
             List<int> inputConnectedNetworks = GetNetworksConnectedTo(-1);
             foreach (var networkI in inputConnectedNetworks)
             {
-                Connection inputConnectedConnection = Networks[networkI].GetConnectionConnectedTo(-1);
-                Networks[networkI].PassInput(input, inputConnectedConnection);
+                Networks[networkI].GetConnectionConnectedTo(-1, out int connectionI);
+                Networks[networkI].PassInput(input, connectionI, InputLength);
             }
 
             networksNeuronExecutionValues = new List<List<NeuronExecutionValues[]>>();
@@ -55,9 +55,10 @@ namespace NeatNetwork.Groupings
             for (int i = 0; i < ExecutionOrder.Count; i++)
             {
                 int currentExecutionNetwork = ExecutionOrder[i];
+                var cNetwork = Networks[currentExecutionNetwork];
 
-                double[] nOutput = Networks[currentExecutionNetwork].n.Execute(input, out List<NeuronExecutionValues[]> 
-                    neuronExecutionValues, out List<double[]> neuronActivations);
+                // TODO: optimize .ToArray()
+                double[] nOutput = cNetwork.n.Execute(cNetwork.input.ToArray(), out List<NeuronExecutionValues[]> neuronExecutionValues, out List<double[]> neuronActivations);
 
                 networksNeuronExecutionValues.Add(neuronExecutionValues);
                 networksNeuronOutputs.Add(neuronActivations);
@@ -65,7 +66,8 @@ namespace NeatNetwork.Groupings
                 List<int> networksConnectedToCurrentNetwork = GetNetworksConnectedTo(currentExecutionNetwork);
                 foreach (var networkIConnectedToCurrentNetwork in networksConnectedToCurrentNetwork)
                 {
-                    Networks[networkIConnectedToCurrentNetwork].PassInput(nOutput, Networks[networkIConnectedToCurrentNetwork].GetConnectionConnectedTo(currentExecutionNetwork));
+                    Networks[networkIConnectedToCurrentNetwork].GetConnectionConnectedTo(currentExecutionNetwork, out int connectionI);
+                    Networks[networkIConnectedToCurrentNetwork].PassInput(nOutput, connectionI, Networks[networkIConnectedToCurrentNetwork].n.OutputLength);
                 }
 
                 Connection outputConnection = GetOutputConnection(currentExecutionNetwork);
@@ -309,11 +311,11 @@ namespace NeatNetwork.Groupings
         /// <param name="toNetworkI">-1 means connected to input</param>
         public void Connect(int fromNetworkI, Range fromInputRange, int toNetworkI, Range toInputRange)
         {
-            if (fromNetworkI == toNetworkI || fromNetworkI < 0 || toNetworkI < 0 || fromNetworkI >= Networks.Count || toNetworkI >= Networks.Count)
+            if (fromNetworkI == toNetworkI || fromNetworkI < 0 || toNetworkI < -1 || fromNetworkI >= Networks.Count || toNetworkI >= Networks.Count)
                 throw new ArgumentException();
 
             var cNetwork = Networks[fromNetworkI].n;
-            Networks[fromNetworkI].Connect(toNetworkI, Networks[toNetworkI].n.OutputLength, fromInputRange, toInputRange, cNetwork.MaxWeight, cNetwork.MinWeight, cNetwork.WeightClosestTo0);
+            Networks[fromNetworkI].Connect(toNetworkI, toNetworkI == -1? InputLength : Networks[toNetworkI].n.OutputLength, fromInputRange, toInputRange, cNetwork.MaxWeight, cNetwork.MinWeight, cNetwork.WeightClosestTo0);
         }
 
         public void ConnectToOutput(int networkI, Range networkOutputRange, Range groupOutputRange)

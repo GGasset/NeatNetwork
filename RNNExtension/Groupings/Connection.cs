@@ -33,13 +33,13 @@ namespace NeatNetwork.Groupings
 
             int outputRangeLength = connectedNetworkOutputRange.Length;
             outputRangeLength = Math.Min(outputRangeLength, connectedNetworkOutputLength);
-            outputRangeLength += outputRangeLength - connectedNetworkOutputLength * Convert.ToInt32(inputRange == Range.WholeRange);
+            outputRangeLength += connectedNetworkOutputLength - outputRangeLength * Convert.ToInt32(inputRange == Range.WholeRange);
 
             Weights = new List<List<double>>();
             for (int i = 0; i < inputRangeLength; i++)
             {
                 Weights.Add(new List<double>());
-                for (int j = 0; j < outputRangeLength; j++)
+                for (int j = 0; j <= outputRangeLength; j++)
                 {
                     Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
                 }

@@ -10,7 +10,7 @@ namespace NeatNetwork.Groupings
 {
     public class AgroupatedNetwork
     {
-        private List<double> input;
+        internal List<double> input;
         internal List<Connection> Connections;
         public RNN n;
 
@@ -21,14 +21,15 @@ namespace NeatNetwork.Groupings
             ClearInput();
         }
 
-        internal void PassInput(double[] wholeInput, Connection connection)
+        internal void PassInput(double[] wholeInput, int connectionI, int connectedNetworkOutputLength)
         {
-            Range inputRange = connection.NetworkInputRange, outputRange = connection.ConnectedOutputRange;
-            for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
+            var connection = Connections[connectionI];
+            Range inputRange = FormatRange(connectionI, connectedNetworkOutputLength, true), outputRange = FormatRange(connectionI, connectedNetworkOutputLength, false);
+            for (int connectedNetworkInputI = inputRange.FromI; connectedNetworkInputI <= inputRange.ToI; connectedNetworkInputI++)
             {
-                for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
+                for (int networkOutputI = outputRange.FromI; networkOutputI <= outputRange.ToI; networkOutputI++)
                 {
-                    input[networkInputI] += wholeInput[inputI] * connection.Weights[networkInputI - inputRange.FromI][inputI - outputRange.FromI];
+                    input[connectedNetworkInputI] += wholeInput[networkOutputI] * connection.Weights[connectedNetworkInputI - inputRange.FromI][networkOutputI - outputRange.FromI];
                 }
             }
         }
