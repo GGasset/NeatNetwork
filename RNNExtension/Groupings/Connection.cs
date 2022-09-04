@@ -64,9 +64,9 @@ namespace NeatNetwork.Groupings
             Range inputRange = FormatRange(NetworkInputLength, connectedNetworkOutput.Length, true);
             Range connectedOutputRange = FormatRange(NetworkInputLength, connectedNetworkOutput.Length, false);
 
-            for (int neuronI = inputRange.FromI; neuronI < inputRange.ToI; neuronI++)
+            for (int neuronI = inputRange.FromI; neuronI <= inputRange.ToI; neuronI++)
             {
-                for (int weightI = connectedOutputRange.FromI; weightI < connectedOutputRange.ToI; weightI++)
+                for (int weightI = connectedOutputRange.FromI; weightI <= connectedOutputRange.ToI; weightI++)
                 {
                     output[weightI] -= wholeInputCostGradients[neuronI] * Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI];
                     weightGradients.Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI] += wholeInputCostGradients[neuronI] * connectedNetworkOutput[weightI];
@@ -86,12 +86,8 @@ namespace NeatNetwork.Groupings
 
         #endregion
 
-        /// <summary>
-        /// If NetworkInputRange == Range.WholeRange NetworkInputRange.ToI will be incremented
-        /// </summary>
         internal void AddInputNeuron(double outputLength, double maxWeight, double minWeight, double weightClosestTo0)
         {
-            NetworkInputRange.ToI += Convert.ToInt32(NetworkInputRange == Range.WholeRange);
             Weights.Add(new List<double>());
             int i = Weights.Count - 1;
             for (int j = 0; j < outputLength; j++)
@@ -100,12 +96,8 @@ namespace NeatNetwork.Groupings
             }
         }
 
-        /// <summary>
-        /// If OutputRange == Range.WholeRange OutputRange.ToI will be incremented
-        /// </summary>
         internal void AddConnectedOutputNeuron(double maxWeight, double minWeight, double weightClosestTo0)
         {
-            ConnectedOutputRange.ToI += Convert.ToInt32(ConnectedOutputRange == Range.WholeRange);
             for (int i = 0; i < Weights.Count; i++)
             {
                 Weights[i].Add(ValueGeneration.GenerateWeight(minWeight, maxWeight, weightClosestTo0));
