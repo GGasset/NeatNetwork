@@ -195,7 +195,7 @@ namespace NeatNetwork.Groupings
 
                     foreach (var connectedNetworkExecutionI in connectedNetworkExecutionsI)
                     {
-                        List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
+                        List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkExecutionI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
                         outputConnectionsGradients[t].Add(weightGradients);
 
                         //                                                  +1 to count for input
