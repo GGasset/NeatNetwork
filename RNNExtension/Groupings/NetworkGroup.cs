@@ -221,7 +221,8 @@ namespace NeatNetwork.Groupings
 
                 AgroupatedNetwork cNetwork = Networks[ExecutionOrder[i]];
 
-                List<List<NeuronHolder>> cNetworkGradients = cNetwork.n.GetGradients(networksOutputCostGradients[i + 1], executionValues[i], neuronActivations[i], out List<List<double>> inputGradients);
+                // Input gradients are a list representing neurons with each neuron having a list of timesteps
+                List<List<NeuronHolder>> cNetworkGradients = cNetwork.n.GetGradients(networksOutputCostGradients[i + 1], currentExecutionValues, currentNeuronActivations, out List<List<double>> inputGradients);
                 output.Add(cNetworkGradients);
 
                 // Save all connections executions but if the current network is executed clear the saved list because connectedNetwork input is cleared
@@ -239,23 +240,35 @@ namespace NeatNetwork.Groupings
                     }
                 }
 
-                // TODO: Calculate cost gradients for respecting connections and networks outputs
-
+                // Calculate cost gradients for respecting connections and networks outputs
                 for (int t = 0; t < tSCount; t++)
                 {
+                    // Parse input gradients to a list of the current t containing the gradients of each neuron
+                    var currentInputGradients = new List<double>();
+                    for (int j = 0; j < inputGradients.Count; j++)
+                    {
+                        currentInputGradients.Add(inputGradients[j][t]);
+                    }
+
                     foreach (var influentialExecutionI in influentialExecutionsIndexes)
                     {
                         Connection cConnection = cNetwork.GetConnectionConnectedTo(ExecutionOrder[influentialExecutionI], out int connectionI);
-                        double[] connectedNetworkOutput = neuronActivations[t][ExecutionOrder[influentialExecutionI]][cNetwork.n.Length - 1];
 
-                        List<double> connectedNetworkOutputCosts = cConnection.GetGradients(inputGradients[t], connectedNetworkOutput, out Connection weightGradients, cNetwork.n.InputLength);
+                        //                                                                                              there isn't a -1 because inpu layer isn't instantiated and neuron activations counts input
+                        double[] connectedNetworkOutput = neuronActivations[t][ExecutionOrder[influentialExecutionI]][cNetwork.n.Length];
+
+                        List<double> connectedNetworkOutputCosts = cConnection.GetGradients(currentInputGradients, connectedNetworkOutput, out Connection weightGradients, cNetwork.n.InputLength);
 
                         networksOutputCostGradients[influentialExecutionI + 1][t] = SubtractLists(connectedNetworkOutputCosts, networksOutputCostGradients[influentialExecutionI + 1][t]);
                         connectionsGradients[t][currentExecutionNetworkI][connectionI] = weightGradients;
                     }
                 }
+
+                // TODO: Calculate cost gradients for input connected connections
+
             }
 
+            output.Reverse();
             return output;
         }
 
@@ -267,15 +280,15 @@ namespace NeatNetwork.Groupings
 
             for (int t = 0; t < tSCount; t++)
             {
+                for (int i = 0; i < OutputConnections.Count; i++)
+                    OutputConnections[i].SubtractGrads(gradients.outputConnectionsGradients[t][i], learningRate);
+
                 for (int i = 0; i < ExecutionOrder.Count; i++)
                 {
                     int cNetworkI = ExecutionOrder[i];
                     for (int connectionI = 0; connectionI < Networks[cNetworkI].Connections.Count; connectionI++)
                         Networks[ExecutionOrder[i]].Connections[connectionI].SubtractGrads(gradients.ConnectionsGradients[t][i][connectionI], learningRate);
                 }
-
-                for (int i = 0; i < OutputConnections.Count; i++)
-                    OutputConnections[i].SubtractGrads(gradients.outputConnectionsGradients[t][i], learningRate);
             }
         }
 
