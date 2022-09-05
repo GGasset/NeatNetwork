@@ -158,7 +158,7 @@ namespace NeatNetwork.Groupings
                 networksOutputCostGradients.Add(new List<double[]>());
                 for (int t = 0; t < tSCount; t++)
                 {
-                    networksOutputCostGradients[i].Add(new double[Networks[ExecutionOrder[i]].n.OutputLength]);
+                    networksOutputCostGradients[i + 1].Add(new double[Networks[ExecutionOrder[i]].n.OutputLength]);
                 }
             }
 
@@ -195,11 +195,12 @@ namespace NeatNetwork.Groupings
 
                     foreach (var connectedNetworkExecutionI in connectedNetworkExecutionsI)
                     {
-                        List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkExecutionI][connectedNetwork.Length - 1], out Connection weightGradients, connectedNetwork.InputLength);
+                        List<double> connectedNetworkOutputGradients = OutputConnections[i].GetGradients(new List<double>(costGradients[t]), neuronActivations[t][connectedNetworkExecutionI][connectedNetwork.Length], out Connection weightGradients, OutputLength);
                         outputConnectionsGradients[t].Add(weightGradients);
 
-                        //                                                  +1 to count for input
-                        networksOutputCostGradients[connectedNetworkExecutionI + 1][t] = SubtractLists(connectedNetworkOutputGradients, networksOutputCostGradients[connectedNetworkExecutionI + 1][t]);
+                        var connectedNetwokOutputCost = SubtractLists(connectedNetworkOutputGradients, networksOutputCostGradients[connectedNetworkExecutionI + 1][t]);
+                        //                                                  +1 counts for input
+                        networksOutputCostGradients[connectedNetworkExecutionI + 1][t] = connectedNetwokOutputCost;
                     }
                 }
             }
@@ -306,16 +307,16 @@ namespace NeatNetwork.Groupings
         }
 
         /// <summary>
-        /// Connections are backward connected, that means, input is connected to output and not otherwise
+        /// Connections are backward connected, that means, input is connected to output and not otherwise, Ranges are inclusive and you can use Range.WholeRange
         /// </summary>
-        /// <param name="toNetworkI">-1 means connected to input</param>
-        public void Connect(int fromNetworkI, Range fromInputRange, int toNetworkI, Range toInputRange)
+        /// <param name="connectedNetworkOutputRange">-1 means connected to input</param>
+        public void Connect(int fromNetworkI, Range fromInputRange, int toNetworkI, Range connectedNetworkOutputRange)
         {
             if (fromNetworkI == toNetworkI || fromNetworkI < 0 || toNetworkI < -1 || fromNetworkI >= Networks.Count || toNetworkI >= Networks.Count)
                 throw new ArgumentException();
 
             var cNetwork = Networks[fromNetworkI].n;
-            Networks[fromNetworkI].Connect(toNetworkI, toNetworkI == -1? InputLength : Networks[toNetworkI].n.OutputLength, fromInputRange, toInputRange, cNetwork.MaxWeight, cNetwork.MinWeight, cNetwork.WeightClosestTo0);
+            Networks[fromNetworkI].Connect(toNetworkI, toNetworkI == -1? InputLength : Networks[toNetworkI].n.OutputLength, fromInputRange, connectedNetworkOutputRange, cNetwork.MaxWeight, cNetwork.MinWeight, cNetwork.WeightClosestTo0);
         }
 
         public void ConnectToOutput(int networkI, Range networkOutputRange, Range groupOutputRange)
