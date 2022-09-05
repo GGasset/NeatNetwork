@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NeatNetwork.Libraries;
+using NeatNetwork.Groupings;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,71 @@ namespace NeatNetwork
     {
         static void Main(string[] args)
         {
+            // NetworkGroup Demonstration
+            // Initialize NetworkGroup
+            NetworkGroup n = new NetworkGroup(1, 2, .1);
+            List<AgroupatedNetwork> ns = new List<AgroupatedNetwork>()
+            {
+                new AgroupatedNetwork(new RNN(new int[] {4, 15, 20 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid)),
+                new AgroupatedNetwork(new RNN(new int[] {7, 10, 20}, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid)),
+                new AgroupatedNetwork(new RNN(new int[] {6, 10, 20}, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid)),
+            };
+            List<int> executionOrder = new List<int>()
+            {
+                0, 1, 2,
+            };
+            n.Networks = ns;
+            n.ExecutionOrder = executionOrder;
 
-            RNN rNN = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid);
+            // Connect network 0 to input
+            n.Connect(0, Range.WholeRange, -1, Range.WholeRange);
+
+            // Connect network 1 to network 0
+            n.Connect(1, Range.WholeRange, 0, new Range(0, 15));
+
+            // Connect network 2 to network 1
+            n.Connect(2, new Range(1, 4), 1, Range.WholeRange);
+
+            // Connect network 2 to input
+            n.Connect(2, Range.WholeRange, -1, Range.WholeRange);
+
+            n.ConnectToOutput(1, new Range(0, 15), new Range(0, 0));
+            n.ConnectToOutput(2, Range.WholeRange, Range.WholeRange);
+
+            // NetworkGroup Supervised learning
+            List<double[]> X = new List<double[]>()
+            {
+                new double[] {15},
+                new double[] {30}
+            };
+
+            List<double[]> y = new List<double[]>()
+            {
+                new double[] {25, 35},
+                new double[] {55, 68 }
+            };
+
+            for (int i = 0; i < 100000; i++)
+            {
+                n.TrainBySupervisedLearning(X, y, Cost.CostFunctions.SquaredMean);
+                var firstOutput = n.Execute(X[0]);
+                var secondOutput = n.Execute(X[1]);
+
+                double firstExecutionFirstError = firstOutput[0] - y[0][0];
+                double firstExecutionSecondError = firstOutput[1] - y[0][1];
+                double secondExecutionFirstError = secondOutput[0] - y[1][0];
+                double secondExecutionSecondError = secondOutput[0] - y[1][1];
+
+                Console.WriteLine($"{i}\nFirst output was off by:" +
+                    $"{firstExecutionFirstError} and {firstExecutionSecondError}" +
+                    $"\nSecond output was off by:" +
+                    $"{secondExecutionFirstError} and {secondExecutionSecondError}" +
+                    "\n======================");
+            }
+
+
+            //RNN reinforcement learning
+            /*RNN rNN = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid);
             ReinforcementLearningRNN n = new ReinforcementLearningRNN(rNN);
             var X = new double[] { 5 };
             var expectedFirstValue = 0.5;
@@ -32,7 +96,7 @@ namespace NeatNetwork
                 n.TerminateAgent();
 
                 Console.WriteLine($"{firstOutput}\n{secondOutput}\n----------------");
-            }
+            }*/
 
             /*RNN n = new RNN(new int[] { 1, 13, 5, 1 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid);
             List<List<double[]>> X = new List<List<double[]>>()
