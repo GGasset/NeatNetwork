@@ -24,6 +24,12 @@ namespace NeatNetwork.Groupings
         public double learningRate;
         private double[] Output;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputLength"></param>
+        /// <param name="outputLength"></param>
+        /// <param name="learningRate">do to high complexoity a really low learning rate is recommended</param>
         public NetworkGroup(int inputLength, int outputLength, double learningRate)
         {
             Networks = new List<AgroupatedNetwork>();
