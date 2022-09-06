@@ -69,6 +69,7 @@ namespace NeatNetwork.Groupings
                 for (int weightI = connectedOutputRange.FromI; weightI <= connectedOutputRange.ToI; weightI++)
                 {
                     var weight = Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI];
+
                     output[weightI] -= wholeInputCostGradients[neuronI] * weight;
                     weightGradients.Weights[neuronI - inputRange.FromI][weightI - connectedOutputRange.FromI] += wholeInputCostGradients[neuronI] * connectedNetworkOutput[weightI];
                 }
