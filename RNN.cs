@@ -80,6 +80,13 @@ namespace NeatNetwork
 
         public double[] Execute(double[] input) => Execute(input, out _,  out _);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="networkExecutionValues"></param>
+        /// <param name="neuronActivations">includes input</param>
+        /// <returns></returns>
         public double[] Execute(double[] input, out List<NeuronExecutionValues[]> networkExecutionValues, out List<double[]> neuronActivations)
         {
             networkExecutionValues = new List<NeuronExecutionValues[]>();
@@ -102,7 +109,41 @@ namespace NeatNetwork
                 }
             }
 
-            return neuronActivations[neuronActivations.Count - 1];
+            return neuronActivations[Length];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layerI"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">input length must equal layer layerI length</exception>
+        public double[] ExecuteFromLayer(int layerI, double[] input)
+        {
+            if (Neurons[layerI].Count != input.Length) throw new ArgumentException("input length doesn't match layer length");
+
+            var neuronActivations = new List<double[]>()
+            {
+                new double[InputLength]
+            };
+
+            for (int i = 0; i < layerI; i++)
+            {
+                int layerLength = Neurons[i].Count;
+                neuronActivations.Add(new double[layerLength]);
+            }
+
+            for (int i = layerI; i < Length; i++)
+            {
+                int layerLength = Neurons[i].Count;
+                neuronActivations.Add(new double[layerLength]);
+                for (int j = 0; j < layerLength; j++)
+                {
+                    neuronActivations[i][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out _);
+                }
+            }
+            return neuronActivations[Length];
         }
 
         #region Gradient Learning
