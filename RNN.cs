@@ -120,7 +120,7 @@ namespace NeatNetwork
         /// <returns></returns>
         public double[] ExecuteUpToLayer(int layerI, double[] input)
         {
-            if (layerI >= Neurons.Count) throw new ArgumentOutOfRangeException("")
+            if (layerI >= Neurons.Count || Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException();
 
             var neuronActivations = new List<double[]>()
             {
