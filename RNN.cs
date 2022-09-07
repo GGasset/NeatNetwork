@@ -113,15 +113,43 @@ namespace NeatNetwork
         }
 
         /// <summary>
-        /// 
+        /// Used for auto encoder networks
         /// </summary>
-        /// <param name="layerI"></param>
+        /// <param name="layerI">layerI is inclusive and doesn't include input layer</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException">input length must equal layer layerI length</exception>
+        public double[] ExecuteUpToLayer(int layerI, double[] input)
+        {
+            if (layerI >= Neurons.Count) throw new ArgumentOutOfRangeException("")
+
+            var neuronActivations = new List<double[]>()
+            {
+                input
+            };
+
+            for (int i = 0; i <= layerI; i++)
+            {
+                int layerLength = Neurons[i].Count;
+                double[] layerOutput = new double[layerLength];
+                for (int j = 0; j < layerLength; j++)
+                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out _);
+
+                neuronActivations.Add(layerOutput);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        /// <summary>
+        /// Used for auto encoder networks
+        /// </summary>
+        /// <param name="layerI">doesn't include input layer</param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">input length must equal layer layerI length</exception>
         public double[] ExecuteFromLayer(int layerI, double[] input)
         {
-            if (Neurons[layerI].Count != input.Length) throw new ArgumentException("input length doesn't match layer length");
+            if (Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException("input length doesn't match layer length");
 
             var neuronActivations = new List<double[]>()
             {
