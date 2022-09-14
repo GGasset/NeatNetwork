@@ -15,7 +15,7 @@ namespace NeatNetwork
         {
             // NetworkGroup Demonstration
             // Initialize NetworkGroup
-            NetworkGroup n = new NetworkGroup(1, 2, .1);
+            /*NetworkGroup n = new NetworkGroup(1, 2, .1);
             List<AgroupatedNetwork> ns = new List<AgroupatedNetwork>()
             {
                 new AgroupatedNetwork(new RNN(new int[] {4, 15, 20 }, new NeuronTypes[] { NeuronTypes.LSTM, NeuronTypes.LSTM }, Activation.ActivationFunctions.Sigmoid)),
@@ -42,10 +42,10 @@ namespace NeatNetwork
             n.Connect(2, Range.WholeRange, -1, Range.WholeRange);
 
             n.ConnectToOutput(1, new Range(0, 15), new Range(0, 0));
-            n.ConnectToOutput(2, Range.WholeRange, Range.WholeRange);
+            n.ConnectToOutput(2, Range.WholeRange, Range.WholeRange);*/
 
             // NetworkGroup Supervised learning
-            List<double[]> X = new List<double[]>()
+            /*List<double[]> X = new List<double[]>()
             {
                 new double[] {15},
                 new double[] {30}
@@ -73,7 +73,7 @@ namespace NeatNetwork
                     $"\nSecond output was off by:" +
                     $"{secondExecutionFirstError} and {secondExecutionSecondError}" +
                     "\n======================");
-            }
+            }*/
 
 
             //RNN reinforcement learning
@@ -200,7 +200,7 @@ namespace NeatNetwork
            }*/
 
             // NN Supervised learning demonstration
-            /*NN world = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);
+            NN n = new NN(new int[] { 4, 5, 6, 5, 4, 3, 1 }, Activation.ActivationFunctions.Sigmoid, 1.5, -1.5, .5);
             List<double[]> X = new List<double[]>()
             {
                 new double[] { 3, 7, 8, 9 },
@@ -215,9 +215,9 @@ namespace NeatNetwork
             double learningRate = .75;
             for (int j = 0; j < 4000; j++)
             {
-                world.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, learningRate);
+                n.SupervisedLearningBatch(X, y, 1, Cost.CostFunctions.SquaredMean, learningRate);
                 double output;
-                Console.WriteLine(output = world.Execute(X[0])[0]);
+                Console.WriteLine(output = n.Execute(X[0])[0]);
                 if (targetVal == output)
                 {
                     Console.WriteLine($"Overfitted in {j} steps");
@@ -226,10 +226,10 @@ namespace NeatNetwork
                 }
             }
 
-            world = new NN(world.ToString());
+            n = new NN(n.ToString());
 
-            Console.WriteLine($"{world.Execute(X[0])[0]}");
-            Console.ReadKey();*/
+            Console.WriteLine($"{n.Execute(X[0])[0]}");
+            Console.ReadKey();
 
             // NN Reinforcement Learning demonstration
             /*double learningRate = 1;

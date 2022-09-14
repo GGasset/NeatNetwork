@@ -4,6 +4,8 @@ using System.Drawing;
 using NeatNetwork.NetworkFiles;
 using static NeatNetwork.Libraries.ValueGeneration;
 using NeatNetwork.Libraries;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace NeatNetwork
 {
@@ -34,29 +36,48 @@ namespace NeatNetwork
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
+        /// <param name="shape">Includes input layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
-        public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
+        public NN(int[] shape, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
             double mutationChance = .1, double fieldMaxMutation = .04, double initialMaxMutationValue = .27, double newNeuronChance = .2, double newLayerChance = .05,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
             MaxMutationGrid = new List<List<double>>();
 
-            for (int i = 1; i < layerLengths.Length; i++)
+            List<Task<List<Neuron>>> layersTasks = new List<Task<List<Neuron>>>();
+            for (int i = 1; i < shape.Length; i++)
             {
-                Neurons.Add(new List<Neuron>());
                 MaxMutationGrid.Add(new List<double>());
 
-                for (int j = 0; j < Math.Abs(layerLengths[i]); j++)
+                int layerLength = shape[i];
+
+                layersTasks.Add(InstantiateLayerAsync(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+
+                for (int j = 0; j < layerLength; j++)
                 {
-                    Neuron newNeuron = new Neuron(i, layerLengths[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0);
-                    Neurons[i - 1].Add(newNeuron);
                     MaxMutationGrid[i - 1].Add(initialValueForMaxMutation);
                 }
             }
 
-            this.InputLength = layerLengths[0];
+            bool areTaskFinished = false;
+            while (!areTaskFinished)
+            {
+                Thread.Sleep(50);
+
+                areTaskFinished = true;
+                foreach (var task in layersTasks)
+                {
+                    areTaskFinished = areTaskFinished && task.IsCompleted;
+                }
+            }
+
+            foreach (var task in layersTasks)
+            {
+                Neurons.Add(task.Result);
+            }
+
+            this.InputLength = shape[0];
             this.ActivationFunction = activation;
             this.MaxWeight = maxWeight;
             this.MinWeight = minWeight;
@@ -69,6 +90,16 @@ namespace NeatNetwork
             this.FieldMaxMutation = fieldMaxMutation;
             this.NewNeuronChance = newNeuronChance;
             this.NewLayerChance = newLayerChance;
+        }
+
+        private async Task<List<Neuron>> InstantiateLayerAsync(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            List<Neuron> output = new List<Neuron>();
+            for (int i = 0; i < layerLength; i++)
+            {
+                output.Add(new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0));
+            }
+            return output;
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _);
@@ -257,7 +288,6 @@ namespace NeatNetwork
                 output.Add(new GradientValues[layerLength]);
             }
 
-            inputCosts = new double[neuronActivations[0].Length];
             List<double[]> costGrid = ValueGeneration.GetNetworkCostGrid(InputLength, Shape, costs);
 
             for (int layerIndex = Neurons.Count - 1; layerIndex >= 0; layerIndex--)
