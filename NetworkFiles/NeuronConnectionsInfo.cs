@@ -22,6 +22,15 @@ namespace NeatNetwork.NetworkFiles
             Weights = new List<double>();
             ConnectedNeuronsPos = new List<Point>();
 
+            /*int connectionsPerTask = 250;
+
+            if (previousLayerLength > connectionsPerTask)
+            {
+                int tasks = previousLayerLength / connectionsPerTask;
+                int leftConnections = previousLayerLength % connectionsPerTask;
+                return;
+            }*/
+
             for (int i = 0; i < previousLayerLength; i++)
             {
                 Point connectionPos = new Point(layerIndex - 1, i);
