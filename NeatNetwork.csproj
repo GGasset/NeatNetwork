@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Libraries\DataManipulation.cs" />
     <Compile Include="Libraries\DiskHandler.cs" />
     <Compile Include="Libraries\GradientsNetworkAssociation.cs" />
     <Compile Include="Libraries\NetworkGroupGradients.cs" />
