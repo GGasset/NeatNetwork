@@ -41,6 +41,14 @@ namespace NeatNetwork.Libraries
             return v;
         }
 
+        public static async Task<List<double>> GenerateWeightsAsync(int weigthCount, double minValue, double maxValue, double weigthClosestTo0)
+        {
+            var weights = new List<double>();
+            for (int i = 0; i < weigthCount; i++)
+                weights.Add(GenerateWeight(minValue, maxValue, weigthClosestTo0));
+            return weights;
+        }
+
         public static double GetVariation(double minValue, double maxValue)
         {
             (minValue, maxValue) = (Math.Min(minValue, maxValue), Math.Max(minValue, maxValue));
