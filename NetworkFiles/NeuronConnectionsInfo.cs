@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using NeatNetwork.Libraries;
 
 namespace NeatNetwork.NetworkFiles
@@ -22,14 +23,19 @@ namespace NeatNetwork.NetworkFiles
             Weights = new List<double>();
             ConnectedNeuronsPos = new List<Point>();
 
-            /*int connectionsPerTask = 250;
+            int connectionsPerTask = 350;
 
             if (previousLayerLength > connectionsPerTask)
             {
                 int tasks = previousLayerLength / connectionsPerTask;
                 int leftConnections = previousLayerLength % connectionsPerTask;
+
+                List<Task<List<double>>> weigthsTasks = new List<Task<List<double>>>();
+                List<Task<List<Point>>> positionsTasks = new List<Task<List<Point>>>();
+
+
                 return;
-            }*/
+            }
 
             for (int i = 0; i < previousLayerLength; i++)
             {
@@ -65,6 +71,12 @@ namespace NeatNetwork.NetworkFiles
         {
             ConnectedNeuronsPos.Add(connectionPos);
             Weights.Add(weight);
+        }
+
+        internal void AddConnections(List<Point> positions, List<double> weigths)
+        {
+            ConnectedNeuronsPos.AddRange(positions);
+            Weights.AddRange(weigths);
         }
 
         internal void AdjustToNewLayerBeingAdded(int layerInsertionIndex, bool isinsertedInPreviousLayer, int insertedLayerLength, double minWeight, double maxWeight, double weightClosestTo0)
