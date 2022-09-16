@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using NeatNetwork.Libraries;
 
@@ -27,13 +28,42 @@ namespace NeatNetwork.NetworkFiles
 
             if (previousLayerLength > connectionsPerTask)
             {
-                int tasks = previousLayerLength / connectionsPerTask;
-                int leftConnections = previousLayerLength % connectionsPerTask;
+                int taskCount = previousLayerLength / connectionsPerTask;
+                int leftConnectionCount = previousLayerLength % connectionsPerTask;
 
                 List<Task<List<double>>> weigthsTasks = new List<Task<List<double>>>();
                 List<Task<List<Point>>> positionsTasks = new List<Task<List<Point>>>();
 
+                for (int i = 0; i < taskCount; i++)
+                {
+                    weigthsTasks.Add(Task.Run(() => ValueGeneration.GenerateWeights(connectionsPerTask, minWeight, maxWeight, valueClosestTo0)));
+                    positionsTasks.Add(Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(layerIndex - 1, connectionsPerTask * i, connectionsPerTask)));
+                }
+                weigthsTasks.Add(Task.Run(() => ValueGeneration.GenerateWeights(leftConnectionCount, minWeight, maxWeight, valueClosestTo0)));
+                positionsTasks.Add(Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(layerIndex - 1, taskCount * connectionsPerTask, leftConnectionCount)));
 
+                bool isFinished = false;
+                while (!isFinished)
+                {
+                    Thread.Sleep(20);
+                    isFinished = true;
+                    foreach (var weightsTask in weigthsTasks)
+                    {
+                        isFinished = weightsTask.IsCompleted && isFinished;
+                    }
+                    if (isFinished)
+                    {
+                        foreach (var positionsTask in positionsTasks)
+                        {
+                            isFinished = positionsTask.IsCompleted && isFinished;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < weigthsTasks.Count; i++)
+                {
+                    AddConnections(positionsTasks[i].Result, weigthsTasks[i].Result);
+                }
                 return;
             }
 
