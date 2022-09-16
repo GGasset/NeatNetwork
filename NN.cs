@@ -52,7 +52,7 @@ namespace NeatNetwork
 
                 int layerLength = shape[i];
 
-                layersTasks.Add(InstantiateLayerAsync(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+                layersTasks.Add(Task.Run(() => InstantiateLayer(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0)));
 
                 for (int j = 0; j < layerLength; j++)
                 {
@@ -92,7 +92,7 @@ namespace NeatNetwork
             this.NewLayerChance = newLayerChance;
         }
 
-        private async Task<List<Neuron>> InstantiateLayerAsync(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
+        private List<Neuron> InstantiateLayer(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
         {
             List<Neuron> output = new List<Neuron>();
             for (int i = 0; i < layerLength; i++)
