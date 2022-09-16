@@ -95,10 +95,28 @@ namespace NeatNetwork
         private List<Neuron> InstantiateLayer(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
         {
             List<Neuron> output = new List<Neuron>();
+            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
             for (int i = 0; i < layerLength; i++)
             {
-                output.Add(new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0));
+                neuronTasks.Add(Task.Run(() => new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0)));
             }
+
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                Thread.Sleep(20);
+                isFinished = true;
+                foreach (var neuronTask in neuronTasks)
+                {
+                    isFinished = isFinished && neuronTask.IsCompleted;
+                }
+            }
+
+            foreach (var neuronTask in neuronTasks)
+            {
+                output.Add(neuronTask.Result);
+            }
+
             return output;
         }
 
