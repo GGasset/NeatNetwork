@@ -139,19 +139,48 @@ namespace NeatNetwork
             linearFunctions = new List<double[]>();
             for (int i = 0; i < Neurons.Count; i++)
             {
-                int layerLength = Neurons[i].Count;
-                double[] layerOutput = new double[layerLength];
-                double[] layerLinears = new double[layerLength];
-                for (int j = 0; j < layerLength; j++)
-                {
-                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out double linear);
-                    layerLinears[j] = linear;
-                }
+                (double[] layerOutput, double[] layerLinears) = ExecuteLayer(i, neuronActivations);
+
                 linearFunctions.Add(layerLinears);
                 neuronActivations.Add(layerOutput);
             }
 
             return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="layerI"></param>
+        /// <param name="previousActivations"></param>
+        /// <returns>(layerOutputs, layerLinears)</returns>
+        private (double[], double[]) ExecuteLayer(int layerI, List<double[]> previousActivations)
+        {
+            int layerLength = Neurons[layerI].Count;
+            double[] layerOutput = new double[layerLength];
+            double[] layerLinears = new double[layerLength];
+
+            List<Task<(double, double)>> executionTasks = new List<Task<(double, double)>>();
+            for (int j = 0; j < layerLength; j++)
+            {
+                executionTasks.Add(Task.Run(() => Neurons[layerI][j].Execute(previousActivations, ActivationFunction)));
+            }
+
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                Thread.Sleep(15);
+                isFinished = true;
+                foreach (var task in executionTasks)
+                {
+                    isFinished = isFinished && task.IsCompleted;
+                }
+            }
+
+            for (int i = 0; i < layerLength; i++)
+                (layerOutput[i], layerLinears[i]) = executionTasks[i].Result;
+
+            return (layerOutput, layerLinears);
         }
 
         public new string ToString()
