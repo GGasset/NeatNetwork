@@ -257,8 +257,67 @@ namespace NeatNetwork
 
         static int RandomI = int.MinValue / 2;
 
+        public double SupervisedTrain(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, double testSize = 0.2, int batchSize = 350, bool shuffleData = true)
+        {
+            if (X.Count != y.Count)
+                throw new ArgumentOutOfRangeException("X - y", "X.Count is different than y.Count");
+
+            if (shuffleData)
+                (X, y) = DataManipulation.ShuffleData(X, y);
+
+            ((List<double[]> trainX, List<double[]> trainY), (List<double[]> testX, List<double[]> testY)) = DataManipulation.SliceData(X, y, 1 - testSize);
+
+            int batchCount = trainX.Count / batchSize;
+            int lastBatchSize = trainX.Count % batchSize;
+
+            for (int i = 0; i < batchCount; i += batchSize)
+            {
+                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchCount, (i + 1) * batchCount, out double currentMeanCost);
+            }
+            SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, trainX.Count - lastBatchSize, trainX.Count, out _);
+
+            double meanCost = 0;
+            for (int i = 0; i < trainX.Count; i++)
+            {
+                var output = Execute(testX[i]);
+                double cost = Cost.GetCost(output, y[i], costFunction);
+                meanCost += cost;
+            }
+            meanCost /= trainX.Count;
+            return meanCost;
+        }
+
+        private void SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, int startIndex, int exclusiveEndIndex, out double meanCost)
+        {
+            List<Task<(List<GradientValues[]>, double)>> gradientsTasks = new List<Task<(List<GradientValues[]>, double)>>();
+            for (int i = startIndex; i < exclusiveEndIndex; i++)
+            {
+                gradientsTasks.Add(Task.Run(() => GetSupervisedGradients(X[i], y[i], costFunction)));
+            }
+
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                Thread.Sleep(50);
+                foreach (var task in gradientsTasks)
+                {
+                    isFinished = task.IsCompleted && isFinished;
+                }
+            }
+
+            meanCost = 0;
+            foreach (var task in gradientsTasks)
+            {
+                (List<GradientValues[]> currentGradients, double currentCost) = task.Result;
+
+                SubtractGrads(currentGradients, learningRate);
+                meanCost += currentCost;
+            }
+            meanCost /= gradientsTasks.Count;
+        }
+
         /// <summary>
-        /// 
+        /// Supervised learning batch with data selected randomly
         /// </summary>
         /// <param name="X"></param>
         /// <param name="y"></param>
@@ -267,7 +326,7 @@ namespace NeatNetwork
         public double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction, double learningRate) => SupervisedLearningBatch(X, y, batchLength, costFunction, learningRate, out _);
 
         /// <summary>
-        /// 
+        /// Supervised learning batch with data selected randomly
         /// </summary>
         /// <param name="X"></param>
         /// <param name="y"></param>
@@ -300,7 +359,13 @@ namespace NeatNetwork
             return meanCost;
         }
 
-        public List<GradientValues[]> GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction, out double meanCost)
+        internal (List<GradientValues[]> gradients, double cost) GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction)
+        {
+            var gradients = GetSupervisedGradients(X, y, costFunction, out double meanCost);
+            return (gradients, meanCost);
+        }
+
+        internal List<GradientValues[]> GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction, out double meanCost)
         {
             double[] output = Execute(X, out List<double[]> neuronLinears, out List<double[]> neuronActivations);
             double[] costGradients = Derivatives.DerivativeOf(output, y, costFunction);
