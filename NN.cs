@@ -280,7 +280,7 @@ namespace NeatNetwork
             for (int i = 0; i < trainX.Count; i++)
             {
                 var output = Execute(testX[i]);
-                double cost = Cost.GetCost(output, y[i], costFunction);
+                double cost = Cost.GetCost(output, testY[i], costFunction);
                 meanCost += cost;
             }
             meanCost /= trainX.Count;
