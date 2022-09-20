@@ -240,17 +240,57 @@ namespace NeatNetwork
                 }
             }
 
-            Neurons = new List<List<Neuron>>();
             string[] layerStrs = principalStrs[2].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
+            List<Task<List<Neuron>>> layerTasks = new List<Task<List<Neuron>>>();
             for (int layerIndex = 0; layerIndex < layerStrs.Length; layerIndex++)
             {
-                Neurons.Add(new List<Neuron>());
-                string[] currentLayerNeuronsStrs = layerStrs[layerIndex].Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
-                for (int neuronIndex = 0; neuronIndex < currentLayerNeuronsStrs.Length; neuronIndex++)
+                layerTasks.Add(Task.Run(() => InstantiateLayer(layerStrs[layerIndex])));
+            }
+
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                Thread.Sleep(50);
+                isFinished = true;
+                for (int i = 0; i < layerTasks.Count && isFinished; i++)
                 {
-                    Neurons[layerIndex].Add(new Neuron(currentLayerNeuronsStrs[neuronIndex]));
+                    isFinished = layerTasks[i].IsCompleted && isFinished;
                 }
             }
+
+            Neurons = new List<List<Neuron>>();
+            foreach (var layerTask in layerTasks)
+            {
+                Neurons.Add(layerTask.Result);
+            }
+        }
+
+        private List<Neuron> InstantiateLayer(string str)
+        {
+            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
+            string[] neuronsStrs = str.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int neuronIndex = 0; neuronIndex < neuronsStrs.Length; neuronIndex++)
+            {
+                neuronTasks.Add(Task.Run(() => new Neuron(neuronsStrs[neuronIndex])));
+            }
+
+            bool isCompleted = false;
+            while (!isCompleted)
+            {
+                isCompleted = true;
+                for (int i = 0; i < neuronTasks.Count && isCompleted; i++)
+                {
+                    isCompleted = neuronTasks[i].IsCompleted && isCompleted;
+                }
+            }
+
+            List<Neuron> output = new List<Neuron>();
+            foreach (var neuronTask in neuronTasks)
+            {
+                output.Add(neuronTask.Result);
+            }
+
+            return output;
         }
 
         #region Gradient learning
