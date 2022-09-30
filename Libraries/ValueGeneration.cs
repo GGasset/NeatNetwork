@@ -50,12 +50,12 @@ namespace NeatNetwork.Libraries
             return weights;
         }
 
-        public static List<Point> GetConnectionsConnectedPosition(int connectedLayerI, int startingNeuronIndex, int length)
+        public static List<Point> GetConnectionsConnectedPosition(int connectedLayerI, int startingConnectedNeuronIndex, int outputLength)
         {
             var connections = new List<Point>();
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < outputLength; i++)
             {
-                connections.Add(new Point(connectedLayerI, startingNeuronIndex + i));
+                connections.Add(new Point(connectedLayerI, startingConnectedNeuronIndex + i));
             }
             return connections;
         }

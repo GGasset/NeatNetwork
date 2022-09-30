@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,12 +20,26 @@ namespace NeatNetwork.NetworkFiles
             ConnectedNeuronsPos = new List<Point>();
         }
 
+        private class PositionGenerator
+        {
+            internal int connectedX, startingY, outputLength;
+
+            internal PositionGenerator(int connectedX, int startingY, int outputLength)
+            {
+                this.connectedX = connectedX;
+                this.startingY = startingY;
+                this.outputLength = outputLength;
+            }
+
+            internal Task<List<Point>> RunAsync() => Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(connectedX, startingY, outputLength));
+        }
+
         internal NeuronConnectionsInfo(int layerIndex, int previousLayerLength, double minWeight, double maxWeight, double valueClosestTo0)
         {
             Weights = new List<double>();
             ConnectedNeuronsPos = new List<Point>();
 
-            int connectionsPerTask = 350;
+            int connectionsPerTask = 2000;
 
             if (previousLayerLength > connectionsPerTask)
             {
@@ -35,12 +50,20 @@ namespace NeatNetwork.NetworkFiles
                 // Initialize tasks
                 List<Task<List<double>>> weigthsTasks = new List<Task<List<double>>>();
                 List<Task<List<Point>>> positionsTasks = new List<Task<List<Point>>>();
+                PositionGenerator[] taskGenerator = new PositionGenerator[taskCount];
+
+                for (int i = 0; i < taskCount; i++)
+                {
+                    taskGenerator[i] = new PositionGenerator(layerIndex - 1, i * connectionsPerTask, connectionsPerTask);
+                }
 
                 for (int i = 0; i < taskCount; i++)
                 {
                     weigthsTasks.Add(Task.Run(() => ValueGeneration.GenerateWeights(connectionsPerTask, minWeight, maxWeight, valueClosestTo0)));
-                    positionsTasks.Add(Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(layerIndex - 1, connectionsPerTask * i, connectionsPerTask)));
+
+                    positionsTasks.Add(taskGenerator[i].RunAsync());
                 }
+
                 weigthsTasks.Add(Task.Run(() => ValueGeneration.GenerateWeights(leftConnectionCount, minWeight, maxWeight, valueClosestTo0)));
                 positionsTasks.Add(Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(layerIndex - 1, taskCount * connectionsPerTask, leftConnectionCount)));
 
@@ -48,7 +71,7 @@ namespace NeatNetwork.NetworkFiles
                 bool isFinished = false;
                 while (!isFinished)
                 {
-                    Thread.Sleep(20);
+                    Thread.Sleep(0);
                     isFinished = true;
                     foreach (var weightsTask in weigthsTasks)
                     {
