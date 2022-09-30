@@ -22,7 +22,7 @@ namespace NeatNetwork.NetworkFiles
 
         private class PositionGenerator
         {
-            internal int connectedX, startingY, outputLength;
+            private int connectedX, startingY, outputLength;
 
             internal PositionGenerator(int connectedX, int startingY, int outputLength)
             {
@@ -54,13 +54,9 @@ namespace NeatNetwork.NetworkFiles
 
                 for (int i = 0; i < taskCount; i++)
                 {
-                    taskGenerator[i] = new PositionGenerator(layerIndex - 1, i * connectionsPerTask, connectionsPerTask);
-                }
-
-                for (int i = 0; i < taskCount; i++)
-                {
                     weigthsTasks.Add(Task.Run(() => ValueGeneration.GenerateWeights(connectionsPerTask, minWeight, maxWeight, valueClosestTo0)));
 
+                    taskGenerator[i] = new PositionGenerator(layerIndex - 1, i * connectionsPerTask, connectionsPerTask);
                     positionsTasks.Add(taskGenerator[i].RunAsync());
                 }
 
