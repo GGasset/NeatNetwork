@@ -46,7 +46,7 @@ namespace NeatNetwork
             MaxMutationGrid = new List<List<double>>();
 
             List<Task<List<Neuron>>> layersTasks = new List<Task<List<Neuron>>>();
-            AsyncLayerInstantiator[] layerInstantiators = new AsyncLayerInstantiator[shape.Length - 1];
+            AsyncLayerInstantiator[] layerInstantiators = new AsyncLayerInstantiator[shape.Length];
             for (int i = 1; i < shape.Length; i++)
             {
                 MaxMutationGrid.Add(new List<double>());
@@ -189,28 +189,24 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="layerI"></param>
-        /// <param name="previousActivations"></param>
-        /// <returns>(layerOutputs, layerLinears)</returns>
-        private (double[], double[]) ExecuteLayer(int layerI, List<double[]> previousActivations)
+        private (double[] layerOutputs, double[] layerLinears) ExecuteLayer(int layerI, List<double[]> previousActivations)
         {
             int layerLength = Neurons[layerI].Count;
             double[] layerOutput = new double[layerLength];
             double[] layerLinears = new double[layerLength];
 
-            List<Task<(double, double)>> executionTasks = new List<Task<(double, double)>>();
+            List<Task<(double neuronActivation, double neuronLinear)>> executionTasks = new List<Task<(double, double)>>();
+            AsyncNeuronExecutor[] asyncNeuronExecutors = new AsyncNeuronExecutor[layerLength];
             for (int j = 0; j < layerLength; j++)
             {
-                executionTasks.Add(Task.Run(() => Neurons[layerI][j].Execute(previousActivations, ActivationFunction)));
+                asyncNeuronExecutors[j] = new AsyncNeuronExecutor(Neurons[layerI][j]);
+                executionTasks.Add(asyncNeuronExecutors[j].ExecuteNeuronAsync(previousActivations, ActivationFunction));
             }
 
             bool isFinished = false;
             while (!isFinished)
             {
-                Thread.Sleep(15);
+                Thread.Sleep(0);
                 isFinished = true;
                 foreach (var task in executionTasks)
                 {
@@ -222,6 +218,19 @@ namespace NeatNetwork
                 (layerOutput[i], layerLinears[i]) = executionTasks[i].Result;
 
             return (layerOutput, layerLinears);
+        }
+
+        class AsyncNeuronExecutor
+        {
+            Neuron Neuron;
+
+            internal AsyncNeuronExecutor(Neuron neuron)
+            {
+                Neuron = neuron;
+            }
+
+            internal Task<(double neuronActivation, double neuronLinear)> ExecuteNeuronAsync(List<double[]> previousActivations, Activation.ActivationFunctions activationFunction) =>
+                Task.Run(() => Neuron.Execute(previousActivations, activationFunction));
         }
 
         public new string ToString()
