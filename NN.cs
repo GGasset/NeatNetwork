@@ -46,13 +46,15 @@ namespace NeatNetwork
             MaxMutationGrid = new List<List<double>>();
 
             List<Task<List<Neuron>>> layersTasks = new List<Task<List<Neuron>>>();
+            AsyncLayerInstantiator[] layerInstantiators = new AsyncLayerInstantiator[shape.Length - 1];
             for (int i = 1; i < shape.Length; i++)
             {
                 MaxMutationGrid.Add(new List<double>());
 
                 int layerLength = shape[i];
 
-                layersTasks.Add(Task.Run(() => InstantiateLayer(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0)));
+                layerInstantiators[i] = new AsyncLayerInstantiator(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0);
+                layersTasks.Add(layerInstantiators[i].InstantiateLayerAsync());
 
                 for (int j = 0; j < layerLength; j++)
                 {
@@ -63,7 +65,7 @@ namespace NeatNetwork
             bool areTaskFinished = false;
             while (!areTaskFinished)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(0);
 
                 areTaskFinished = true;
                 foreach (var task in layersTasks)
@@ -92,23 +94,44 @@ namespace NeatNetwork
             this.NewLayerChance = newLayerChance;
         }
 
-        private List<Neuron> InstantiateLayer(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
+        private class AsyncLayerInstantiator
+        {
+            private readonly int LayerI, LayerLength, PreviousLayerLength;
+            private readonly double Bias, MaxWeight, MinWeight, WeightClosestTo0;
+
+            internal AsyncLayerInstantiator(int layerI, int layerLength, int previousLayerLength, double bias, double maxWeight, double minWeight, double weightClosestTo0)
+            {
+                LayerI = layerI;
+                LayerLength = layerLength;
+                PreviousLayerLength = previousLayerLength;
+                Bias = bias;
+                MaxWeight = maxWeight;
+                MinWeight = minWeight;
+                WeightClosestTo0 = weightClosestTo0;
+            }
+
+            internal Task<List<Neuron>> InstantiateLayerAsync() => Task.Run(() => InstantiateLayer(LayerI, LayerLength, PreviousLayerLength, Bias, MaxWeight, MinWeight, WeightClosestTo0));
+        }
+
+        private static List<Neuron> InstantiateLayer(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
         {
             List<Neuron> output = new List<Neuron>();
             List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
+            AsyncNeuronInstantiator[] neuronInstantiators = new AsyncNeuronInstantiator[layerLength];
             for (int i = 0; i < layerLength; i++)
             {
-                neuronTasks.Add(Task.Run(() => new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0)));
+                neuronInstantiators[i] = new AsyncNeuronInstantiator(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0);
+                neuronTasks.Add(neuronInstantiators[i].InstantiateNeuronAsync());
             }
 
             bool isFinished = false;
             while (!isFinished)
             {
-                Thread.Sleep(20);
+                Thread.Sleep(0);
                 isFinished = true;
-                foreach (var neuronTask in neuronTasks)
+                for (int i = 0; i < neuronTasks.Count && isFinished; i++)
                 {
-                    isFinished = isFinished && neuronTask.IsCompleted;
+                    isFinished = isFinished && neuronTasks[i].IsCompleted;
                 }
             }
 
@@ -118,6 +141,24 @@ namespace NeatNetwork
             }
 
             return output;
+        }
+
+        private class AsyncNeuronInstantiator
+        {
+            private readonly int LayerI, PreviousLayerLength;
+            private readonly double Bias, MaxWeight, MinWeight, WeightClosestTo0;
+
+            internal AsyncNeuronInstantiator(int layerI, int previousLayerLength, double bias, double maxWeight, double minWeight, double weightClosestTo0)
+            {
+                LayerI = layerI;
+                PreviousLayerLength = previousLayerLength;
+                Bias = bias;
+                MaxWeight = maxWeight;
+                MinWeight = minWeight;
+                WeightClosestTo0 = weightClosestTo0;
+            }
+
+            internal Task<Neuron> InstantiateNeuronAsync() => Task.Run(() => new Neuron(LayerI, PreviousLayerLength, Bias, MaxWeight, MinWeight, WeightClosestTo0));
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _);
@@ -242,15 +283,17 @@ namespace NeatNetwork
 
             string[] layerStrs = principalStrs[2].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
             List<Task<List<Neuron>>> layerTasks = new List<Task<List<Neuron>>>();
+            AsyncFromStringLayerInstantiator[] layerInstantiators = new AsyncFromStringLayerInstantiator[layerStrs.Length];
             for (int layerIndex = 0; layerIndex < layerStrs.Length; layerIndex++)
             {
-                layerTasks.Add(Task.Run(() => InstantiateLayer(layerStrs[layerIndex])));
+                layerInstantiators[layerIndex] = new AsyncFromStringLayerInstantiator(layerStrs[layerIndex]);
+                layerTasks.Add(layerInstantiators[layerIndex].InstantiateLayerFromStringAsync());
             }
 
             bool isFinished = false;
             while (!isFinished)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(0);
                 isFinished = true;
                 for (int i = 0; i < layerTasks.Count && isFinished; i++)
                 {
@@ -265,18 +308,23 @@ namespace NeatNetwork
             }
         }
 
-        private List<Neuron> InstantiateLayer(string str)
+        private static List<Neuron> InstantiateLayer(string str)
         {
-            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
             string[] neuronsStrs = str.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
+            AsyncFromStringNeuronInstantiator[] neuronInstantiators = new AsyncFromStringNeuronInstantiator[neuronsStrs.Length];
+
             for (int neuronIndex = 0; neuronIndex < neuronsStrs.Length; neuronIndex++)
             {
-                neuronTasks.Add(Task.Run(() => new Neuron(neuronsStrs[neuronIndex])));
+                neuronInstantiators[neuronIndex] = new AsyncFromStringNeuronInstantiator(neuronsStrs[neuronIndex]);
+                neuronTasks.Add(neuronInstantiators[neuronIndex].InstatiateNeuronAsync());
             }
 
             bool isCompleted = false;
             while (!isCompleted)
             {
+                Thread.Sleep(0);
                 isCompleted = true;
                 for (int i = 0; i < neuronTasks.Count && isCompleted; i++)
                 {
@@ -291,6 +339,30 @@ namespace NeatNetwork
             }
 
             return output;
+        }
+
+        private class AsyncFromStringLayerInstantiator
+        {
+            private readonly string str;
+
+            internal AsyncFromStringLayerInstantiator(string str)
+            {
+                this.str = str;
+            }
+
+            internal Task<List<Neuron>> InstantiateLayerFromStringAsync() => Task.Run(() => InstantiateLayer(str));
+        }
+
+        private class AsyncFromStringNeuronInstantiator
+        {
+            private string str;
+
+            internal AsyncFromStringNeuronInstantiator(string str)
+            {
+                this.str = str;
+            }
+
+            internal Task<Neuron> InstatiateNeuronAsync() => Task.Run(() => new Neuron(str));
         }
 
         #region Gradient learning
@@ -329,16 +401,18 @@ namespace NeatNetwork
 
         private void SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, int startIndex, int exclusiveEndIndex, out double meanCost)
         {
-            List<Task<(List<GradientValues[]>, double)>> gradientsTasks = new List<Task<(List<GradientValues[]>, double)>>();
+            List<Task<(List<GradientValues[]>, double)>> gradientsTasks = new List<Task<(List<GradientValues[]>, double cost)>>();
+            List<AsyncGradientsCalculator> asyncGradientsCalculators = new List<AsyncGradientsCalculator>();
             for (int i = startIndex; i < exclusiveEndIndex; i++)
             {
-                gradientsTasks.Add(Task.Run(() => GetSupervisedGradients(X[i], y[i], costFunction)));
+                asyncGradientsCalculators.Add(new AsyncGradientsCalculator(X[i], y[i], this));
+                gradientsTasks.Add(asyncGradientsCalculators[i - startIndex].GetGradientsAsync(costFunction));
             }
 
             bool isFinished = false;
             while (!isFinished)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(0);
                 foreach (var task in gradientsTasks)
                 {
                     isFinished = task.IsCompleted && isFinished;
@@ -354,6 +428,22 @@ namespace NeatNetwork
                 meanCost += currentCost;
             }
             meanCost /= gradientsTasks.Count;
+        }
+
+        private class AsyncGradientsCalculator
+        {
+            private double[] X, y;
+            private NN n;
+
+            internal AsyncGradientsCalculator(double[] x, double[] y, NN n)
+            {
+                X = x;
+                this.y = y;
+                this.n = n;
+            }
+
+            internal Task<(List<GradientValues[]> gradients, double cost)> GetGradientsAsync(Cost.CostFunctions costFunction) =>
+                Task.Run(() => n.GetSupervisedGradients(X, y, costFunction));
         }
 
         /// <summary>
