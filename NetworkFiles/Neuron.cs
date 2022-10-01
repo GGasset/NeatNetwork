@@ -29,13 +29,7 @@ namespace NeatNetwork.NetworkFiles
             
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="previousLayersActivations"></param>
-        /// <param name="activationFunction"></param>
-        /// <returns>tuple that represents (neuronActivation, neuronLinear)</returns>
-        internal (double, double) Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction)
+        internal (double neuronActivation, double neuronLinear) Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction)
         {
             double neuronActivation = Execute(previousLayersActivations, activationFunction, out double neuronLinear);
             return (neuronActivation, neuronLinear);
