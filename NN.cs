@@ -222,7 +222,7 @@ namespace NeatNetwork
 
         class AsyncNeuronExecutor
         {
-            Neuron Neuron;
+            private readonly Neuron Neuron;
 
             internal AsyncNeuronExecutor(Neuron neuron)
             {
@@ -364,7 +364,7 @@ namespace NeatNetwork
 
         private class AsyncFromStringNeuronInstantiator
         {
-            private string str;
+            private readonly string str;
 
             internal AsyncFromStringNeuronInstantiator(string str)
             {
@@ -441,8 +441,8 @@ namespace NeatNetwork
 
         private class AsyncGradientsCalculator
         {
-            private double[] X, y;
-            private NN n;
+            private readonly double[] X, y;
+            private readonly NN n;
 
             internal AsyncGradientsCalculator(double[] x, double[] y, NN n)
             {
