@@ -8,16 +8,35 @@ namespace NeatNetwork.Libraries
 {
     public static class DataManipulation
     {
+        private static int randomI = 0;
+
         public static (List<double[]> shuffledX, List<double[]> shuffledY) ShuffleData(List<double[]> X, List<double[]> y)
         {
             var shuffledX = new List<double[]>(X.ToArray());
             var shuffledY = new List<double[]>(y.ToArray());
 
-            Random r = new Random(DateTime.Now.Millisecond);
+            Random r = new Random(DateTime.Now.Millisecond + randomI++);
             for (int i = 0; i < shuffledX.Count; i++)
             {
                 int interchangeI = r.Next(X.Count);
                 (double[] currentX, double[] currentY) = (shuffledX[i], shuffledY[i]);
+                (shuffledX[i], shuffledY[i]) = (shuffledX[interchangeI], shuffledY[interchangeI]);
+                (shuffledX[interchangeI], shuffledY[interchangeI]) = (currentX, currentY);
+            }
+
+            return (shuffledX, shuffledY);
+        }
+
+        public static (List<List<double[]>> shuffledX, List<List<double[]>> shuffledY) ShuffleData(List<List<double[]>> X, List<List<double[]>> y)
+        {
+            var shuffledX = new List<List<double[]>>(X.ToArray());
+            var shuffledY = new List<List<double[]>>(y.ToArray());
+
+            Random r = new Random(DateTime.Now.Millisecond + randomI++);
+            for (int i = 0; i < shuffledX.Count; i++)
+            {
+                int interchangeI = r.Next(X.Count);
+                (List<double[]> currentX, List<double[]> currentY) = (shuffledX[i], shuffledY[i]);
                 (shuffledX[i], shuffledY[i]) = (shuffledX[interchangeI], shuffledY[interchangeI]);
                 (shuffledX[interchangeI], shuffledY[interchangeI]) = (currentX, currentY);
             }
