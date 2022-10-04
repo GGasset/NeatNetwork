@@ -1,11 +1,10 @@
-﻿using System;
+﻿using NeatNetwork.Libraries;
+using NeatNetwork.NetworkFiles;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using NeatNetwork.NetworkFiles;
-using NeatNetwork.Libraries;
 using static NeatNetwork.Libraries.Activation;
 
 namespace NeatNetwork
@@ -38,7 +37,7 @@ namespace NeatNetwork
         internal double MutationChance;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="shape">Includes input layer</param>
         /// <param name="layerTypes">Doesn't include input layer</param>
@@ -78,10 +77,10 @@ namespace NeatNetwork
             // TODO: initialize max mutation grid
         }
 
-        public double[] Execute(double[] input) => Execute(input, out _,  out _);
+        public double[] Execute(double[] input) => Execute(input, out _, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="input"></param>
         /// <param name="networkExecutionValues"></param>
@@ -97,19 +96,60 @@ namespace NeatNetwork
 
             for (int i = 0; i < Length; i++)
             {
+                (double[] layerOutput, NeuronExecutionValues[] layerExecutionValues) = ExecuteLayer(i, neuronActivations);
 
-                int layerLength = Neurons[i].Count;
-                neuronActivations.Add(new double[layerLength]);
-                networkExecutionValues.Add(new NeuronExecutionValues[layerLength]);
-
-                for (int j = 0; j < layerLength; j++)
-                {
-                    neuronActivations[i + 1][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out NeuronExecutionValues neuronExecutionValues);
-                    networkExecutionValues[i][j] = neuronExecutionValues;
-                }
+                neuronActivations.Add(layerOutput);
+                networkExecutionValues.Add(layerExecutionValues);
             }
 
             return neuronActivations[Length];
+        }
+
+        private (double[] output, NeuronExecutionValues[] executionValues) ExecuteLayer(int i, List<double[]> neuronActivations)
+        {
+            int layerLength = Neurons[i].Count;
+            Task<(double, NeuronExecutionValues)>[] tasks = new Task<(double, NeuronExecutionValues)>[layerLength];
+            AsyncNeuronExecutor[] asyncExecutors = new AsyncNeuronExecutor[layerLength];
+
+            for (int j = 0; j < layerLength; j++)
+            {
+                asyncExecutors[j] = new AsyncNeuronExecutor(neuronActivations, Neurons[i][j]);
+                tasks[j] = asyncExecutors[j].ExecuteAsync(ActivationFunction);
+            }
+
+            bool isFinished = false;
+            while (!isFinished)
+            {
+                isFinished = true;
+                Thread.Sleep(0);
+                for (int j = 0; j < layerLength && isFinished; j++)
+                {
+                    isFinished = isFinished && tasks[j].IsCompleted;
+                }
+            }
+            
+            double[] output = new double[layerLength];
+            NeuronExecutionValues[] executionValues = new NeuronExecutionValues[layerLength];
+
+            for (int j = 0; j < layerLength; j++)
+                (output[j], executionValues[j]) = tasks[j].Result;
+
+            return (output, executionValues);
+        }
+
+        private class AsyncNeuronExecutor
+        {
+            private readonly List<double[]> neuronActivations;
+            private readonly NeuronHolder neuron;
+
+            internal AsyncNeuronExecutor(List<double[]> neuronActivations, NeuronHolder neuron)
+            {
+                this.neuronActivations = neuronActivations;
+                this.neuron = neuron;
+            }
+
+            internal Task<(double output, NeuronExecutionValues executionValues)> ExecuteAsync(ActivationFunctions activationFunction) =>
+                Task.Run(() => neuron.Execute(neuronActivations, activationFunction));
         }
 
         /// <summary>
@@ -242,9 +282,8 @@ namespace NeatNetwork
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations) =>
             GetGradients(costGradients, executionValues, neuronActivations, out _);
 
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="costGradients"></param>
         /// <param name="executionValues">3D Grid in which time is the highest dimension and then layersStrs and finally neurons</param>
@@ -298,7 +337,7 @@ namespace NeatNetwork
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
         }
 
-        #endregion
+        #endregion Gradient Learning
 
         #region Evolution learning
 
@@ -309,7 +348,7 @@ namespace NeatNetwork
                 Neurons[0][i].AddConnection(0, previousInputLength, ValueGeneration.GenerateWeight(MinWeight, MaxWeight, WeightClosestTo0));
         }
 
-        #endregion
+        #endregion Evolution learning
 
         /// <summary>
         /// For proper training use only after each train step, it isn't neccesary to use after each train step
