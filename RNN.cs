@@ -160,8 +160,8 @@ namespace NeatNetwork
         /// <returns></returns>
         public double[] ExecuteUpToLayer(int layerI, double[] input)
         {
-            if (layerI >= Neurons.Count || Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException();
-
+            if (layerI >= Length || Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException();
+            
             var neuronActivations = new List<double[]>()
             {
                 input
@@ -170,9 +170,7 @@ namespace NeatNetwork
             for (int i = 0; i <= layerI; i++)
             {
                 int layerLength = Neurons[i].Count;
-                double[] layerOutput = new double[layerLength];
-                for (int j = 0; j < layerLength; j++)
-                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out _);
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
 
                 neuronActivations.Add(layerOutput);
             }
@@ -204,12 +202,8 @@ namespace NeatNetwork
 
             for (int i = layerI; i < Length; i++)
             {
-                int layerLength = Neurons[i].Count;
-                neuronActivations.Add(new double[layerLength]);
-                for (int j = 0; j < layerLength; j++)
-                {
-                    neuronActivations[i][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out _);
-                }
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
             }
             return neuronActivations[Length];
         }
