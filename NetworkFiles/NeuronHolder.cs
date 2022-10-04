@@ -35,6 +35,12 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        internal (double output, NeuronExecutionValues executionValues) Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction)
+        {
+            double output = Execute(previousNeuronsActivations, activationFunction, out NeuronExecutionValues executionValues);
+            return (output, executionValues);
+        }
+
         internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronExecutionValues ExecutionValues)
         {
             double activation;
