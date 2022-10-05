@@ -169,7 +169,6 @@ namespace NeatNetwork
 
             for (int i = 0; i <= layerI; i++)
             {
-                int layerLength = Neurons[i].Count;
                 (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
 
                 neuronActivations.Add(layerOutput);
@@ -209,6 +208,26 @@ namespace NeatNetwork
         }
 
         #region Gradient Learning
+
+        private class AsyncGradientCalculator
+        {
+            private RNN n;
+            private List<double[]> X, y;
+
+            internal AsyncGradientCalculator(List<double[]> x, List<double[]> y, RNN n)
+            {
+                X = x;
+                this.y = y;
+                this.n = n;
+            }
+
+            internal Task<List<List<NeuronHolder>>> GetGradientsAsync(Cost.CostFunctions costFunction)
+            {
+                n = new RNN(n.ToString());
+                n.DeleteMemory();
+                return Task.Run(() => n.GetSupervisedLearningGradients(X, y, costFunction, false));
+            }
+        }
 
         public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, double batchSize, Cost.CostFunctions costFunction, double learningRate)
         {
