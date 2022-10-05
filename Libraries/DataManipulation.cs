@@ -68,5 +68,33 @@ namespace NeatNetwork.Libraries
             }
             return ((firstX, firstY), (secondX, secondY));
         }
+
+        public static ((List<List<double[]>> firstX, List<List<double[]>> firstY), (List<List<double[]>> secondX, List<List<double[]>> secondY)) 
+            SliceData(List<List<double[]>> X, List<List<double[]>> y, double slicePos = 0.8)
+        {
+            slicePos /= 1 + (X.Count - 1) * Convert.ToInt32(slicePos > 1);
+
+            int partitionI = (int)(X.Count * slicePos);
+
+            List<List<double[]>> firstX, secondX, firstY, secondY;
+            firstX = new List<List<double[]>>();
+            firstY = new List<List<double[]>>();
+
+            for (int i = 0; i < partitionI; i++)
+            {
+                firstX.Add(X[i]);
+                firstY.Add(y[i]);
+            }
+
+            secondX = new List<List<double[]>>();
+            secondY = new List<List<double[]>>();
+            for (int i = partitionI; i < X.Count; i++)
+            {
+                secondX.Add(X[i]);
+                secondY.Add(y[i]);
+            }
+
+            return ((firstX, firstY), (secondX, secondY));
+        }
     }
 }
