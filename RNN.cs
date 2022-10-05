@@ -411,5 +411,7 @@ namespace NeatNetwork
                 shape[i] = Neurons[i].Count;
             return shape;
         }
+
+        public RNN Clone() => (RNN)MemberwiseClone();
     }
 }

@@ -644,5 +644,7 @@ namespace NeatNetwork
 
             return output;
         }
+
+        public NN Clone() => (NN)MemberwiseClone();
     }
 }
