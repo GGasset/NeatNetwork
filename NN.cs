@@ -189,6 +189,50 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="layerI">Inclusive</param>
+        /// <returns></returns>
+        public double[] ExecuteUpToLayer(double[] input, int layerI)
+        {
+            List<double[]> neuronActivations = new List<double[]>()
+            {
+                input
+            };
+
+            for (int i = 0; i <= layerI; i++)
+            {
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        public double[] ExecuteFromLayer(int index, double[] layerActivations)
+        {
+            List<double[]> neuronActivations = new List<double[]>()
+            {
+                new double[InputLength]
+            };
+
+            for (int i = 0; i < index; i++)
+            {
+                neuronActivations.Add(new double[Neurons[i].Count]);
+            }
+
+            neuronActivations.Add(layerActivations);
+
+            for (int i = index + 1; i < Neurons.Count; i++)
+            {
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
         private (double[] layerOutputs, double[] layerLinears) ExecuteLayer(int layerI, List<double[]> previousActivations)
         {
             int layerLength = Neurons[layerI].Count;
