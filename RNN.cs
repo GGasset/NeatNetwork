@@ -181,12 +181,12 @@ namespace NeatNetwork
         /// Used for auto encoder networks
         /// </summary>
         /// <param name="layerI">doesn't include input layer</param>
-        /// <param name="input"></param>
+        /// <param name="layerActivations"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">input length must equal layer layerI length</exception>
-        public double[] ExecuteFromLayer(int layerI, double[] input)
+        public double[] ExecuteFromLayer(int layerI, double[] layerActivations)
         {
-            if (Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException("input length doesn't match layer length");
+            if (Neurons[layerI].Count != layerActivations.Length) throw new ArgumentOutOfRangeException("input length doesn't match layer length");
 
             var neuronActivations = new List<double[]>()
             {
@@ -199,7 +199,9 @@ namespace NeatNetwork
                 neuronActivations.Add(new double[layerLength]);
             }
 
-            for (int i = layerI; i < Length; i++)
+            neuronActivations.Add(layerActivations)
+
+            for (int i = layerI + 1; i < Length; i++)
             {
                 (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
                 neuronActivations.Add(layerOutput);
