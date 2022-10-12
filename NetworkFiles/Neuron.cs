@@ -145,5 +145,12 @@ namespace NeatNetwork.NetworkFiles
             Bias = Convert.ToDouble(fieldStrs[0]);
             Connections = new NeuronConnectionsInfo(fieldStrs[1]);
         }
+
+        public Neuron Clone()
+        {
+            Neuron neuron = (Neuron)MemberwiseClone();
+            neuron.Connections = Connections.Clone();
+            return neuron;
+        }
     }
 }

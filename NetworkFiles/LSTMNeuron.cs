@@ -308,5 +308,12 @@ namespace NeatNetwork.NetworkFiles
                 $" Cell state: {CellState}^ Hidden state: {HiddenState}^ Connections: {Connections.ToString()}";
             return output;
         }
+
+        public LSTMNeuron Clone()
+        {
+            LSTMNeuron output = (LSTMNeuron)MemberwiseClone();
+            output.Connections = Connections.Clone();
+            return output;
+        }
     }
 }

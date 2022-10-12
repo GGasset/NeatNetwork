@@ -188,5 +188,7 @@ namespace NeatNetwork.NetworkFiles
                 Weights.Add(Convert.ToDouble(currentConnectionFields[2]));
             }
         }
+
+        public NeuronConnectionsInfo Clone() => new NeuronConnectionsInfo(ConnectedNeuronsPos, Weights);
     }
 }

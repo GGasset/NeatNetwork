@@ -52,11 +52,16 @@ namespace NeatNetwork
         {
             ActivationFunction = activationFunction;
             Neurons = new List<List<NeuronHolder>>();
+            MaxMutationGrid = new List<List<double>>();
             for (int i = 1; i < shape.Length; i++)
             {
                 Neurons.Add(new List<NeuronHolder>());
+                MaxMutationGrid.Add(new List<double>());
                 for (int j = 0; j < shape[i]; j++)
+                {
                     Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+                    MaxMutationGrid[i].Add(initialMaxMutationGridValue);
+                }
             }
 
             InputLength = shape[0];
@@ -199,7 +204,7 @@ namespace NeatNetwork
                 neuronActivations.Add(new double[layerLength]);
             }
 
-            neuronActivations.Add(layerActivations)
+            neuronActivations.Add(layerActivations);
 
             for (int i = layerI + 1; i < Length; i++)
             {
@@ -211,10 +216,87 @@ namespace NeatNetwork
 
         #region Gradient Learning
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="y"></param>
+        /// <param name="costFunction"></param>
+        /// <param name="learningRate"></param>
+        /// <param name="testSize"></param>
+        /// <param name="batchLength"></param>
+        /// <param name="shuffleData"></param>
+        /// <returns>Test cost</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Test size must be between 0 and 1</exception>
+        public double SupervisedTrain(List<List<double[]>> X, List<List<double[]>> y, Cost.CostFunctions costFunction, double learningRate, double testSize = 0.15, int batchLength = 350, bool shuffleData = true)
+        {
+            if (X.Count != y.Count) throw new ArgumentException("X.Count doesn't equal y.Count");
+            if (testSize > 1 || testSize < 0) throw new ArgumentOutOfRangeException("Test size doesn't fall between 0 and 1");
+
+            if (shuffleData)
+                (X, y) = DataManipulation.ShuffleData(X, y);
+
+            ((List<List<double[]>> trainX, List<List<double[]>> trainY), (List<List<double[]>> testX, List<List<double[]>> testY)) = DataManipulation.SliceData(X, y, 1 - testSize);
+            
+            int batchCount = trainX.Count / batchLength;
+            int lastBatchLength = trainX.Count % batchLength;
+
+            // Training
+            DeleteMemory();
+            for (int i = 0; i < batchCount; i++)
+            {
+                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchLength, batchLength);
+            }
+            SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, batchCount * batchLength, lastBatchLength);
+
+            //Testing
+            double meanCost = 0;
+            int totalTimeSteps = 0;
+            for (int i = 0; i < testX.Count; i++)
+            {
+                for (int j = 0; j < testX[i].Count; j++)
+                {
+                    double[] currentOutput = Execute(testX[i][j]);
+                    double currentCost = Cost.GetCost(currentOutput, testY[i][j], costFunction);
+                    meanCost += currentCost;
+                    totalTimeSteps++;
+                }
+                DeleteMemory();
+            }
+            meanCost /= totalTimeSteps;
+            return meanCost;
+        }
+
+        public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, Cost.CostFunctions costFunction, double learningRate, int startingIndex, int batchLength)
+        {
+            AsyncGradientCalculator[] gradientCalculators = new AsyncGradientCalculator[batchLength];
+            List<Task<List<List<NeuronHolder>>>> gradientTasks = new List<Task<List<List<NeuronHolder>>>>();
+            for (int i = 0; i < batchLength; i++)
+            {
+                gradientCalculators[i] = new AsyncGradientCalculator(X[i + startingIndex], y[i + startingIndex], this);
+                gradientTasks.Add(gradientCalculators[i].GetGradientsAsync(costFunction));
+            }
+
+            bool areTasksCompleted = false;
+            while (!areTasksCompleted)
+            {
+                Thread.Sleep(0);
+                areTasksCompleted = true;
+                for (int i = 0; i < gradientTasks.Count && areTasksCompleted; i++)
+                {
+                    areTasksCompleted = areTasksCompleted && gradientTasks[i].IsCompleted;
+                }
+            }
+
+            foreach (var gradientTask in gradientTasks)
+                SubtractGrads(gradientTask.Result, learningRate);
+        }
+
         private class AsyncGradientCalculator
         {
             private RNN n;
-            private List<double[]> X, y;
+            private readonly List<double[]> X, y;
 
             internal AsyncGradientCalculator(List<double[]> x, List<double[]> y, RNN n)
             {
@@ -225,8 +307,7 @@ namespace NeatNetwork
 
             internal Task<List<List<NeuronHolder>>> GetGradientsAsync(Cost.CostFunctions costFunction)
             {
-                n = new RNN(n.ToString());
-                n.DeleteMemory();
+                n = n.Clone();
                 return Task.Run(() => n.GetSupervisedLearningGradients(X, y, costFunction, false));
             }
         }
@@ -414,6 +495,22 @@ namespace NeatNetwork
             return shape;
         }
 
-        public RNN Clone() => (RNN)MemberwiseClone();
+        public RNN Clone()
+        {
+            RNN output = (RNN)MemberwiseClone();
+            output.Neurons = new List<List<NeuronHolder>>();
+            output.MaxMutationGrid = MaxMutationGrid;
+            for (int i = 0; i < Neurons.Count; i++)
+            {
+                output.Neurons.Add(new List<NeuronHolder>());
+                output.MaxMutationGrid.Add(new List<double>());
+                for (int j = 0; j < Neurons[i].Count; j++)
+                {
+                    output.Neurons[i].Add(Neurons[i][j].Clone());
+                    output.MaxMutationGrid[i].Add(MaxMutationGrid[i][j]);
+                }
+            }
+            return output;
+        } 
     }
 }

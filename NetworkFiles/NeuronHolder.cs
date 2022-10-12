@@ -202,6 +202,24 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        public NeuronHolder Clone()
+        {
+            NeuronHolder output = (NeuronHolder)MemberwiseClone();
+            output.NeuronType = NeuronType;
+            switch (NeuronType)
+            {
+                case NeuronTypes.Neuron:
+                    output.Neuron = Neuron.Clone();
+                    break;
+                case NeuronTypes.LSTM:
+                    output.LSTMNeuron = LSTMNeuron.Clone();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return output;
+        }
+
         public enum NeuronTypes
         {
             Neuron,
