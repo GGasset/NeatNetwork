@@ -435,9 +435,9 @@ namespace NeatNetwork
             int batchCount = trainX.Count / batchSize;
             int lastBatchSize = trainX.Count % batchSize;
 
-            for (int i = 0; i < batchCount; i += batchSize)
+            for (int i = 0; i < batchCount; i++)
             {
-                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchCount, (i + 1) * batchCount, out double currentMeanCost);
+                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchSize, (i + 1) * batchSize, out double currentMeanCost);
             }
             SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, trainX.Count - lastBatchSize, trainX.Count, out _);
 
