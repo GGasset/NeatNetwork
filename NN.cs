@@ -466,6 +466,7 @@ namespace NeatNetwork
             while (!isFinished)
             {
                 Thread.Sleep(0);
+                isFinished = true;
                 foreach (var task in gradientsTasks)
                 {
                     isFinished = task.IsCompleted && isFinished;
