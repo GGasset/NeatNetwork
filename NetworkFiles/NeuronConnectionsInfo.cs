@@ -66,21 +66,10 @@ namespace NeatNetwork.NetworkFiles
                 // wait for tasks to finish execution
                 foreach (var weightsTask in weigthsTasks)
                 {
-                    weightsTask.Start();
-                }
-                foreach (var positionsTask in positionsTasks)
-                {
-                    positionsTask.Start();
-                }
-
-                foreach (var weightsTask in weigthsTasks)
-                {
-                    weightsTask.Start();
                     weightsTask.Wait();
                 }
                 foreach (var positionsTask in positionsTasks)
                 {
-                    positionsTask.Start();
                     positionsTask.Wait();
                 }
 

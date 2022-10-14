@@ -66,11 +66,6 @@ namespace NeatNetwork
 
             foreach (var task in layersTasks)
             {
-                task.Start();
-            }
-            foreach (var task in layersTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
@@ -126,11 +121,6 @@ namespace NeatNetwork
 
             foreach (var task in neuronTasks)
             {
-                task.Start();
-            }
-            foreach (var task in neuronTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
@@ -248,11 +238,6 @@ namespace NeatNetwork
 
             foreach (var task in executionTasks)
             {
-                task.Start();
-            }
-            foreach (var task in executionTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
@@ -343,11 +328,6 @@ namespace NeatNetwork
 
             foreach (var task in layerTasks)
             {
-                task.Start();
-            }
-            foreach (var task in layerTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
@@ -373,11 +353,6 @@ namespace NeatNetwork
 
             foreach (var task in neuronTasks)
             {
-                task.Start();
-            }
-            foreach (var task in neuronTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
@@ -460,11 +435,6 @@ namespace NeatNetwork
 
             foreach (var task in gradientsTasks)
             {
-                task.Start();
-            }
-            foreach (var task in gradientsTasks)
-            {
-                task.Start();
                 task.Wait();
             }
 
