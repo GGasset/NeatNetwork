@@ -413,13 +413,13 @@ namespace NeatNetwork
             SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, trainX.Count - lastBatchSize, trainX.Count, out _);
 
             double meanCost = 0;
-            for (int i = 0; i < trainX.Count; i++)
+            for (int i = 0; i < testX.Count; i++)
             {
                 var output = Execute(testX[i]);
                 double cost = Cost.GetCost(output, testY[i], costFunction);
                 meanCost += cost;
             }
-            meanCost /= trainX.Count;
+            meanCost /= testX.Count;
             return meanCost;
         }
 
