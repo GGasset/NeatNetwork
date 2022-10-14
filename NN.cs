@@ -1,21 +1,23 @@
-﻿using System;
+﻿using NeatNetwork.Libraries;
+using NeatNetwork.NetworkFiles;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using NeatNetwork.NetworkFiles;
-using static NeatNetwork.Libraries.ValueGeneration;
-using NeatNetwork.Libraries;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using static NeatNetwork.Libraries.ValueGeneration;
 
 namespace NeatNetwork
 {
     public class NN
     {
         internal Activation.ActivationFunctions ActivationFunction;
+
         /// <summary>
         /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
+
         internal int InputLength;
         public int LayerCount => Neurons.Count;
         public int[] Shape => GetShape();
@@ -34,7 +36,7 @@ namespace NeatNetwork
         internal double MutationChance;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="shape">Includes input layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
@@ -62,16 +64,14 @@ namespace NeatNetwork
                 }
             }
 
-            bool areTaskFinished = false;
-            while (!areTaskFinished)
+            foreach (var task in layersTasks)
             {
-                Thread.Sleep(0);
-
-                areTaskFinished = true;
-                foreach (var task in layersTasks)
-                {
-                    areTaskFinished = areTaskFinished && task.IsCompleted;
-                }
+                task.Start();
+            }
+            foreach (var task in layersTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             foreach (var task in layersTasks)
@@ -124,15 +124,14 @@ namespace NeatNetwork
                 neuronTasks.Add(neuronInstantiators[i].InstantiateNeuronAsync());
             }
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in neuronTasks)
             {
-                Thread.Sleep(0);
-                isFinished = true;
-                for (int i = 0; i < neuronTasks.Count && isFinished; i++)
-                {
-                    isFinished = isFinished && neuronTasks[i].IsCompleted;
-                }
+                task.Start();
+            }
+            foreach (var task in neuronTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             foreach (var neuronTask in neuronTasks)
@@ -164,7 +163,7 @@ namespace NeatNetwork
         public double[] Execute(double[] input) => Execute(input, out _, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="input"></param>
         /// <param name="neuronActivations">first array corresponds to input</param>
@@ -190,7 +189,7 @@ namespace NeatNetwork
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="input"></param>
         /// <param name="layerI">Inclusive</param>
@@ -247,15 +246,14 @@ namespace NeatNetwork
                 executionTasks.Add(asyncNeuronExecutors[j].ExecuteNeuronAsync(previousActivations, ActivationFunction));
             }
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in executionTasks)
             {
-                Thread.Sleep(0);
-                isFinished = true;
-                foreach (var task in executionTasks)
-                {
-                    isFinished = isFinished && task.IsCompleted;
-                }
+                task.Start();
+            }
+            foreach (var task in executionTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             for (int i = 0; i < layerLength; i++)
@@ -264,7 +262,7 @@ namespace NeatNetwork
             return (layerOutput, layerLinears);
         }
 
-        class AsyncNeuronExecutor
+        private class AsyncNeuronExecutor
         {
             private readonly Neuron Neuron;
 
@@ -343,15 +341,14 @@ namespace NeatNetwork
                 layerTasks.Add(layerInstantiators[layerIndex].InstantiateLayerFromStringAsync());
             }
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in layerTasks)
             {
-                Thread.Sleep(0);
-                isFinished = true;
-                for (int i = 0; i < layerTasks.Count && isFinished; i++)
-                {
-                    isFinished = layerTasks[i].IsCompleted && isFinished;
-                }
+                task.Start();
+            }
+            foreach (var task in layerTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             Neurons = new List<List<Neuron>>();
@@ -374,15 +371,14 @@ namespace NeatNetwork
                 neuronTasks.Add(neuronInstantiators[neuronIndex].InstatiateNeuronAsync());
             }
 
-            bool isCompleted = false;
-            while (!isCompleted)
+            foreach (var task in neuronTasks)
             {
-                Thread.Sleep(0);
-                isCompleted = true;
-                for (int i = 0; i < neuronTasks.Count && isCompleted; i++)
-                {
-                    isCompleted = neuronTasks[i].IsCompleted && isCompleted;
-                }
+                task.Start();
+            }
+            foreach (var task in neuronTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             List<Neuron> output = new List<Neuron>();
@@ -420,7 +416,7 @@ namespace NeatNetwork
 
         #region Gradient learning
 
-        static int RandomI = int.MinValue / 2;
+        private static int RandomI = int.MinValue / 2;
 
         public double SupervisedTrain(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, double testSize = 0.2, int batchSize = 350, bool shuffleData = true)
         {
@@ -462,15 +458,14 @@ namespace NeatNetwork
                 gradientsTasks.Add(asyncGradientsCalculators[i - startIndex].GetGradientsAsync(costFunction));
             }
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in gradientsTasks)
             {
-                Thread.Sleep(0);
-                isFinished = true;
-                foreach (var task in gradientsTasks)
-                {
-                    isFinished = task.IsCompleted && isFinished;
-                }
+                task.Start();
+            }
+            foreach (var task in gradientsTasks)
+            {
+                task.Start();
+                task.Wait();
             }
 
             meanCost = 0;
@@ -559,7 +554,7 @@ namespace NeatNetwork
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="linearFunctions">This doesn't include input</param>
         /// <param name="neuronActivations">Includes input</param>
@@ -568,7 +563,7 @@ namespace NeatNetwork
         public List<GradientValues[]> GetGradients(List<double[]> linearFunctions, List<double[]> neuronActivations, double[] costs) => GetGradients(linearFunctions, neuronActivations, costs, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="linearFunctions">Doesn't include input</param>
         /// <param name="neuronActivations">Includes input</param>
@@ -617,7 +612,7 @@ namespace NeatNetwork
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
         }
 
-        #endregion
+        #endregion Gradient learning
 
         #region Evolution learning
 
@@ -652,7 +647,7 @@ namespace NeatNetwork
                 AddNewLayer(insertionIndex, 1);
         }
 
-        internal void AddNewLayer(int layerInsertionIndex, int layerLength) 
+        internal void AddNewLayer(int layerInsertionIndex, int layerLength)
         {
             for (int i = layerInsertionIndex; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
@@ -679,7 +674,7 @@ namespace NeatNetwork
             MaxMutationGrid[layerInsertionIndex].Add(InitialMaxMutationValue);
         }
 
-        #endregion
+        #endregion Evolution learning
 
         private int[] GetShape()
         {

@@ -64,22 +64,24 @@ namespace NeatNetwork.NetworkFiles
                 positionsTasks.Add(Task.Run(() => ValueGeneration.GetConnectionsConnectedPosition(layerIndex - 1, taskCount * connectionsPerTask, leftConnectionCount)));
 
                 // wait for tasks to finish execution
-                bool isFinished = false;
-                while (!isFinished)
+                foreach (var weightsTask in weigthsTasks)
                 {
-                    Thread.Sleep(0);
-                    isFinished = true;
-                    foreach (var weightsTask in weigthsTasks)
-                    {
-                        isFinished = weightsTask.IsCompleted && isFinished;
-                    }
-                    if (isFinished)
-                    {
-                        foreach (var positionsTask in positionsTasks)
-                        {
-                            isFinished = positionsTask.IsCompleted && isFinished;
-                        }
-                    }
+                    weightsTask.Start();
+                }
+                foreach (var positionsTask in positionsTasks)
+                {
+                    positionsTask.Start();
+                }
+
+                foreach (var weightsTask in weigthsTasks)
+                {
+                    weightsTask.Start();
+                    weightsTask.Wait();
+                }
+                foreach (var positionsTask in positionsTasks)
+                {
+                    positionsTask.Start();
+                    positionsTask.Wait();
                 }
 
                 // Initialize connections
