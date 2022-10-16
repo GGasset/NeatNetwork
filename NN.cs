@@ -112,11 +112,9 @@ namespace NeatNetwork
         {
             List<Neuron> output = new List<Neuron>();
             List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
-            AsyncNeuronInstantiator[] neuronInstantiators = new AsyncNeuronInstantiator[layerLength];
             for (int i = 0; i < layerLength; i++)
             {
-                neuronInstantiators[i] = new AsyncNeuronInstantiator(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0);
-                neuronTasks.Add(neuronInstantiators[i].InstantiateNeuronAsync());
+                neuronTasks.Add(Task.Run(() => new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0)));
             }
 
             foreach (var task in neuronTasks)
@@ -130,24 +128,6 @@ namespace NeatNetwork
             }
 
             return output;
-        }
-
-        private class AsyncNeuronInstantiator
-        {
-            private readonly int LayerI, PreviousLayerLength;
-            private readonly double Bias, MaxWeight, MinWeight, WeightClosestTo0;
-
-            internal AsyncNeuronInstantiator(int layerI, int previousLayerLength, double bias, double maxWeight, double minWeight, double weightClosestTo0)
-            {
-                LayerI = layerI;
-                PreviousLayerLength = previousLayerLength;
-                Bias = bias;
-                MaxWeight = maxWeight;
-                MinWeight = minWeight;
-                WeightClosestTo0 = weightClosestTo0;
-            }
-
-            internal Task<Neuron> InstantiateNeuronAsync() => Task.Run(() => new Neuron(LayerI, PreviousLayerLength, Bias, MaxWeight, MinWeight, WeightClosestTo0));
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _);
