@@ -78,8 +78,6 @@ namespace NeatNetwork
             FieldMaxMutation = fieldMaxMutation;
             MaxMutationOfFieldMaxMutation = maxMutationOfFieldMaxMutation;
             MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfFieldMaxMutation;
-
-            // TODO: initialize max mutation grid
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _);
@@ -122,15 +120,9 @@ namespace NeatNetwork
                 tasks[j] = asyncExecutors[j].ExecuteAsync(ActivationFunction);
             }
 
-            bool isFinished = false;
-            while (!isFinished)
+            foreach (var task in tasks)
             {
-                isFinished = true;
-                Thread.Sleep(0);
-                for (int j = 0; j < layerLength && isFinished; j++)
-                {
-                    isFinished = isFinished && tasks[j].IsCompleted;
-                }
+                task.Wait();
             }
             
             double[] output = new double[layerLength];
@@ -224,7 +216,7 @@ namespace NeatNetwork
         /// <param name="costFunction"></param>
         /// <param name="learningRate"></param>
         /// <param name="testSize"></param>
-        /// <param name="batchLength"></param>
+        /// <param name="batchLength">beware that it consumes a lot of memory as this number increases</param>
         /// <param name="shuffleData"></param>
         /// <returns>Test cost</returns>
         /// <exception cref="ArgumentException"></exception>
@@ -278,15 +270,9 @@ namespace NeatNetwork
                 gradientTasks.Add(gradientCalculators[i].GetGradientsAsync(costFunction));
             }
 
-            bool areTasksCompleted = false;
-            while (!areTasksCompleted)
+            foreach (var task in gradientTasks)
             {
-                Thread.Sleep(0);
-                areTasksCompleted = true;
-                for (int i = 0; i < gradientTasks.Count && areTasksCompleted; i++)
-                {
-                    areTasksCompleted = areTasksCompleted && gradientTasks[i].IsCompleted;
-                }
+                task.Wait();
             }
 
             foreach (var gradientTask in gradientTasks)
