@@ -162,7 +162,7 @@ namespace NeatNetwork
         ///
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="layerI">Inclusive</param>
+        /// <param name="layerI">Inclusive, layerI is executed, input layer not considerated</param>
         /// <returns></returns>
         public double[] ExecuteUpToLayer(double[] input, int layerI)
         {
@@ -180,6 +180,12 @@ namespace NeatNetwork
             return neuronActivations[neuronActivations.Count - 1];
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">this layer (input layer is not considered a layer) is set as if this layer output is the parameter layerActivations</param>
+        /// <param name="layerActivations"></param>
+        /// <returns></returns>
         public double[] ExecuteFromLayer(int index, double[] layerActivations)
         {
             List<double[]> neuronActivations = new List<double[]>()
@@ -197,6 +203,7 @@ namespace NeatNetwork
             for (int i = index + 1; i < Neurons.Count; i++)
             {
                 (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
             }
 
             return neuronActivations[neuronActivations.Count - 1];
