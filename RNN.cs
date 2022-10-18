@@ -55,13 +55,10 @@ namespace NeatNetwork
             MaxMutationGrid = new List<List<double>>();
             for (int i = 1; i < shape.Length; i++)
             {
-                Neurons.Add(new List<NeuronHolder>());
-                MaxMutationGrid.Add(new List<double>());
-                for (int j = 0; j < shape[i]; j++)
-                {
-                    Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
-                    MaxMutationGrid[i].Add(initialMaxMutationGridValue);
-                }
+                (List<NeuronHolder> layerNeurons, List<double> layerMaxMutations) = InstantiateLayer(layerTypes[i - 1], i, shape[i], shape[i - 1], initialMaxMutationGridValue,
+                    startingBias, minWeight, weightClosestTo0, maxWeight);
+                Neurons.Add(layerNeurons);
+                MaxMutationGrid.Add(layerMaxMutations);
             }
 
             InputLength = shape[0];
@@ -78,6 +75,77 @@ namespace NeatNetwork
             FieldMaxMutation = fieldMaxMutation;
             MaxMutationOfFieldMaxMutation = maxMutationOfFieldMaxMutation;
             MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfFieldMaxMutation;
+        }
+
+        private class AsyncLayerInstatiator
+        {
+            private readonly NeuronHolder.NeuronTypes LayerType;
+            private readonly int LayerIndex;
+            private readonly int LayerLength;
+            private readonly int PreviousLayerLength;
+
+            internal AsyncLayerInstatiator(NeuronHolder.NeuronTypes layerType, int layerIndex, int layerLength, int previousLayerLength)
+            {
+                LayerType = layerType;
+                LayerIndex = layerIndex;
+                LayerLength = layerLength;
+                PreviousLayerLength = previousLayerLength;
+            }
+
+            internal Task<(List<NeuronHolder> neurons, List<double> layerMaxMutation)> InstatiateLayerAsync(double initialMaxMutationValue, double bias, double minWeight, double weightClosestTo0, double maxWeight)
+                => Task.Run(() => InstantiateLayer(LayerType, LayerIndex, LayerLength, PreviousLayerLength, initialMaxMutationValue, bias, minWeight, weightClosestTo0, maxWeight));
+        }
+
+        private static (List<NeuronHolder>, List<double> layerMaxMutations) InstantiateLayer(NeuronHolder.NeuronTypes neuronType, int layerIndex, int layerLength, int previousLayerLength, double initialMaxMutationValue, 
+            double bias, double minWeigth, double weightClosestTo0, double maxWeight)
+        {
+            List<Task<NeuronHolder>> neuronTasks = new List<Task<NeuronHolder>>();
+            for (int i = 0; i < layerLength; i++)
+                neuronTasks.Add(Task.Run(() => new NeuronHolder(neuronType, layerIndex, previousLayerLength, bias, maxWeight, minWeigth, weightClosestTo0)));
+
+            int maxMutationPartitionLength = 3000;
+            int maxMutationPartitions = layerLength / maxMutationPartitionLength;
+            int lastMaxMutationPartitionLength = layerLength % maxMutationPartitionLength;
+
+            List<Task<List<double>>> maxMutationPartitionTasks = new List<Task<List<double>>>();
+            for (int i = 0; i < maxMutationPartitions; i++)
+            {
+                maxMutationPartitionTasks.Add(Task.Run(() => InstantiateMaxMutationList(initialMaxMutationValue, maxMutationPartitionLength)));
+            }
+            maxMutationPartitionTasks.Add(Task.Run(() => InstantiateMaxMutationList(initialMaxMutationValue, lastMaxMutationPartitionLength)));
+
+            foreach (var neuronTask in neuronTasks)
+            {
+                neuronTask.Wait();
+            }
+            foreach (var maxMutationListPartitionTask in maxMutationPartitionTasks)
+            {
+                maxMutationListPartitionTask.Wait();
+            }
+
+            List<NeuronHolder> neurons = new List<NeuronHolder>();
+            foreach (var neuronTask in neuronTasks)
+            {
+                neurons.Add(neuronTask.Result);
+            }
+
+            List<double> layerMaxMutations = new List<double>();
+            foreach (var maxMutationListPartitionTask in maxMutationPartitionTasks)
+            {
+                layerMaxMutations.AddRange(maxMutationListPartitionTask.Result);
+            }
+
+            return (neurons, layerMaxMutations);
+        }
+
+        private static List<double> InstantiateMaxMutationList(double maxMutationValue, int listLength)
+        {
+            var list = new List<double>();
+            for (int i = 0; i < listLength; i++)
+            {
+                list.Add(maxMutationValue);
+            }
+            return list;
         }
 
         public double[] Execute(double[] input) => Execute(input, out _, out _);
