@@ -396,8 +396,10 @@ namespace NeatNetwork
             for (int i = 0; i < batchCount; i++)
             {
                 SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchSize, (i + 1) * batchSize, out double currentMeanCost);
+                Console.WriteLine($"{(i + 1) * batchSize}/{trainX.Count}");
             }
             SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, trainX.Count - lastBatchSize, trainX.Count, out _);
+            Console.WriteLine($"{trainX.Count}/{trainX.Count}");
 
             double meanCost = 0;
             for (int i = 0; i < testX.Count; i++)
