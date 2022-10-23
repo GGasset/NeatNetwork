@@ -412,7 +412,7 @@ namespace NeatNetwork
             return meanCost;
         }
 
-        private void SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, int startIndex, int exclusiveEndIndex, out double meanCost)
+        public void SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, int startIndex, int exclusiveEndIndex, out double meanCost)
         {
             List<Task<(List<GradientValues[]>, double)>> gradientsTasks = new List<Task<(List<GradientValues[]>, double cost)>>();
             List<AsyncGradientsCalculator> asyncGradientsCalculators = new List<AsyncGradientsCalculator>();
@@ -562,6 +562,24 @@ namespace NeatNetwork
 
             inputCosts = costGrid[0];
             return output;
+        }
+
+        class AsyncNeuronGradientsCalculator
+        {
+            readonly Neuron Neuron;
+            readonly double NeuronCost, NeuronLinear;
+            readonly List<double[]> NeuronsActivations;
+
+            internal AsyncNeuronGradientsCalculator(Neuron neuron, double neuronCost, double neuronLinear, List<double[]> neuronsActivations)
+            {
+                Neuron = neuron;
+                NeuronCost = neuronCost;
+                NeuronLinear = neuronLinear;
+                NeuronsActivations = neuronsActivations;
+            }
+
+            internal Task<GradientValues> GetNeuronGradientsAsync(Activation.ActivationFunctions activationFunction)
+                => Task.Run(() => Neuron.GetGradients(NeuronCost, NeuronLinear, NeuronsActivations, activationFunction));
         }
 
         public void SubtractGrads(List<GradientValues[]> gradients, double learningRate)
