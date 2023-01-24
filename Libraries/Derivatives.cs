@@ -39,7 +39,7 @@ namespace NeatNetwork.Libraries
             switch (costFunction)
             {
                 case CostFunctions.BinaryCrossEntropy:
-                    throw new NotImplementedException();
+                    return BinaryCrossEntropyDerivative(neuronActivation, expected);
                 case CostFunctions.SquaredMean:
                     return SquaredMeanErrorDerivative(neuronActivation, expected);
                 case CostFunctions.logLikelyhoodTerm:
@@ -53,7 +53,15 @@ namespace NeatNetwork.Libraries
 
         public static double SquaredMeanErrorDerivative(double neuronOutput, double expectedOutput) => 2 * (neuronOutput - expectedOutput);
 
-        //public static double BinaryCrossEntropyDerivative(double neuronOutput, double expectedOutput) =>  /
+        public static double BinaryCrossEntropyDerivative(double neuronOutput, double expectedOutput)
+        {
+            throw new NotImplementedException(); 
+
+            double DLeft = neuronOutput + (Math.Log10(expectedOutput) + (1 / (expectedOutput * Math.Log(10))));
+            double DRight = (1 - neuronOutput) * -neuronOutput + Math.Log10(1 - expectedOutput) * (1 / ((1 - expectedOutput) * Math.Log(10)));
+            double D = DLeft + DRight;
+            return D;
+        }
 
 
         public static double DerivativeOf(double neuronLinear, ActivationFunctions activation)
