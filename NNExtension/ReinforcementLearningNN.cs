@@ -80,5 +80,11 @@ namespace NeatNetwork
             Rewards[Rewards.Count - 1] += deltaReward;
             Reward += deltaReward * Convert.ToInt32(addToDefaultReward);
         }
+
+        public void SetLastReward(double reward, bool setDefaultReward = true)
+        {
+            Rewards[Rewards.Count - 1] = reward;
+            Reward = reward;
+        }
     }
 }
