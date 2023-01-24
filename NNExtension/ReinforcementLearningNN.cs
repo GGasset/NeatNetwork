@@ -42,15 +42,19 @@ namespace NeatNetwork
 
         public void TerminateAgent()
         {
-            double[] currentCosts;
-            List<GradientValues[]> currentGradient;
+            Task<double>[] tasks = new Task<double>[Rewards.Count];
+            GradientWorker[] workers = new GradientWorker[Rewards.Count];
+            for (int i = 0; i < Rewards.Count; i++)
+            {
+                workers[i] = new GradientWorker(n, Outputs, Rewards, LinearFunctions, NeuronActivations, LearningRate, i);
+                tasks[i] = Task.Run(() => workers[i].WorkWithGradients());
+            }
+
             double cost = 0;
             for (int i = 0; i < Rewards.Count; i++)
             {
-                cost += Cost.GetCost(Outputs[i], Rewards[i]);
-                currentCosts = Derivatives.DerivativeOf(Outputs[i], Rewards[i]);
-                currentGradient = n.GetGradients(LinearFunctions[i], NeuronActivations[i], currentCosts);
-                n.SubtractGrads(currentGradient, LearningRate);
+                tasks[i].Wait();
+                cost += tasks[i].Result;
             }
             cost /= Rewards.Count();
 
@@ -59,6 +63,33 @@ namespace NeatNetwork
             Outputs = new List<double[]>();
             Rewards = new List<double>();
             Reward = 0;
+        }
+
+        class GradientWorker
+        {
+            NN n; List<double[]> Outputs; List<double> Rewards; List<List<double[]>> LinearFunctions; List<List<double[]>> NeuronActivations; double LearningRate; int i;
+
+            public GradientWorker(NN n, List<double[]> Outputs, List<double> Rewards, List<List<double[]>> LinearFunctions, List<List<double[]>> NeuronActivations, double LearningRate, int i)
+            {
+                this.n = n;
+                this.Outputs = Outputs;
+                this.Rewards = Rewards;
+                this.LinearFunctions = LinearFunctions;
+                this.NeuronActivations = NeuronActivations;
+                this.LearningRate = LearningRate;
+                this.i = i;
+            }
+
+            public double WorkWithGradients()
+            {
+                double[] currentCosts;
+                List<GradientValues[]> currentGradient;
+                currentCosts = Derivatives.DerivativeOf(Outputs[i], Rewards[i]);
+                currentGradient = n.GetGradients(LinearFunctions[i], NeuronActivations[i], currentCosts);
+                n.SubtractGrads(currentGradient, LearningRate);
+                double cost = Cost.GetCost(Outputs[i], Rewards[i]);
+                return cost;
+            }
         }
 
         /// <summary>
