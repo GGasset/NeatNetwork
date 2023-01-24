@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +40,24 @@ namespace NeatNetwork.Libraries
             v += randomness * (minValue + weightClosestTo0) * Convert.ToInt32(isPositive == -1);
 
             return v;
+        }
+
+        public static List<double> GenerateWeights(int weigthCount, double minValue, double maxValue, double weigthClosestTo0)
+        {
+            var weights = new List<double>();
+            for (int i = 0; i < weigthCount; i++)
+                weights.Add(GenerateWeight(minValue, maxValue, weigthClosestTo0));
+            return weights;
+        }
+
+        public static List<Point> GetConnectionsConnectedPosition(int connectedLayerI, int startingConnectedNeuronIndex, int outputLength)
+        {
+            var connections = new List<Point>();
+            for (int i = 0; i < outputLength; i++)
+            {
+                connections.Add(new Point(connectedLayerI, startingConnectedNeuronIndex + i));
+            }
+            return connections;
         }
 
         public static double GetVariation(double minValue, double maxValue)

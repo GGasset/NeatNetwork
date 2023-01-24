@@ -1,19 +1,23 @@
-﻿using System;
+﻿using NeatNetwork.Libraries;
+using NeatNetwork.NetworkFiles;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using NeatNetwork.NetworkFiles;
+using System.Threading;
+using System.Threading.Tasks;
 using static NeatNetwork.Libraries.ValueGeneration;
-using NeatNetwork.Libraries;
 
 namespace NeatNetwork
 {
     public class NN
     {
         internal Activation.ActivationFunctions ActivationFunction;
+
         /// <summary>
         /// Input layer isn't instatiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
+
         internal int InputLength;
         public int LayerCount => Neurons.Count;
         public int[] Shape => GetShape();
@@ -32,31 +36,45 @@ namespace NeatNetwork
         internal double MutationChance;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        /// <param name="layerLengths">Layer 0 in input layer and last layer is output layer</param>
+        /// <param name="shape">Includes input layer</param>
         /// <param name="weightClosestTo0">If both max/min weight are positive or negative it will become useless</param>
-        public NN(int[] layerLengths, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
+        public NN(int[] shape, Activation.ActivationFunctions activation, double maxWeight = 1.5, double minWeight = -1.5, double weightClosestTo0 = 0.37, double startingBias = 1,
             double mutationChance = .1, double fieldMaxMutation = .04, double initialMaxMutationValue = .27, double newNeuronChance = .2, double newLayerChance = .05,
             double initialValueForMaxMutation = .27, double maxMutationOfMutationValues = .2, double maxMutationOfMutationValueOfMutationValues = .05)
         {
             Neurons = new List<List<Neuron>>();
             MaxMutationGrid = new List<List<double>>();
 
-            for (int i = 1; i < layerLengths.Length; i++)
+            List<Task<List<Neuron>>> layersTasks = new List<Task<List<Neuron>>>();
+            AsyncLayerInstantiator[] layerInstantiators = new AsyncLayerInstantiator[shape.Length];
+            for (int i = 1; i < shape.Length; i++)
             {
-                Neurons.Add(new List<Neuron>());
                 MaxMutationGrid.Add(new List<double>());
 
-                for (int j = 0; j < Math.Abs(layerLengths[i]); j++)
+                int layerLength = shape[i];
+
+                layerInstantiators[i] = new AsyncLayerInstantiator(i, layerLength, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0);
+                layersTasks.Add(layerInstantiators[i].InstantiateLayerAsync());
+
+                for (int j = 0; j < layerLength; j++)
                 {
-                    Neuron newNeuron = new Neuron(i, layerLengths[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0);
-                    Neurons[i - 1].Add(newNeuron);
                     MaxMutationGrid[i - 1].Add(initialValueForMaxMutation);
                 }
             }
 
-            this.InputLength = layerLengths[0];
+            foreach (var task in layersTasks)
+            {
+                task.Wait();
+            }
+
+            foreach (var task in layersTasks)
+            {
+                Neurons.Add(task.Result);
+            }
+
+            this.InputLength = shape[0];
             this.ActivationFunction = activation;
             this.MaxWeight = maxWeight;
             this.MinWeight = minWeight;
@@ -71,10 +89,51 @@ namespace NeatNetwork
             this.NewLayerChance = newLayerChance;
         }
 
+        private class AsyncLayerInstantiator
+        {
+            private readonly int LayerI, LayerLength, PreviousLayerLength;
+            private readonly double Bias, MaxWeight, MinWeight, WeightClosestTo0;
+
+            internal AsyncLayerInstantiator(int layerI, int layerLength, int previousLayerLength, double bias, double maxWeight, double minWeight, double weightClosestTo0)
+            {
+                LayerI = layerI;
+                LayerLength = layerLength;
+                PreviousLayerLength = previousLayerLength;
+                Bias = bias;
+                MaxWeight = maxWeight;
+                MinWeight = minWeight;
+                WeightClosestTo0 = weightClosestTo0;
+            }
+
+            internal Task<List<Neuron>> InstantiateLayerAsync() => Task.Run(() => InstantiateLayer(LayerI, LayerLength, PreviousLayerLength, Bias, MaxWeight, MinWeight, WeightClosestTo0));
+        }
+
+        private static List<Neuron> InstantiateLayer(int layerI, int layerLength, int previousLayerLength, double startingBias, double maxWeight, double minWeight, double weightClosestTo0)
+        {
+            List<Neuron> output = new List<Neuron>();
+            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
+            for (int i = 0; i < layerLength; i++)
+            {
+                neuronTasks.Add(Task.Run(() => new Neuron(layerI, previousLayerLength, startingBias, maxWeight, minWeight, weightClosestTo0)));
+            }
+
+            foreach (var task in neuronTasks)
+            {
+                task.Wait();
+            }
+
+            foreach (var neuronTask in neuronTasks)
+            {
+                output.Add(neuronTask.Result);
+            }
+
+            return output;
+        }
+
         public double[] Execute(double[] input) => Execute(input, out _, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="input"></param>
         /// <param name="neuronActivations">first array corresponds to input</param>
@@ -90,19 +149,102 @@ namespace NeatNetwork
             linearFunctions = new List<double[]>();
             for (int i = 0; i < Neurons.Count; i++)
             {
-                int layerLength = Neurons[i].Count;
-                double[] layerOutput = new double[layerLength];
-                double[] layerLinears = new double[layerLength];
-                for (int j = 0; j < layerLength; j++)
-                {
-                    layerOutput[j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out double linear);
-                    layerLinears[j] = linear;
-                }
+                (double[] layerOutput, double[] layerLinears) = ExecuteLayer(i, neuronActivations);
+
                 linearFunctions.Add(layerLinears);
                 neuronActivations.Add(layerOutput);
             }
 
             return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="layerI">Inclusive, layerI is executed, input layer not considerated</param>
+        /// <returns></returns>
+        public double[] ExecuteUpToLayer(double[] input, int layerI)
+        {
+            List<double[]> neuronActivations = new List<double[]>()
+            {
+                input
+            };
+
+            for (int i = 0; i <= layerI; i++)
+            {
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">this layer (input layer is not considered a layer) is set as if this layer output is the parameter layerActivations</param>
+        /// <param name="layerActivations"></param>
+        /// <returns></returns>
+        public double[] ExecuteFromLayer(int index, double[] layerActivations)
+        {
+            List<double[]> neuronActivations = new List<double[]>()
+            {
+                new double[InputLength]
+            };
+
+            for (int i = 0; i < index; i++)
+            {
+                neuronActivations.Add(new double[Neurons[i].Count]);
+            }
+
+            neuronActivations.Add(layerActivations);
+
+            for (int i = index + 1; i < Neurons.Count; i++)
+            {
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        private (double[] layerOutputs, double[] layerLinears) ExecuteLayer(int layerI, List<double[]> previousActivations)
+        {
+            int layerLength = Neurons[layerI].Count;
+            double[] layerOutput = new double[layerLength];
+            double[] layerLinears = new double[layerLength];
+
+            List<Task<(double neuronActivation, double neuronLinear)>> executionTasks = new List<Task<(double, double)>>();
+            AsyncNeuronExecutor[] asyncNeuronExecutors = new AsyncNeuronExecutor[layerLength];
+            for (int j = 0; j < layerLength; j++)
+            {
+                asyncNeuronExecutors[j] = new AsyncNeuronExecutor(Neurons[layerI][j]);
+                executionTasks.Add(asyncNeuronExecutors[j].ExecuteNeuronAsync(previousActivations, ActivationFunction));
+            }
+
+            foreach (var task in executionTasks)
+            {
+                task.Wait();
+            }
+
+            for (int i = 0; i < layerLength; i++)
+                (layerOutput[i], layerLinears[i]) = executionTasks[i].Result;
+
+            return (layerOutput, layerLinears);
+        }
+
+        private class AsyncNeuronExecutor
+        {
+            private readonly Neuron Neuron;
+
+            internal AsyncNeuronExecutor(Neuron neuron)
+            {
+                Neuron = neuron;
+            }
+
+            internal Task<(double neuronActivation, double neuronLinear)> ExecuteNeuronAsync(List<double[]> previousActivations, Activation.ActivationFunctions activationFunction) =>
+                Task.Run(() => Neuron.Execute(previousActivations, activationFunction));
         }
 
         public new string ToString()
@@ -162,25 +304,158 @@ namespace NeatNetwork
                 }
             }
 
-            Neurons = new List<List<Neuron>>();
             string[] layerStrs = principalStrs[2].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
+            List<Task<List<Neuron>>> layerTasks = new List<Task<List<Neuron>>>();
+            AsyncFromStringLayerInstantiator[] layerInstantiators = new AsyncFromStringLayerInstantiator[layerStrs.Length];
             for (int layerIndex = 0; layerIndex < layerStrs.Length; layerIndex++)
             {
-                Neurons.Add(new List<Neuron>());
-                string[] currentLayerNeuronsStrs = layerStrs[layerIndex].Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
-                for (int neuronIndex = 0; neuronIndex < currentLayerNeuronsStrs.Length; neuronIndex++)
-                {
-                    Neurons[layerIndex].Add(new Neuron(currentLayerNeuronsStrs[neuronIndex]));
-                }
+                layerInstantiators[layerIndex] = new AsyncFromStringLayerInstantiator(layerStrs[layerIndex]);
+                layerTasks.Add(layerInstantiators[layerIndex].InstantiateLayerFromStringAsync());
             }
+
+            foreach (var task in layerTasks)
+            {
+                task.Wait();
+            }
+
+            Neurons = new List<List<Neuron>>();
+            foreach (var layerTask in layerTasks)
+            {
+                Neurons.Add(layerTask.Result);
+            }
+        }
+
+        private static List<Neuron> InstantiateLayer(string str)
+        {
+            string[] neuronsStrs = str.Split(new string[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<Task<Neuron>> neuronTasks = new List<Task<Neuron>>();
+            AsyncFromStringNeuronInstantiator[] neuronInstantiators = new AsyncFromStringNeuronInstantiator[neuronsStrs.Length];
+
+            for (int neuronIndex = 0; neuronIndex < neuronsStrs.Length; neuronIndex++)
+            {
+                neuronInstantiators[neuronIndex] = new AsyncFromStringNeuronInstantiator(neuronsStrs[neuronIndex]);
+                neuronTasks.Add(neuronInstantiators[neuronIndex].InstatiateNeuronAsync());
+            }
+
+            foreach (var task in neuronTasks)
+            {
+                task.Wait();
+            }
+
+            List<Neuron> output = new List<Neuron>();
+            foreach (var neuronTask in neuronTasks)
+            {
+                output.Add(neuronTask.Result);
+            }
+
+            return output;
+        }
+
+        private class AsyncFromStringLayerInstantiator
+        {
+            private readonly string str;
+
+            internal AsyncFromStringLayerInstantiator(string str)
+            {
+                this.str = str;
+            }
+
+            internal Task<List<Neuron>> InstantiateLayerFromStringAsync() => Task.Run(() => InstantiateLayer(str));
+        }
+
+        private class AsyncFromStringNeuronInstantiator
+        {
+            private readonly string str;
+
+            internal AsyncFromStringNeuronInstantiator(string str)
+            {
+                this.str = str;
+            }
+
+            internal Task<Neuron> InstatiateNeuronAsync() => Task.Run(() => new Neuron(str));
         }
 
         #region Gradient learning
 
-        static int RandomI = int.MinValue / 2;
+        private static int RandomI = int.MinValue / 2;
+
+        public double SupervisedTrain(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, double testSize = 0.2, int batchSize = 350, bool shuffleData = true)
+        {
+            if (X.Count != y.Count)
+                throw new ArgumentOutOfRangeException("X - y", "X.Count is different than y.Count");
+
+            if (shuffleData)
+                (X, y) = DataManipulation.ShuffleData(X, y);
+
+            ((List<double[]> trainX, List<double[]> trainY), (List<double[]> testX, List<double[]> testY)) = DataManipulation.SliceData(X, y, 1 - testSize);
+
+            int batchCount = trainX.Count / batchSize;
+            int lastBatchSize = trainX.Count % batchSize;
+
+            for (int i = 0; i < batchCount; i++)
+            {
+                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchSize, (i + 1) * batchSize, out double currentMeanCost);
+                Console.WriteLine($"{(i + 1) * batchSize}/{trainX.Count}");
+            }
+            SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, trainX.Count - lastBatchSize, trainX.Count, out _);
+            Console.WriteLine($"{trainX.Count}/{trainX.Count}");
+
+            double meanCost = 0;
+            for (int i = 0; i < testX.Count; i++)
+            {
+                var output = Execute(testX[i]);
+                double cost = Cost.GetCost(output, testY[i], costFunction);
+                meanCost += cost;
+            }
+            meanCost /= testX.Count;
+            return meanCost;
+        }
+
+        public void SupervisedLearningBatch(List<double[]> X, List<double[]> y, Cost.CostFunctions costFunction, double learningRate, int startIndex, int exclusiveEndIndex, out double meanCost)
+        {
+            List<Task<(List<GradientValues[]>, double)>> gradientsTasks = new List<Task<(List<GradientValues[]>, double cost)>>();
+            List<AsyncGradientsCalculator> asyncGradientsCalculators = new List<AsyncGradientsCalculator>();
+            for (int i = startIndex; i < exclusiveEndIndex; i++)
+            {
+                asyncGradientsCalculators.Add(new AsyncGradientsCalculator(X[i], y[i], this));
+                gradientsTasks.Add(asyncGradientsCalculators[i - startIndex].GetGradientsAsync(costFunction));
+            }
+
+            foreach (var task in gradientsTasks)
+            {
+                task.Wait();
+            }
+
+            meanCost = 0;
+            foreach (var task in gradientsTasks)
+            {
+                (List<GradientValues[]> currentGradients, double currentCost) = task.Result;
+
+                SubtractGrads(currentGradients, learningRate);
+                meanCost += currentCost;
+            }
+            meanCost /= gradientsTasks.Count;
+        }
+
+        private class AsyncGradientsCalculator
+        {
+            private readonly double[] X, y;
+            private readonly NN n;
+
+            internal AsyncGradientsCalculator(double[] x, double[] y, NN n)
+            {
+                X = x;
+                this.y = y;
+                this.n = n;
+            }
+
+            internal Task<(List<GradientValues[]> gradients, double cost)> GetGradientsAsync(Cost.CostFunctions costFunction) =>
+                Task.Run(() => n.GetSupervisedGradients(X, y, costFunction));
+        }
 
         /// <summary>
-        /// 
+        /// Supervised learning batch with data selected randomly
         /// </summary>
         /// <param name="X"></param>
         /// <param name="y"></param>
@@ -189,7 +464,7 @@ namespace NeatNetwork
         public double SupervisedLearningBatch(List<double[]> X, List<double[]> y, int batchLength, Cost.CostFunctions costFunction, double learningRate) => SupervisedLearningBatch(X, y, batchLength, costFunction, learningRate, out _);
 
         /// <summary>
-        /// 
+        /// Supervised learning batch with data selected randomly
         /// </summary>
         /// <param name="X"></param>
         /// <param name="y"></param>
@@ -222,7 +497,13 @@ namespace NeatNetwork
             return meanCost;
         }
 
-        public List<GradientValues[]> GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction, out double meanCost)
+        internal (List<GradientValues[]> gradients, double cost) GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction)
+        {
+            var gradients = GetSupervisedGradients(X, y, costFunction, out double meanCost);
+            return (gradients, meanCost);
+        }
+
+        internal List<GradientValues[]> GetSupervisedGradients(double[] X, double[] y, Cost.CostFunctions costFunction, out double meanCost)
         {
             double[] output = Execute(X, out List<double[]> neuronLinears, out List<double[]> neuronActivations);
             double[] costGradients = Derivatives.DerivativeOf(output, y, costFunction);
@@ -232,7 +513,7 @@ namespace NeatNetwork
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="linearFunctions">This doesn't include input</param>
         /// <param name="neuronActivations">Includes input</param>
@@ -241,7 +522,7 @@ namespace NeatNetwork
         public List<GradientValues[]> GetGradients(List<double[]> linearFunctions, List<double[]> neuronActivations, double[] costs) => GetGradients(linearFunctions, neuronActivations, costs, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="linearFunctions">Doesn't include input</param>
         /// <param name="neuronActivations">Includes input</param>
@@ -257,7 +538,6 @@ namespace NeatNetwork
                 output.Add(new GradientValues[layerLength]);
             }
 
-            inputCosts = new double[neuronActivations[0].Length];
             List<double[]> costGrid = ValueGeneration.GetNetworkCostGrid(InputLength, Shape, costs);
 
             for (int layerIndex = Neurons.Count - 1; layerIndex >= 0; layerIndex--)
@@ -284,6 +564,24 @@ namespace NeatNetwork
             return output;
         }
 
+        class AsyncNeuronGradientsCalculator
+        {
+            readonly Neuron Neuron;
+            readonly double NeuronCost, NeuronLinear;
+            readonly List<double[]> NeuronsActivations;
+
+            internal AsyncNeuronGradientsCalculator(Neuron neuron, double neuronCost, double neuronLinear, List<double[]> neuronsActivations)
+            {
+                Neuron = neuron;
+                NeuronCost = neuronCost;
+                NeuronLinear = neuronLinear;
+                NeuronsActivations = neuronsActivations;
+            }
+
+            internal Task<GradientValues> GetNeuronGradientsAsync(Activation.ActivationFunctions activationFunction)
+                => Task.Run(() => Neuron.GetGradients(NeuronCost, NeuronLinear, NeuronsActivations, activationFunction));
+        }
+
         public void SubtractGrads(List<GradientValues[]> gradients, double learningRate)
         {
             for (int i = 0; i < LayerCount; i++)
@@ -291,7 +589,7 @@ namespace NeatNetwork
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
         }
 
-        #endregion
+        #endregion Gradient learning
 
         #region Evolution learning
 
@@ -326,7 +624,7 @@ namespace NeatNetwork
                 AddNewLayer(insertionIndex, 1);
         }
 
-        internal void AddNewLayer(int layerInsertionIndex, int layerLength) 
+        internal void AddNewLayer(int layerInsertionIndex, int layerLength)
         {
             for (int i = layerInsertionIndex; i < Neurons.Count; i++)
                 for (int j = 0; j < Neurons[i].Count; j++)
@@ -353,7 +651,7 @@ namespace NeatNetwork
             MaxMutationGrid[layerInsertionIndex].Add(InitialMaxMutationValue);
         }
 
-        #endregion
+        #endregion Evolution learning
 
         private int[] GetShape()
         {
@@ -363,5 +661,7 @@ namespace NeatNetwork
 
             return output;
         }
+
+        public NN Clone() => (NN)MemberwiseClone();
     }
 }

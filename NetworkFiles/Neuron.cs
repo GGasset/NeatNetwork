@@ -29,6 +29,12 @@ namespace NeatNetwork.NetworkFiles
             
         }
 
+        internal (double neuronActivation, double neuronLinear) Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction)
+        {
+            double neuronActivation = Execute(previousLayersActivations, activationFunction, out double neuronLinear);
+            return (neuronActivation, neuronLinear);
+        }
+
         internal double Execute(List<double[]> previousLayersActivations, Activation.ActivationFunctions activationFunction, out double linearFunction)
         {
             linearFunction = 0;
@@ -138,6 +144,13 @@ namespace NeatNetwork.NetworkFiles
             string[] fieldStrs = str.Split(new char[] { '^' });
             Bias = Convert.ToDouble(fieldStrs[0]);
             Connections = new NeuronConnectionsInfo(fieldStrs[1]);
+        }
+
+        public Neuron Clone()
+        {
+            Neuron neuron = (Neuron)MemberwiseClone();
+            neuron.Connections = Connections.Clone();
+            return neuron;
         }
     }
 }

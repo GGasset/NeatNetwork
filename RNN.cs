@@ -1,11 +1,10 @@
-﻿using System;
+﻿using NeatNetwork.Libraries;
+using NeatNetwork.NetworkFiles;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using NeatNetwork.NetworkFiles;
-using NeatNetwork.Libraries;
 using static NeatNetwork.Libraries.Activation;
 
 namespace NeatNetwork
@@ -38,7 +37,7 @@ namespace NeatNetwork
         internal double MutationChance;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="shape">Includes input layer</param>
         /// <param name="layerTypes">Doesn't include input layer</param>
@@ -53,11 +52,13 @@ namespace NeatNetwork
         {
             ActivationFunction = activationFunction;
             Neurons = new List<List<NeuronHolder>>();
+            MaxMutationGrid = new List<List<double>>();
             for (int i = 1; i < shape.Length; i++)
             {
-                Neurons.Add(new List<NeuronHolder>());
-                for (int j = 0; j < shape[i]; j++)
-                    Neurons[i - 1].Add(new NeuronHolder(layerTypes[i - 1], i, shape[i - 1], startingBias, maxWeight, minWeight, weightClosestTo0));
+                (List<NeuronHolder> layerNeurons, List<double> layerMaxMutations) = InstantiateLayer(layerTypes[i - 1], i, shape[i], shape[i - 1], initialMaxMutationGridValue,
+                    startingBias, minWeight, weightClosestTo0, maxWeight);
+                Neurons.Add(layerNeurons);
+                MaxMutationGrid.Add(layerMaxMutations);
             }
 
             InputLength = shape[0];
@@ -74,14 +75,83 @@ namespace NeatNetwork
             FieldMaxMutation = fieldMaxMutation;
             MaxMutationOfFieldMaxMutation = maxMutationOfFieldMaxMutation;
             MaxMutationOfMutationValueOfFieldMaxMutation = maxMutationOfMutationValueOfFieldMaxMutation;
-
-            // TODO: initialize max mutation grid
         }
 
-        public double[] Execute(double[] input) => Execute(input, out _,  out _);
+        private class AsyncLayerInstatiator
+        {
+            private readonly NeuronHolder.NeuronTypes LayerType;
+            private readonly int LayerIndex;
+            private readonly int LayerLength;
+            private readonly int PreviousLayerLength;
+
+            internal AsyncLayerInstatiator(NeuronHolder.NeuronTypes layerType, int layerIndex, int layerLength, int previousLayerLength)
+            {
+                LayerType = layerType;
+                LayerIndex = layerIndex;
+                LayerLength = layerLength;
+                PreviousLayerLength = previousLayerLength;
+            }
+
+            internal Task<(List<NeuronHolder> neurons, List<double> layerMaxMutation)> InstatiateLayerAsync(double initialMaxMutationValue, double bias, double minWeight, double weightClosestTo0, double maxWeight)
+                => Task.Run(() => InstantiateLayer(LayerType, LayerIndex, LayerLength, PreviousLayerLength, initialMaxMutationValue, bias, minWeight, weightClosestTo0, maxWeight));
+        }
+
+        private static (List<NeuronHolder>, List<double> layerMaxMutations) InstantiateLayer(NeuronHolder.NeuronTypes neuronType, int layerIndex, int layerLength, int previousLayerLength, double initialMaxMutationValue, 
+            double bias, double minWeigth, double weightClosestTo0, double maxWeight)
+        {
+            List<Task<NeuronHolder>> neuronTasks = new List<Task<NeuronHolder>>();
+            for (int i = 0; i < layerLength; i++)
+                neuronTasks.Add(Task.Run(() => new NeuronHolder(neuronType, layerIndex, previousLayerLength, bias, maxWeight, minWeigth, weightClosestTo0)));
+
+            int maxMutationPartitionLength = 3000;
+            int maxMutationPartitions = layerLength / maxMutationPartitionLength;
+            int lastMaxMutationPartitionLength = layerLength % maxMutationPartitionLength;
+
+            List<Task<List<double>>> maxMutationPartitionTasks = new List<Task<List<double>>>();
+            for (int i = 0; i < maxMutationPartitions; i++)
+            {
+                maxMutationPartitionTasks.Add(Task.Run(() => InstantiateMaxMutationList(initialMaxMutationValue, maxMutationPartitionLength)));
+            }
+            maxMutationPartitionTasks.Add(Task.Run(() => InstantiateMaxMutationList(initialMaxMutationValue, lastMaxMutationPartitionLength)));
+
+            foreach (var neuronTask in neuronTasks)
+            {
+                neuronTask.Wait();
+            }
+            foreach (var maxMutationListPartitionTask in maxMutationPartitionTasks)
+            {
+                maxMutationListPartitionTask.Wait();
+            }
+
+            List<NeuronHolder> neurons = new List<NeuronHolder>();
+            foreach (var neuronTask in neuronTasks)
+            {
+                neurons.Add(neuronTask.Result);
+            }
+
+            List<double> layerMaxMutations = new List<double>();
+            foreach (var maxMutationListPartitionTask in maxMutationPartitionTasks)
+            {
+                layerMaxMutations.AddRange(maxMutationListPartitionTask.Result);
+            }
+
+            return (neurons, layerMaxMutations);
+        }
+
+        private static List<double> InstantiateMaxMutationList(double maxMutationValue, int listLength)
+        {
+            var list = new List<double>();
+            for (int i = 0; i < listLength; i++)
+            {
+                list.Add(maxMutationValue);
+            }
+            return list;
+        }
+
+        public double[] Execute(double[] input) => Execute(input, out _, out _);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="input"></param>
         /// <param name="networkExecutionValues"></param>
@@ -97,31 +167,91 @@ namespace NeatNetwork
 
             for (int i = 0; i < Length; i++)
             {
+                (double[] layerOutput, NeuronExecutionValues[] layerExecutionValues) = ExecuteLayer(i, neuronActivations);
 
-                int layerLength = Neurons[i].Count;
-                neuronActivations.Add(new double[layerLength]);
-                networkExecutionValues.Add(new NeuronExecutionValues[layerLength]);
-
-                for (int j = 0; j < layerLength; j++)
-                {
-                    neuronActivations[i + 1][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out NeuronExecutionValues neuronExecutionValues);
-                    networkExecutionValues[i][j] = neuronExecutionValues;
-                }
+                neuronActivations.Add(layerOutput);
+                networkExecutionValues.Add(layerExecutionValues);
             }
 
             return neuronActivations[Length];
         }
 
+        private (double[] output, NeuronExecutionValues[] executionValues) ExecuteLayer(int i, List<double[]> neuronActivations)
+        {
+            int layerLength = Neurons[i].Count;
+            Task<(double, NeuronExecutionValues)>[] tasks = new Task<(double, NeuronExecutionValues)>[layerLength];
+            AsyncNeuronExecutor[] asyncExecutors = new AsyncNeuronExecutor[layerLength];
+
+            for (int j = 0; j < layerLength; j++)
+            {
+                asyncExecutors[j] = new AsyncNeuronExecutor(neuronActivations, Neurons[i][j]);
+                tasks[j] = asyncExecutors[j].ExecuteAsync(ActivationFunction);
+            }
+
+            foreach (var task in tasks)
+            {
+                task.Wait();
+            }
+            
+            double[] output = new double[layerLength];
+            NeuronExecutionValues[] executionValues = new NeuronExecutionValues[layerLength];
+
+            for (int j = 0; j < layerLength; j++)
+                (output[j], executionValues[j]) = tasks[j].Result;
+
+            return (output, executionValues);
+        }
+
+        private class AsyncNeuronExecutor
+        {
+            private readonly List<double[]> neuronActivations;
+            private readonly NeuronHolder neuron;
+
+            internal AsyncNeuronExecutor(List<double[]> neuronActivations, NeuronHolder neuron)
+            {
+                this.neuronActivations = neuronActivations;
+                this.neuron = neuron;
+            }
+
+            internal Task<(double output, NeuronExecutionValues executionValues)> ExecuteAsync(ActivationFunctions activationFunction) =>
+                Task.Run(() => neuron.Execute(neuronActivations, activationFunction));
+        }
+
         /// <summary>
-        /// 
+        /// Used for auto encoder networks
         /// </summary>
-        /// <param name="layerI"></param>
+        /// <param name="layerI">layerI is inclusive and doesn't include input layer</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException">input length must equal layer layerI length</exception>
-        public double[] ExecuteFromLayer(int layerI, double[] input)
+        public double[] ExecuteUpToLayer(int layerI, double[] input)
         {
-            if (Neurons[layerI].Count != input.Length) throw new ArgumentException("input length doesn't match layer length");
+            if (layerI >= Length || Neurons[layerI].Count != input.Length) throw new ArgumentOutOfRangeException();
+            
+            var neuronActivations = new List<double[]>()
+            {
+                input
+            };
+
+            for (int i = 0; i <= layerI; i++)
+            {
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+
+                neuronActivations.Add(layerOutput);
+            }
+
+            return neuronActivations[neuronActivations.Count - 1];
+        }
+
+        /// <summary>
+        /// Used for auto encoder networks
+        /// </summary>
+        /// <param name="layerI">doesn't include input layer</param>
+        /// <param name="layerActivations"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">input length must equal layer layerI length</exception>
+        public double[] ExecuteFromLayer(int layerI, double[] layerActivations)
+        {
+            if (Neurons[layerI].Count != layerActivations.Length) throw new ArgumentOutOfRangeException("input length doesn't match layer length");
 
             var neuronActivations = new List<double[]>()
             {
@@ -134,19 +264,107 @@ namespace NeatNetwork
                 neuronActivations.Add(new double[layerLength]);
             }
 
-            for (int i = layerI; i < Length; i++)
+            neuronActivations.Add(layerActivations);
+
+            for (int i = layerI + 1; i < Length; i++)
             {
-                int layerLength = Neurons[i].Count;
-                neuronActivations.Add(new double[layerLength]);
-                for (int j = 0; j < layerLength; j++)
-                {
-                    neuronActivations[i][j] = Neurons[i][j].Execute(neuronActivations, ActivationFunction, out _);
-                }
+                (double[] layerOutput, _) = ExecuteLayer(i, neuronActivations);
+                neuronActivations.Add(layerOutput);
             }
             return neuronActivations[Length];
         }
 
         #region Gradient Learning
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="y"></param>
+        /// <param name="costFunction"></param>
+        /// <param name="learningRate"></param>
+        /// <param name="testSize"></param>
+        /// <param name="batchLength">beware that it consumes a lot of memory as this number increases</param>
+        /// <param name="shuffleData"></param>
+        /// <returns>Test cost</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Test size must be between 0 and 1</exception>
+        public double SupervisedTrain(List<List<double[]>> X, List<List<double[]>> y, Cost.CostFunctions costFunction, double learningRate, double testSize = 0.15, int batchLength = 350, bool shuffleData = true)
+        {
+            if (X.Count != y.Count) throw new ArgumentException("X.Count doesn't equal y.Count");
+            if (testSize > 1 || testSize < 0) throw new ArgumentOutOfRangeException("Test size doesn't fall between 0 and 1");
+
+            if (shuffleData)
+                (X, y) = DataManipulation.ShuffleData(X, y);
+
+            ((List<List<double[]>> trainX, List<List<double[]>> trainY), (List<List<double[]>> testX, List<List<double[]>> testY)) = DataManipulation.SliceData(X, y, 1 - testSize);
+            
+            int batchCount = trainX.Count / batchLength;
+            int lastBatchLength = trainX.Count % batchLength;
+
+            // Training
+            DeleteMemory();
+            for (int i = 0; i < batchCount; i++)
+            {
+                SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, i * batchLength, batchLength);
+            }
+            SupervisedLearningBatch(trainX, trainY, costFunction, learningRate, batchCount * batchLength, lastBatchLength);
+
+            //Testing
+            double meanCost = 0;
+            int totalTimeSteps = 0;
+            for (int i = 0; i < testX.Count; i++)
+            {
+                for (int j = 0; j < testX[i].Count; j++)
+                {
+                    double[] currentOutput = Execute(testX[i][j]);
+                    double currentCost = Cost.GetCost(currentOutput, testY[i][j], costFunction);
+                    meanCost += currentCost;
+                    totalTimeSteps++;
+                }
+                DeleteMemory();
+            }
+            meanCost /= totalTimeSteps;
+            return meanCost;
+        }
+
+        public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, Cost.CostFunctions costFunction, double learningRate, int startingIndex, int batchLength)
+        {
+            AsyncGradientCalculator[] gradientCalculators = new AsyncGradientCalculator[batchLength];
+            List<Task<List<List<NeuronHolder>>>> gradientTasks = new List<Task<List<List<NeuronHolder>>>>();
+            for (int i = 0; i < batchLength; i++)
+            {
+                gradientCalculators[i] = new AsyncGradientCalculator(X[i + startingIndex], y[i + startingIndex], this);
+                gradientTasks.Add(gradientCalculators[i].GetGradientsAsync(costFunction));
+            }
+
+            foreach (var task in gradientTasks)
+            {
+                task.Wait();
+            }
+
+            foreach (var gradientTask in gradientTasks)
+                SubtractGrads(gradientTask.Result, learningRate);
+        }
+
+        private class AsyncGradientCalculator
+        {
+            private RNN n;
+            private readonly List<double[]> X, y;
+
+            internal AsyncGradientCalculator(List<double[]> x, List<double[]> y, RNN n)
+            {
+                X = x;
+                this.y = y;
+                this.n = n;
+            }
+
+            internal Task<List<List<NeuronHolder>>> GetGradientsAsync(Cost.CostFunctions costFunction)
+            {
+                n = n.Clone();
+                return Task.Run(() => n.GetSupervisedLearningGradients(X, y, costFunction, false));
+            }
+        }
 
         public void SupervisedLearningBatch(List<List<double[]>> X, List<List<double[]>> y, double batchSize, Cost.CostFunctions costFunction, double learningRate)
         {
@@ -214,9 +432,8 @@ namespace NeatNetwork
         internal List<List<NeuronHolder>> GetGradients(List<double[]> costGradients, List<List<NeuronExecutionValues[]>> executionValues, List<List<double[]>> neuronActivations) =>
             GetGradients(costGradients, executionValues, neuronActivations, out _);
 
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="costGradients"></param>
         /// <param name="executionValues">3D Grid in which time is the highest dimension and then layersStrs and finally neurons</param>
@@ -270,7 +487,7 @@ namespace NeatNetwork
                     Neurons[i][j].SubtractGrads(gradients[i][j], learningRate);
         }
 
-        #endregion
+        #endregion Gradient Learning
 
         #region Evolution learning
 
@@ -281,7 +498,7 @@ namespace NeatNetwork
                 Neurons[0][i].AddConnection(0, previousInputLength, ValueGeneration.GenerateWeight(MinWeight, MaxWeight, WeightClosestTo0));
         }
 
-        #endregion
+        #endregion Evolution learning
 
         /// <summary>
         /// For proper training use only after each train step, it isn't neccesary to use after each train step
@@ -331,5 +548,23 @@ namespace NeatNetwork
                 shape[i] = Neurons[i].Count;
             return shape;
         }
+
+        public RNN Clone()
+        {
+            RNN output = (RNN)MemberwiseClone();
+            output.Neurons = new List<List<NeuronHolder>>();
+            output.MaxMutationGrid = MaxMutationGrid;
+            for (int i = 0; i < Neurons.Count; i++)
+            {
+                output.Neurons.Add(new List<NeuronHolder>());
+                output.MaxMutationGrid.Add(new List<double>());
+                for (int j = 0; j < Neurons[i].Count; j++)
+                {
+                    output.Neurons[i].Add(Neurons[i][j].Clone());
+                    output.MaxMutationGrid[i].Add(MaxMutationGrid[i][j]);
+                }
+            }
+            return output;
+        } 
     }
 }

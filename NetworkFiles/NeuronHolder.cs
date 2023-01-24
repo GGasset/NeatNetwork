@@ -35,6 +35,12 @@ namespace NeatNetwork.NetworkFiles
             }
         }
 
+        internal (double output, NeuronExecutionValues executionValues) Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction)
+        {
+            double output = Execute(previousNeuronsActivations, activationFunction, out NeuronExecutionValues executionValues);
+            return (output, executionValues);
+        }
+
         internal double Execute(List<double[]> previousNeuronsActivations, Activation.ActivationFunctions activationFunction, out NeuronExecutionValues ExecutionValues)
         {
             double activation;
@@ -194,6 +200,24 @@ namespace NeatNetwork.NetworkFiles
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public NeuronHolder Clone()
+        {
+            NeuronHolder output = (NeuronHolder)MemberwiseClone();
+            output.NeuronType = NeuronType;
+            switch (NeuronType)
+            {
+                case NeuronTypes.Neuron:
+                    output.Neuron = Neuron.Clone();
+                    break;
+                case NeuronTypes.LSTM:
+                    output.LSTMNeuron = LSTMNeuron.Clone();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return output;
         }
 
         public enum NeuronTypes
