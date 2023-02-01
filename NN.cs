@@ -323,6 +323,8 @@ namespace NeatNetwork
             {
                 Neurons.Add(layerTask.Result);
             }
+
+            InputLength = Neurons[0][0].ConnectionsLength;
         }
 
         private static List<Neuron> InstantiateLayer(string str)

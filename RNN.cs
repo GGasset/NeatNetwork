@@ -539,6 +539,8 @@ namespace NeatNetwork
                 foreach (var neuronStr in neuronsStrs)
                     Neurons[i].Add(new NeuronHolder(neuronStr));
             }
+
+            InputLength = Neurons[0][0].Connections.Length;
         }
 
         private int[] GetShape()
