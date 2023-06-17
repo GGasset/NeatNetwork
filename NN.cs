@@ -3,6 +3,7 @@ using NeatNetwork.NetworkFiles;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using static NeatNetwork.Libraries.ValueGeneration;
@@ -247,7 +248,7 @@ namespace NeatNetwork
                 Task.Run(() => Neuron.Execute(previousActivations, activationFunction));
         }
 
-        public new string ToString()
+        public override string ToString()
         {
             string str = "";
 
@@ -272,6 +273,41 @@ namespace NeatNetwork
                 str += "\n-\n";
             }
             return str;
+        }
+
+        public NN(StreamReader file)
+        {
+            string currentLine;
+
+            InitialMaxMutationValue = Convert.ToDouble(file.ReadLine());
+            MaxWeight = Convert.ToDouble(file.ReadLine());
+            MinWeight = Convert.ToDouble(file.ReadLine());
+            WeightClosestTo0 = Convert.ToDouble(file.ReadLine());
+            NewBiasValue = Convert.ToDouble(file.ReadLine());
+            NewNeuronChance = Convert.ToDouble(file.ReadLine());
+            NewLayerChance = Convert.ToDouble(file.ReadLine());
+            FieldMaxMutation = Convert.ToDouble(file.ReadLine());
+            MaxMutationOFieldMaxMutation = Convert.ToDouble(file.ReadLine());
+            MaxMutationOfMutationValueOfFieldMaxMutation = Convert.ToDouble(file.ReadLine());
+            MutationChance = Convert.ToDouble(file.ReadLine());
+            ActivationFunction = (Activation.ActivationFunctions)Enum.Parse(typeof(Activation.ActivationFunctions), file.ReadLine());
+
+
+            if (file.ReadLine() != "HIHI")
+                throw new FormatException("The readed file is not from the app.");
+            MaxMutationGrid = new List<List<double>>();
+
+
+            string maxMutationGridStr = "";
+            while ((currentLine = file.ReadLine()) != "HIHI")
+            {
+                maxMutationGridStr = currentLine + "\n";
+            }
+
+            MaxMutationGrid = InstantiateMaxMutationGrid(maxMutationGridStr);
+
+
+
         }
 
         public NN(string str)
@@ -320,10 +356,10 @@ namespace NeatNetwork
                 maxMutationGrid.Add(new List<double>());
                 string[] currentLayerNeuronsMaxMutationsStrs = layers[i].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var neuronMaxMutationStr in currentLayerNeuronsMaxMutationsStrs)
-            {
+                {
                     maxMutationGrid[i].Add(Convert.ToDouble(neuronMaxMutationStr));
+                }
             }
-        }
             return maxMutationGrid;
         }
 
