@@ -15,11 +15,11 @@ namespace NeatNetwork
         internal Activation.ActivationFunctions ActivationFunction;
 
         /// <summary>
-        /// Input layer isn't instatiated
+        /// Input layer isn't instantiated
         /// </summary>
         internal List<List<Neuron>> Neurons;
 
-        internal int InputLength;
+        public readonly int InputLength;
         public int LayerCount => Neurons.Count;
         public int[] Shape => GetShape();
 
