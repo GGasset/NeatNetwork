@@ -292,17 +292,7 @@ namespace NeatNetwork
             MutationChance = Convert.ToDouble(fieldsStrs[10]);
             ActivationFunction = (Activation.ActivationFunctions)Enum.Parse(typeof(Activation.ActivationFunctions), fieldsStrs[11]);
 
-            MaxMutationGrid = new List<List<double>>();
-            string[] maxMutationsLayersStrs = principalStrs[1].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < maxMutationsLayersStrs.Length; i++)
-            {
-                MaxMutationGrid.Add(new List<double>());
-                string[] currentLayerNeuronsMaxMutationsStrs = maxMutationsLayersStrs[i].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var neuronMaxMutationStr in currentLayerNeuronsMaxMutationsStrs)
-                {
-                    MaxMutationGrid[i].Add(Convert.ToDouble(neuronMaxMutationStr));
-                }
-            }
+            MaxMutationGrid = InstantiateMaxMutationGrid(principalStrs[1]);
 
             string[] layerStrs = principalStrs[2].Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
             List<Task<List<Neuron>>> layerTasks = new List<Task<List<Neuron>>>();
@@ -313,16 +303,28 @@ namespace NeatNetwork
                 layerTasks.Add(layerInstantiators[layerIndex].InstantiateLayerFromStringAsync());
             }
 
+            Neurons = new List<List<Neuron>>();
             foreach (var task in layerTasks)
             {
                 task.Wait();
+                Neurons.Add(task.Result);
             }
+        }
 
-            Neurons = new List<List<Neuron>>();
-            foreach (var layerTask in layerTasks)
+        private static List<List<double>> InstantiateMaxMutationGrid(string str)
+        {
+            List<List<double>> maxMutationGrid = new List<List<double>>();
+            string[] layers = str.Split(new string[] { "\n-\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < layers.Length; i++)
             {
-                Neurons.Add(layerTask.Result);
+                maxMutationGrid.Add(new List<double>());
+                string[] currentLayerNeuronsMaxMutationsStrs = layers[i].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var neuronMaxMutationStr in currentLayerNeuronsMaxMutationsStrs)
+            {
+                    maxMutationGrid[i].Add(Convert.ToDouble(neuronMaxMutationStr));
             }
+        }
+            return maxMutationGrid;
         }
 
         private static List<Neuron> InstantiateLayer(string str)
@@ -338,15 +340,11 @@ namespace NeatNetwork
                 neuronTasks.Add(neuronInstantiators[neuronIndex].InstatiateNeuronAsync());
             }
 
+            List<Neuron> output = new List<Neuron>();
             foreach (var task in neuronTasks)
             {
                 task.Wait();
-            }
-
-            List<Neuron> output = new List<Neuron>();
-            foreach (var neuronTask in neuronTasks)
-            {
-                output.Add(neuronTask.Result);
+                output.Add(task.Result);
             }
 
             return output;
