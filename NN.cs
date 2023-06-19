@@ -302,7 +302,7 @@ namespace NeatNetwork
             string maxMutationGridStr = "";
             while ((currentLine = file.ReadLine()) != currentSeparator)
             {
-                maxMutationGridStr = currentLine + "\n";
+                maxMutationGridStr = "\n" + currentLine + "\n";
             }
 
             MaxMutationGrid = InstantiateMaxMutationGrid(maxMutationGridStr);
@@ -320,8 +320,10 @@ namespace NeatNetwork
 
                 isSeparator = !isSeparator;
 
-                Neurons = new List<List<Neuron>>();
-                Neurons.Add(InstantiateLayer(currentLine));
+                Neurons = new List<List<Neuron>>
+                {
+                    InstantiateLayer(currentLine)
+                };
             } 
             while ((currentLine = file.ReadLine()) != null);
         }
