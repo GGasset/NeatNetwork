@@ -94,6 +94,8 @@ namespace NeatNetwork.NetworkFiles
             this.Weights = weights;
         }
 
+        #region Evolution Learning
+
         /// <summary>
         /// Layer 0 is input layer
         /// </summary>
@@ -137,14 +139,6 @@ namespace NeatNetwork.NetworkFiles
                 AddNewConnection(layerInsertionIndex + 1, i, minWeight, maxWeight, weightClosestTo0);
             }
         }
-        
-        internal void SubtractGrads(NeuronConnectionsInfo gradients, double learningRate) => SubtractGrads(gradients.Weights, learningRate);
-
-        internal void SubtractGrads(List<double> weightGradients, double learningRate)
-        {
-            for (int i = 0; i < Weights.Count; i++)
-                Weights[i] -= weightGradients[i] * learningRate;
-        }
 
         internal void Evolve(double maxVariation, double mutationChance)
         {
@@ -153,6 +147,21 @@ namespace NeatNetwork.NetworkFiles
                 Weights[i] += ValueGeneration.EvolveValue(maxVariation, mutationChance);
             }
         }
+
+        #endregion
+
+        #region Gradient Learning
+
+        internal void SubtractGrads(NeuronConnectionsInfo gradients, double learningRate) => SubtractGrads(gradients.Weights, learningRate);
+
+        internal void SubtractGrads(List<double> weightGradients, double learningRate)
+        {
+            for (int i = 0; i < Weights.Count; i++)
+                Weights[i] -= weightGradients[i] * learningRate;
+        }
+
+        #endregion
+
 
         internal new string ToString()
         {
