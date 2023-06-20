@@ -131,6 +131,11 @@ namespace NeatNetwork.NetworkFiles
 
         #endregion
 
+        internal Task<string> ToStringAsync()
+        {
+            return Task.Run(() => ToString());
+        }
+        
         internal new string ToString()
         {
             string str = "";
