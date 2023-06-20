@@ -287,14 +287,6 @@ namespace NeatNetwork
                 str += "\n";
             }
 
-            /*foreach (var layer in Neurons)
-            {
-                foreach (var neuron in layer)
-                {
-                    str += neuron.ToString() + "_";
-                }
-                str += "\n";
-            }*/
             return str;
         }
 
