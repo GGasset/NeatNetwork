@@ -371,9 +371,9 @@ namespace NeatNetwork.Groupings
         {
             Range inputRange = connection.FormatRange(OutputLength, networkOutput.Length, true);
             Range outputRange = connection.FormatRange(OutputLength, networkOutput.Length, false);
-            for (int networkInputI = inputRange.FromI; networkInputI < inputRange.ToI; networkInputI++)
+            for (int networkInputI = inputRange.FromI; networkInputI <= inputRange.ToI; networkInputI++)
             {
-                for (int inputI = outputRange.FromI; inputI < outputRange.ToI; inputI++)
+                for (int inputI = outputRange.FromI; inputI <= outputRange.ToI; inputI++)
                 {
                     Output[networkInputI] += networkOutput[inputI] * connection.Weights[networkInputI - inputRange.FromI][inputI - outputRange.FromI];
                 }
